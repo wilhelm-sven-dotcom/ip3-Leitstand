@@ -567,6 +567,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/rechnungen/{beleg_id}/ablage-wiederholen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ablage eines festgeschriebenen Belegs nachholen
+         * @description PDF erneut erzeugen und im Rechnungsordner ablegen.
+         *
+         *     Für den Fall, dass die Ablage beim Festschreiben scheiterte (Ordner nicht erreichbar). Am
+         *     Beleg ändert sich dabei nichts: der Hash deckt die Belegdaten ab, nicht die PDF-Bytes.
+         */
+        post: operations["rechnungAblageWiederholen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/rechnungen/{beleg_id}/festschreiben": {
         parameters: {
             query?: never;
@@ -660,6 +683,30 @@ export interface paths {
          * @description Storno als Entwurf. Wirksam wird er erst mit dem Festschreiben (PLAN §6.4).
          */
         post: operations["rechnungStorno"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/{beleg_id}/vorschau": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Beleg als PDF ansehen
+         * @description PDF eines Belegs – für den Entwurf die Vorschau, für den festgeschriebenen die Ansicht.
+         *
+         *     Immer neu gerendert, nie aus dem Rechnungsordner gelesen: das PDF eines festgeschriebenen
+         *     Belegs entsteht aus den gespeicherten Daten und ist deshalb reproduzierbar, und eine Datei,
+         *     die jemand im OneDrive ersetzt hat, soll hier nicht als Beleg erscheinen.
+         */
+        get: operations["rechnungVorschau"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4111,6 +4158,65 @@ export interface operations {
             };
         };
     };
+    rechnungAblageWiederholen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                beleg_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     rechnungFestschreiben: {
         parameters: {
             query?: never;
@@ -4467,6 +4573,58 @@ export interface operations {
             };
             /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rechnungVorschau: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                beleg_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung rechnungen.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg nicht gefunden */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

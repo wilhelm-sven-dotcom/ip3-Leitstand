@@ -69,9 +69,19 @@ class PfadEinstellungen(BaseModel):
     # darf nach der Übernahme leer bleiben.
     migration: Path | None = None
     frontend: Path | None = None
+    # Corporate-Design-Assets (Schriften, Logos) für das Rechnungs-PDF. Leer heißt: der Ordner
+    # `assets/cd` neben der Anwendung. Nur zu setzen, wenn die Assets im Betrieb woanders liegen.
+    cd_assets: Path | None = None
 
     @field_validator(
-        "backup", "rechnungen", "datev", "kalkulation", "migration", "frontend", mode="before"
+        "backup",
+        "rechnungen",
+        "datev",
+        "kalkulation",
+        "migration",
+        "frontend",
+        "cd_assets",
+        mode="before",
     )
     @classmethod
     def leer_als_none(cls, wert: Any) -> Any:
@@ -156,10 +166,48 @@ class AnmeldungEinstellungen(BaseModel):
         return wert
 
 
+class BelegtexteEinstellungen(BaseModel):
+    """Textbausteine des Rechnungs-PDF (Entscheidung 17).
+
+    Wörtlich aus der bestehenden Word-Vorlage übernommen und hier hinterlegt, damit sich der Ton
+    ohne Codeänderung anpassen lässt. Die Platzhalter in Klammern werden beim Rendern ersetzt:
+    ``{anrede}``, ``{objekt}``, ``{faellig_am}``, ``{zahlungsziel_tage}``.
+
+    Die Pflichthinweise zur Umsatzsteuer stehen **nicht** hier, sondern in
+    ``app/dienste/belege.py``: sie sind steuerlich verlangt und gehören nicht zu den Texten, die
+    man nach Belieben umformuliert.
+    """
+
+    anrede_firma: str = "Sehr geehrte Damen und Herren,"
+    anrede_privat: str = "Sehr geehrte Damen und Herren,"
+    einleitung_abschlag: str = (
+        "wir danken für Ihr Vertrauen in unsere für Sie erbrachten Leistungen und erlauben uns, "
+        "diese vereinbarungsgemäß wie folgt zu verrechnen:"
+    )
+    einleitung_schluss: str = (
+        "wir danken für Ihr Vertrauen und rechnen die erbrachten Leistungen nach Fertigstellung "
+        "wie folgt endgültig ab:"
+    )
+    einleitung_service: str = (
+        "wir danken für Ihr Vertrauen in unsere für Sie erbrachten Serviceleistungen und erlauben "
+        "uns, diese wie folgt zu verrechnen:"
+    )
+    einleitung_ab: str = (
+        "wir danken für Ihren Auftrag und bestätigen Ihnen den Umfang und die vereinbarten "
+        "Zahlungen wie folgt:"
+    )
+    zahlungsbedingung: str = (
+        "Wir bitten Sie, den Rechnungsbetrag ohne Abzug bis zum {faellig_am} "
+        "({zahlungsziel_tage} Tage) auf das unten genannte Konto zu leisten."
+    )
+    grussformel: str = "Mit freundlichen Grüßen"
+
+
 class FakturierungEinstellungen(BaseModel):
     zahlungsziel_tage: int = 14
     skonto_toleranz_prozent: float = 3.0
     kleinbetrag_grenze_cent: int = 25000
+    texte: BelegtexteEinstellungen = Field(default_factory=BelegtexteEinstellungen)
 
 
 class JobEinstellungen(BaseModel):

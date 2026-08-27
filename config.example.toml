@@ -27,6 +27,9 @@ kalkulation = 'C:\Users\<nutzer>\OneDrive - ip3\03_Kalkulation'
 migration = 'D:\ip3-leitstand\migration-quellen'
 # Ausgelieferte Oberfläche; leer lassen, solange mit dem Vite-Entwicklungsserver gearbeitet wird.
 frontend = ""
+# Corporate-Design-Assets (Schriften, Logos) fuer das Rechnungs-PDF. Leer heisst: der Ordner
+# assets/cd neben der Anwendung. Nur setzen, wenn die Assets im Betrieb woanders liegen.
+cd_assets = ""
 
 [firma]
 # Pflichtangaben für den Rechnungskopf nach § 14 UStG. Übernommen aus der bestehenden
@@ -72,6 +75,20 @@ zahlungsziel_tage = 14
 skonto_toleranz_prozent = 3.0
 # Kleinbetragsrechnungen unter diesem Bruttobetrag (in Cent) bleiben ohne E-Rechnung.
 kleinbetrag_grenze_cent = 25000
+
+[fakturierung.texte]
+# Textbausteine des Rechnungs-PDF, woertlich aus der bestehenden Word-Vorlage uebernommen.
+# Aenderbar ohne Codeaenderung. Platzhalter in Klammern werden beim Rendern ersetzt.
+# Die Pflichthinweise zur Umsatzsteuer stehen bewusst NICHT hier: sie sind steuerlich verlangt
+# und gehoeren nicht zu den Texten, die man nach Belieben umformuliert.
+anrede_firma = "Sehr geehrte Damen und Herren,"
+anrede_privat = "Sehr geehrte Damen und Herren,"
+einleitung_abschlag = "wir danken fuer Ihr Vertrauen in unsere fuer Sie erbrachten Leistungen und erlauben uns, diese vereinbarungsgemaess wie folgt zu verrechnen:"
+einleitung_schluss = "wir danken fuer Ihr Vertrauen und rechnen die erbrachten Leistungen nach Fertigstellung wie folgt endgueltig ab:"
+einleitung_service = "wir danken fuer Ihr Vertrauen in unsere fuer Sie erbrachten Serviceleistungen und erlauben uns, diese wie folgt zu verrechnen:"
+einleitung_ab = "wir danken fuer Ihren Auftrag und bestaetigen Ihnen den Umfang und die vereinbarten Zahlungen wie folgt:"
+zahlungsbedingung = "Wir bitten Sie, den Rechnungsbetrag ohne Abzug bis zum {faellig_am} ({zahlungsziel_tage} Tage) auf das unten genannte Konto zu leisten."
+grussformel = "Mit freundlichen Gruessen"
 
 [stundensaetze]
 # Verrechnungssätze in Cent je Stunde für die kalkulatorische Eigenleistung (Phase 4).

@@ -25,7 +25,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Literal
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import Select, or_, select
 from sqlalchemy.orm import Session
@@ -44,7 +44,7 @@ from app.dienste.belegarten import (
     summen_setzen,
 )
 from app.dienste.belege import steuer_hinweise
-from app.dienste.festschreibung import dateien_ablegen, festschreiben
+from app.dienste.festschreibung import ablage_wiederholen, dateien_ablegen, festschreiben
 from app.dienste.konflikt import geaenderte_felder, konflikt_uebersetzen, stand_pruefen
 from app.fehler import Konflikt, NichtGefunden
 from app.modelle import Kunde, Projekt, Rechnung, Rechnungsposition
@@ -854,6 +854,68 @@ def position_loeschen(
 # ---------------------------------------------------------------------------------------------
 # Festschreiben, Storno, Gutschrift
 # ---------------------------------------------------------------------------------------------
+
+
+@router.get(
+    "/{beleg_id}/vorschau",
+    summary="Beleg als PDF ansehen",
+    operation_id="rechnungVorschau",
+    responses={**LESEN, 200: {"content": {"application/pdf": {}}}},
+    response_class=Response,
+)
+def vorschau(
+    beleg_id: int,
+    zugriff: Zugriff = Depends(benoetigt("rechnungen.lesen")),
+    db: Session = Depends(db_sitzung),
+) -> Response:
+    """PDF eines Belegs – für den Entwurf die Vorschau, für den festgeschriebenen die Ansicht.
+
+    Immer neu gerendert, nie aus dem Rechnungsordner gelesen: das PDF eines festgeschriebenen
+    Belegs entsteht aus den gespeicherten Daten und ist deshalb reproduzierbar, und eine Datei,
+    die jemand im OneDrive ersetzt hat, soll hier nicht als Beleg erscheinen.
+    """
+    from app.belege.pdf import dateiname, pdf_erzeugen
+
+    beleg = _beleg_holen(db, beleg_id, zugriff)
+    name = dateiname(beleg)
+    return Response(
+        content=pdf_erzeugen(beleg),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{name}"'},
+    )
+
+
+@router.post(
+    "/{beleg_id}/ablage-wiederholen",
+    response_model=BelegAntwort,
+    summary="Ablage eines festgeschriebenen Belegs nachholen",
+    operation_id="rechnungAblageWiederholen",
+    responses=SCHREIBEN,
+)
+def ablage_nachholen(
+    beleg_id: int,
+    zugriff: Zugriff = Depends(benoetigt("rechnungen.festschreiben")),
+    db: Session = Depends(db_sitzung),
+) -> BelegAntwort:
+    """PDF erneut erzeugen und im Rechnungsordner ablegen.
+
+    Für den Fall, dass die Ablage beim Festschreiben scheiterte (Ordner nicht erreichbar). Am
+    Beleg ändert sich dabei nichts: der Hash deckt die Belegdaten ab, nicht die PDF-Bytes.
+    """
+    from app.belege import ablage_aus_konfiguration
+
+    beleg = _beleg_holen(db, beleg_id, zugriff)
+    ablage = ablage_aus_konfiguration()
+    if ablage is None:
+        raise Konflikt(
+            "Es ist kein Rechnungsordner konfiguriert.",
+            "In der config.toml unter [pfade] den Eintrag rechnungen auf den Ordner "
+            "01_Rechnungen setzen und den Dienst neu starten.",
+            code="rechnungsordner_fehlt",
+        )
+    pfade = ablage_wiederholen(db, beleg, ablage)
+    log.info("Ablage zu %s nachgeholt: %s", beleg.rechnung_nr, pfade.pdf_pfad)
+    return _als_antwort(beleg)
 
 
 @router.post(

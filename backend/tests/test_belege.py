@@ -100,8 +100,9 @@ class TestUmsatzsteuer:
         ]
 
     def test_prozenttext_deutsch(self):
+        """Mit geschütztem Leerzeichen vor dem Prozentzeichen (PLAN §6.10)."""
         summen = summen_berechnen([pos(1, 10000, 190), pos(2, 10000, 75), pos(3, 10000, 0)])
-        assert [a.prozent_text for a in summen.je_satz] == ["0 %", "7,5 %", "19 %"]
+        assert [a.prozent_text for a in summen.je_satz] == ["0\u00a0%", "7,5\u00a0%", "19\u00a0%"]
 
 
 class TestZahlbetrag:

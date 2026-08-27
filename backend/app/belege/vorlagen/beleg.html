@@ -1,0 +1,206 @@
+{#
+  Rechnungs-, Auftragsbestätigungs-, Storno- und Gutschriftsvorlage (PLAN §10, §11).
+
+  Alle Pflichtangaben nach § 14 UStG stehen darin: Firmierung und vollständige Anschrift beider
+  Seiten, Steuernummer oder USt-IdNr. des Leistenden, Ausstellungsdatum, Belegnummer,
+  Leistungsbeschreibung je Position, Leistungszeitraum, Nettobetrag je Steuersatz, Steuersatz und
+  Steuerbetrag – bzw. der Hinweis auf die Steuerbefreiung.
+
+  Die Vorlage rechnet nichts. Alle Beträge kommen fertig aus app/dienste/belege.py; hier wird nur
+  gesetzt. Sonst gäbe es zwei Rechenwege, und irgendwann zwei Ergebnisse.
+#}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>{{ beleg.nummer or 'Entwurf' }}</title>
+  {# `safe`, weil hier CSS steht und keine Nutzereingabe. Ohne das escapt Jinja die
+     Anführungszeichen, und aus `src:url('file://…')` wird `src:url(&#39;file://…&#39;)` –
+     eine ungültige Regel. WeasyPrint meldet das nicht, es setzt den Beleg dann stillschweigend
+     in der Systemschrift (beim Bau: DejaVu Serif, ein Serifensatz gegen PLAN §11). #}
+  <style>{{ schriften | safe }}</style>
+  <style>{{ stil | safe }}</style>
+</head>
+<body>
+
+{# Die Fußzeile ist ein `running element` und steht **vor** dem Inhalt, nicht dahinter:
+   WeasyPrint stellt sie erst ab der Seite bereit, auf der sie im Dokument auftaucht. Am Ende
+   platziert erschien sie nur auf der letzten Seite – ein mehrseitiger Beleg hätte seine
+   Pflichtangaben auf Seite 1 verloren. #}
+<div id="fusszeile">
+  <div class="spalten">
+    <div class="spalte">
+      {{ firma.firmierung }}<br>
+      {{ firma.strasse }}<br>
+      {{ firma.plz }} {{ firma.ort }}
+    </div>
+    <div class="spalte">
+      {% if firma.telefon %}Telefon {{ firma.telefon }}<br>{% endif %}
+      {% if firma.telefax %}Telefax {{ firma.telefax }}<br>{% endif %}
+      {{ firma.email }}<br>{{ firma.web }}
+    </div>
+    <div class="spalte">
+      {% if firma.hrb %}{{ firma.hrb }}<br>{% endif %}
+      {% if firma.ust_id %}USt-IdNr. {{ firma.ust_id }}<br>{% endif %}
+      {% if firma.st_nr %}Steuernummer {{ firma.st_nr }}<br>{% endif %}
+      {% if firma.geschaeftsfuehrer %}Geschäftsführer: {{ firma.geschaeftsfuehrer }}{% endif %}
+    </div>
+  </div>
+  <div class="seitenzahl">Seite </div>
+</div>
+
+
+<div class="briefkopf">
+  {% if wortmarke %}<img src="{{ wortmarke }}" alt="{{ firma.firmierung }}">
+  {% else %}<div style="font-size:14pt;font-weight:800;color:#2F2482">{{ firma.firmierung }}</div>{% endif %}
+  <div class="linie"></div>
+</div>
+
+<div class="kopfzeilen">
+  <div class="empfaenger">
+    <div class="absenderzeile">{{ firma.firmierung }} · {{ firma.strasse }} · {{ firma.plz }} {{ firma.ort }}</div>
+    {% for zeile in empfaenger %}<div>{{ zeile }}</div>{% endfor %}
+  </div>
+  <div class="belegdaten">
+    <table>
+      {% if beleg.nummer %}
+      <tr><td>{{ beleg.nummer_bezeichnung }}</td><td class="zahl">{{ beleg.nummer }}</td></tr>
+      {% else %}
+      <tr><td>{{ beleg.nummer_bezeichnung }}</td><td>wird bei der Festschreibung vergeben</td></tr>
+      {% endif %}
+      <tr><td>Datum</td><td class="zahl">{{ beleg.datum }}</td></tr>
+      {% if beleg.leistungszeitraum %}
+      <tr><td>Leistungszeitraum</td><td class="zahl">{{ beleg.leistungszeitraum }}</td></tr>
+      {% endif %}
+      {% if beleg.faellig_am and beleg.art != 'ab' %}
+      <tr><td>Fällig am</td><td class="zahl">{{ beleg.faellig_am }}</td></tr>
+      {% endif %}
+      {% if beleg.projekt_nr %}
+      <tr><td>Projekt</td><td class="zahl">{{ beleg.projekt_nr }}</td></tr>
+      {% endif %}
+      <tr><td>Kundennummer</td><td class="zahl">{{ beleg.kunden_nr or '–' }}</td></tr>
+      {% if firma.ust_id %}
+      <tr><td>USt-IdNr.</td><td class="zahl">{{ firma.ust_id }}</td></tr>
+      {% endif %}
+      {% if firma.st_nr %}
+      <tr><td>Steuernummer</td><td class="zahl">{{ firma.st_nr }}</td></tr>
+      {% endif %}
+    </table>
+  </div>
+</div>
+
+<h1>{{ beleg.titel }}<span class="punkt">.</span></h1>
+{% if beleg.objekt %}<div class="objekt">Objekt: {{ beleg.objekt }}</div>{% endif %}
+
+<div class="anschreiben">
+  <p>{{ texte.anrede }}</p>
+  <p>{{ texte.einleitung }}</p>
+</div>
+
+<table class="positionen">
+  <thead>
+    <tr>
+      <th class="pos">Pos.</th>
+      <th>Bezeichnung</th>
+      <th class="rechts">Menge</th>
+      <th class="rechts">Einzelpreis</th>
+      <th class="rechts">USt</th>
+      <th class="rechts">Betrag netto</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for position in positionen %}
+    <tr>
+      <td class="pos zahl">{{ position.pos }}</td>
+      <td>{{ position.bezeichnung }}</td>
+      <td class="rechts zahl">{{ position.menge }}{% if position.einheit %}&nbsp;{{ position.einheit }}{% endif %}</td>
+      <td class="rechts zahl">{{ position.ep }}</td>
+      <td class="rechts zahl">{{ position.satz }}</td>
+      <td class="rechts zahl">{{ position.netto }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="summenblock">
+  <table>
+    <tr><td class="beschriftung">Summe netto</td><td class="zahl">{{ summen.netto }}</td></tr>
+    {% for anteil in summen.je_satz %}
+    <tr>
+      <td class="beschriftung">Umsatzsteuer {{ anteil.satz }}{% if anteil.mehrere %} auf {{ anteil.netto }}{% endif %}</td>
+      <td class="zahl">{{ anteil.ust }}</td>
+    </tr>
+    {% endfor %}
+    <tr class="{% if not summen.hat_absetzung %}summe{% else %}linie-oben{% endif %}">
+      <td>{{ 'Gesamtbetrag brutto' if summen.hat_absetzung else beleg.summenbezeichnung }}</td>
+      <td class="zahl">{{ summen.brutto }}</td>
+    </tr>
+  </table>
+</div>
+
+{% if absetzungen %}
+<div class="absetzung">
+  <h2>Bereits berechnete Abschlagszahlungen (§ 14 Abs. 5 UStG)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Rechnung</th>
+        <th>Datum</th>
+        <th class="rechts">Netto</th>
+        <th class="rechts">USt-Satz</th>
+        <th class="rechts">Umsatzsteuer</th>
+        <th class="rechts">Brutto</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for eintrag in absetzungen %}
+      <tr>
+        <td class="zahl">{{ eintrag.rechnung_nr }}</td>
+        <td class="zahl">{{ eintrag.datum }}</td>
+        <td class="rechts zahl">{{ eintrag.netto }}</td>
+        <td class="rechts zahl">{{ eintrag.satz }}</td>
+        <td class="rechts zahl">{{ eintrag.ust }}</td>
+        <td class="rechts zahl">{{ eintrag.brutto }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="summenblock">
+  <table>
+    <tr><td class="beschriftung">Gesamtbetrag brutto</td><td class="zahl">{{ summen.brutto }}</td></tr>
+    <tr><td class="beschriftung">abzüglich Abschlagszahlungen netto</td><td class="zahl">−{{ summen.absetzung_netto }}</td></tr>
+    <tr><td class="beschriftung">abzüglich darauf entfallende Umsatzsteuer</td><td class="zahl">−{{ summen.absetzung_ust }}</td></tr>
+    <tr class="summe"><td>{{ beleg.summenbezeichnung }}</td><td class="zahl">{{ summen.zahlbetrag }}</td></tr>
+  </table>
+</div>
+{% endif %}
+
+{% if hinweise %}
+<div class="hinweise">
+  {% for hinweis in hinweise %}<p>{{ hinweis }}</p>{% endfor %}
+</div>
+{% endif %}
+
+<div class="schluss">
+  {% if texte.zahlungsbedingung %}<p>{{ texte.zahlungsbedingung }}</p>{% endif %}
+  {% if beleg.schlusstext %}<p>{{ beleg.schlusstext }}</p>{% endif %}
+</div>
+
+{% if firma.bank_iban and beleg.art != 'ab' %}
+<div class="bank">
+  <div class="titel">Bankverbindung</div>
+  <div>{{ firma.bank_institut }}</div>
+  <div class="zahl">IBAN {{ firma.bank_iban }}{% if firma.bank_bic %} · BIC {{ firma.bank_bic }}{% endif %}</div>
+</div>
+{% endif %}
+
+<div class="gruss">
+  <p>{{ texte.grussformel }}</p>
+  <div class="firma">{{ firma.firmierung }}</div>
+</div>
+
+
+</body>
+</html>

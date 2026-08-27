@@ -1,0 +1,213 @@
+/* Rechnungs-PDF im ip³-Corporate-Design (PLAN §11, Entscheidung 17).
+ *
+ * Geschäftsdokument auf Weiß: Wortmarke oben links, 2-pt-Linie in ip³ Blau, Überschriften in
+ * ip³ Blau, Beträge in Space Grotesk mit Tabellenziffern, Fußzeile 8 pt in Sekundärgrau.
+ *
+ * Kein Zeichen 3 auf diesem Beleg. Die Corporate-Design-Regel schließt das Wasserzeichen auf
+ * zahlen- und tabellenlastigen Seiten aus, und eine Rechnung ist genau das. Die Marke trägt der
+ * Briefkopf.
+ *
+ * Die Schriften werden als Datei eingebettet (src: url(...) mit einem file://-Pfad, den die
+ * Vorlage einsetzt). Fehlt eine Datei, greift die Fallback-Kette bis Arial – dann sieht der Beleg
+ * anders aus, ist aber nicht kaputt.
+ */
+
+@page {
+  size: A4;
+  /* Oben Platz für den Briefkopf, unten für die dreispaltige Fußzeile. */
+  margin: 20mm 20mm 32mm 25mm;
+
+  @bottom-left {
+    content: element(fusszeile);
+  }
+}
+
+:root {
+  --ip3-blau: #2F2482;
+  --ip3-navy: #0C1A3D;
+  --akzent-rot: #C83C30;
+  --text: #1A1A1A;
+  --text-sekundaer: #666666;
+  --linie: #E0E0E0;
+  --flaeche-info: #F5F6F9;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Libre Franklin', Archivo, Arial, Helvetica, sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.45;
+  color: #1A1A1A;
+}
+
+.zahl {
+  font-family: 'Space Grotesk', 'Libre Franklin', Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* --- Briefkopf ------------------------------------------------------------------------- */
+
+.briefkopf { margin-bottom: 10mm; }
+.briefkopf img { width: 55mm; display: block; }
+.briefkopf .linie {
+  border-top: 2pt solid #2F2482;
+  margin-top: 3mm;
+}
+
+.kopfzeilen {
+  display: flex;
+  justify-content: space-between;
+  gap: 10mm;
+  margin-top: 12mm;
+}
+
+.empfaenger { max-width: 85mm; }
+.empfaenger .absenderzeile {
+  font-size: 6.5pt;
+  color: #666666;
+  border-bottom: 0.5pt solid #E0E0E0;
+  padding-bottom: 1mm;
+  margin-bottom: 4mm;
+}
+.empfaenger div { line-height: 1.4; }
+
+.belegdaten {
+  min-width: 62mm;
+  font-size: 9pt;
+}
+.belegdaten table { width: 100%; border-collapse: collapse; }
+.belegdaten td { padding: 0.6mm 0; vertical-align: top; }
+.belegdaten td:first-child { color: #666666; padding-right: 4mm; }
+.belegdaten td:last-child { text-align: right; }
+
+/* --- Titel und Anschreiben ------------------------------------------------------------- */
+
+h1 {
+  font-size: 15pt;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #2F2482;
+  margin: 12mm 0 1mm;
+}
+h1 .punkt { color: #C83C30; }
+
+.objekt {
+  font-size: 9.5pt;
+  color: #666666;
+  margin-bottom: 6mm;
+}
+
+.anschreiben { margin-bottom: 6mm; }
+.anschreiben p { margin: 0 0 3mm; }
+
+/* --- Positionen ------------------------------------------------------------------------ */
+
+table.positionen {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 6mm;
+}
+table.positionen thead th {
+  background: #2F2482;
+  color: #FFFFFF;
+  font-size: 8pt;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 2mm 2.5mm;
+}
+table.positionen thead th.rechts { text-align: right; }
+table.positionen tbody td {
+  padding: 2mm 2.5mm;
+  border-bottom: 0.5pt solid #E0E0E0;
+  vertical-align: top;
+}
+table.positionen tbody tr:nth-child(even) td { background: #F5F6F9; }
+table.positionen td.rechts { text-align: right; }
+table.positionen td.pos { color: #666666; width: 10mm; }
+table.positionen thead { display: table-header-group; }
+table.positionen tr { page-break-inside: avoid; }
+
+/* --- Summen und Absetzung -------------------------------------------------------------- */
+
+.summenblock {
+  width: 88mm;
+  margin-left: auto;
+}
+.summenblock table { width: 100%; border-collapse: collapse; }
+.summenblock td { padding: 1.2mm 0; }
+.summenblock td:last-child { text-align: right; }
+.summenblock tr.linie-oben td { border-top: 0.5pt solid #E0E0E0; }
+.summenblock tr.summe td {
+  border-top: 1pt solid #1A1A1A;
+  font-weight: 700;
+  font-size: 11pt;
+  padding-top: 2mm;
+}
+.summenblock .beschriftung { color: #666666; }
+
+.absetzung {
+  margin: 6mm 0;
+  page-break-inside: avoid;
+}
+.absetzung h2 {
+  font-size: 10pt;
+  font-weight: 700;
+  color: #2F2482;
+  margin: 0 0 2mm;
+}
+.absetzung table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+.absetzung th {
+  text-align: left;
+  font-size: 8pt;
+  color: #666666;
+  border-bottom: 0.5pt solid #E0E0E0;
+  padding: 1.5mm 2mm;
+}
+.absetzung th.rechts, .absetzung td.rechts { text-align: right; }
+.absetzung td { padding: 1.5mm 2mm; border-bottom: 0.5pt solid #E0E0E0; }
+
+/* --- Hinweise, Schluss, Bank ----------------------------------------------------------- */
+
+.hinweise {
+  background: #F5F6F9;
+  padding: 3mm 4mm;
+  margin: 5mm 0;
+  font-size: 8.5pt;
+  page-break-inside: avoid;
+}
+.hinweise p { margin: 0 0 1.5mm; }
+.hinweise p:last-child { margin-bottom: 0; }
+
+.schluss { margin-top: 5mm; page-break-inside: avoid; }
+.schluss p { margin: 0 0 3mm; }
+
+.bank {
+  margin-top: 6mm;
+  font-size: 9pt;
+  page-break-inside: avoid;
+}
+.bank .titel { font-weight: 600; margin-bottom: 1mm; }
+
+.gruss { margin-top: 8mm; }
+.gruss .firma { margin-top: 2mm; font-weight: 600; color: #2F2482; }
+
+/* --- Fußzeile -------------------------------------------------------------------------- */
+
+#fusszeile {
+  position: running(fusszeile);
+  width: 165mm;
+  border-top: 0.5pt solid #E0E0E0;
+  padding-top: 2mm;
+  font-size: 6.8pt;
+  line-height: 1.35;
+  color: #666666;
+}
+#fusszeile .spalten { display: flex; justify-content: space-between; gap: 6mm; }
+#fusszeile .spalte { flex: 1; }
+#fusszeile .seitenzahl { text-align: right; margin-top: 1mm; }
+#fusszeile .seitenzahl::after { content: counter(page) " / " counter(pages); }

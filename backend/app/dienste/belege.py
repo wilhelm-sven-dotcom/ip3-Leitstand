@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import Any
 
+from app.formate import prozent
 from app.geld import position_netto, steuer_je_satz
 from app.konfiguration import FirmaEinstellungen, einstellungen
 from app.modelle import Kunde, Rechnung, Rechnungsposition
@@ -60,11 +61,8 @@ class SatzAnteil:
 
     @property
     def prozent_text(self) -> str:
-        """Der Satz als deutscher Prozenttext: ``19 %``, ``7,5 %``, ``0 %``."""
-        ganze, rest = divmod(self.satz, 10)
-        if rest == 0:
-            return f"{ganze} %"
-        return f"{ganze},{rest} %"
+        """Der Satz als deutscher Prozenttext (PLAN §6.10)."""
+        return prozent(self.satz)
 
     def als_json(self) -> dict[str, int]:
         return {"satz": self.satz, "netto": self.netto, "ust": self.ust}

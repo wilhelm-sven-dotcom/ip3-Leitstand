@@ -44,6 +44,18 @@ def kapazitaet(kwh: Decimal | float | int | None) -> str:
     return mit_einheit(kwh, "kWh", stellen=1)
 
 
+def prozent(satz_promille: int) -> str:
+    """Steuersatz aus Promille als deutscher Prozenttext: ``19 %``, ``7,5 %``, ``0 %``.
+
+    Promille als Eingabe, weil die Belegpositionen den Satz so führen (PLAN §6.2) – damit auch
+    ein Satz mit Nachkommastelle ohne Gleitkomma darstellbar bleibt. Das geschützte Leerzeichen
+    vor dem Prozentzeichen gehört dazu wie vor jeder anderen Einheit (PLAN §6.10).
+    """
+    ganze, rest = divmod(satz_promille, 10)
+    zahl = str(ganze) if rest == 0 else f"{ganze},{rest}"
+    return f"{zahl}{GESCHUETZTES_LEERZEICHEN}%"
+
+
 def anzahl(wert: int) -> str:
     """Ganze Zahl mit Tausenderpunkt, z. B. ``5.848``."""
     return dezimal(wert, stellen=0)

@@ -6557,6 +6557,61 @@
         ]
       }
     },
+    "/api/rechnungen/{beleg_id}/ablage-wiederholen": {
+      "post": {
+        "description": "PDF erneut erzeugen und im Rechnungsordner ablegen.\n\nFür den Fall, dass die Ablage beim Festschreiben scheiterte (Ordner nicht erreichbar). Am\nBeleg ändert sich dabei nichts: der Hash deckt die Belegdaten ab, nicht die PDF-Bytes.",
+        "operationId": "rechnungAblageWiederholen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "beleg_id",
+            "required": true,
+            "schema": {
+              "title": "Beleg Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ablage eines festgeschriebenen Belegs nachholen",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
     "/api/rechnungen/{beleg_id}/festschreiben": {
       "post": {
         "description": "Der unumkehrbare Schritt: Nummer, Hash, Sperre, Ablage (PLAN §6.4).\n\nLäuft in einer eigenen Schreibtransaktion (``BEGIN IMMEDIATE``), damit zwei gleichzeitige\nFestschreibungen nicht dieselbe Nummer bekommen. Die Dateien werden erst nach dem Commit\ngeschrieben – scheitert das, bleibt der Beleg gültig und die Antwort sagt, was noch fehlt.",
@@ -6935,6 +6990,54 @@
           }
         },
         "summary": "Stornobeleg erzeugen",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/{beleg_id}/vorschau": {
+      "get": {
+        "description": "PDF eines Belegs – für den Entwurf die Vorschau, für den festgeschriebenen die Ansicht.\n\nImmer neu gerendert, nie aus dem Rechnungsordner gelesen: das PDF eines festgeschriebenen\nBelegs entsteht aus den gespeicherten Daten und ist deshalb reproduzierbar, und eine Datei,\ndie jemand im OneDrive ersetzt hat, soll hier nicht als Beleg erscheinen.",
+        "operationId": "rechnungVorschau",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "beleg_id",
+            "required": true,
+            "schema": {
+              "title": "Beleg Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {}
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung rechnungen.lesen fehlt"
+          },
+          "404": {
+            "description": "Beleg nicht gefunden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Beleg als PDF ansehen",
         "tags": [
           "Fakturierung"
         ]

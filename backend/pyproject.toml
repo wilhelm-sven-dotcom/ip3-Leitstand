@@ -18,11 +18,16 @@ dependencies = [
     # Teamliste und Auftragsliste (PLAN §9).
     "openpyxl>=3.1",
     "rapidfuzz>=3.10",
+    # Phase 3: Rechnungs-PDF im ip³-Corporate-Design und E-Rechnung (PLAN §7, §11, §6.3).
+    # WeasyPrint bringt PDF/A-3 und Dateianhänge mit – für ZUGFeRD braucht es damit kein
+    # zweites Werkzeug zum Einbetten. Auf dem Windows-Host verlangt es die GTK/Pango-Bibliotheken
+    # (siehe RUNBOOK).
+    "weasyprint>=69",
+    "jinja2>=3.1",
 ]
 
 # Weitere Abhängigkeiten kommen erst in der Phase, in der sie gebraucht werden (PLAN §14):
-# WeasyPrint (Phase 3, braucht auf Windows GTK/Pango), pandas (Phase 4/5),
-# requests (Phase 4, TimeTac), drafthorse oder factur-x (Phase 3).
+# pandas (Phase 4/5), requests (Phase 4, TimeTac), drafthorse (Phase 3, E-Rechnung).
 
 [project.scripts]
 ip3-leitstand = "app.cli:main"
