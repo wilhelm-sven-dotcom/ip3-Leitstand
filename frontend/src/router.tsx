@@ -21,6 +21,8 @@ import { Projekte } from "@/seiten/projekte/Projekte";
 import { ProjektDetail } from "@/seiten/projekte/ProjektDetail";
 import { ProjektNeu } from "@/seiten/projekte/ProjektNeu";
 import { Projektleiter } from "@/seiten/projekte/Projektleiter";
+import { Rechnungen } from "@/seiten/rechnungen/Rechnungen";
+import { RechnungDetail } from "@/seiten/rechnungen/RechnungDetail";
 import { Umsatz } from "@/seiten/umsatz/Umsatz";
 import { useSitzung } from "@/sitzung/SitzungKontext";
 
@@ -121,6 +123,24 @@ export function AppRouten() {
         element={
           <GeschuetzteRoute>
             <ProjektDetail />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/fakturierung"
+        element={
+          <GeschuetzteRoute>
+            <Rechnungen />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/fakturierung/:belegId"
+        element={
+          <GeschuetzteRoute>
+            <RechnungDetail />
           </GeschuetzteRoute>
         }
       />
