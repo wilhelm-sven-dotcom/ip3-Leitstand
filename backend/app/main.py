@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app import __version__
+from app.auslieferung import einrichten as auslieferung_einrichten
 from app.fehler import handler_registrieren
 from app.jobs import scheduler
 from app.konfiguration import Einstellungen, einstellungen, pruefe_betriebsbereit
@@ -81,5 +82,9 @@ def anwendung_erzeugen(
     app.include_router(gesundheit.router)
     app.include_router(auth.router)
     app.include_router(systemstatus.router)
+
+    # Zuletzt: der Rückfall auf index.html würde sonst die API-Pfade verschlucken
+    # (siehe app/auslieferung.py).
+    auslieferung_einrichten(app, konfiguration.pfade.frontend)
 
     return app

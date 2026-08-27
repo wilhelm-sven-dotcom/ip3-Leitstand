@@ -1,0 +1,39 @@
+# Caddy als Reverse Proxy vor dem ip³ Leitstand (PLAN §2).
+#
+# Ohne TLS gehen die Sitzungs-Cookies im Klartext durchs Firmennetz. Caddy erzeugt mit
+# "tls internal" ein eigenes Zertifikat aus einer lokalen Zertifizierungsstelle – dafür muss
+# deren Wurzelzertifikat einmal auf jedem Arbeitsplatz-Rechner installiert werden, sonst
+# zeigt der Browser eine Warnung. Wer die wegklickt, lernt, Warnungen wegzuklicken; deshalb
+# steht dieser Schritt im RUNBOOK und ist nicht optional.
+#
+# Adresse anpassen und im Büro-DNS oder in der hosts-Datei auf den Host zeigen lassen.
+
+leitstand.ip3.local {
+	tls internal
+
+	encode zstd gzip
+
+	# Reserve für PDF- und CSV-Uploads ab Phase 3/4.
+	request_body {
+		max_size 32MB
+	}
+
+	reverse_proxy 127.0.0.1:8000 {
+		header_up X-Forwarded-Proto {scheme}
+		# Ohne diese Angabe protokolliert der Leitstand die Adresse von Caddy statt die des
+		# Arbeitsplatzes – die Drosselung nach Fehlanmeldungen und das Änderungsprotokoll
+		# wären damit wertlos.
+		header_up X-Real-IP {remote_host}
+	}
+
+	log {
+		# Pfad an den Host anpassen.
+		output file C:/ip3-leitstand/logs/caddy-zugriff.log {
+			roll_size 10MiB
+			roll_keep 10
+		}
+	}
+
+	# Kein HSTS: mit einer internen Zertifizierungsstelle würde ein Fehler beim Zertifikat
+	# den Zugang dauerhaft blockieren, bis jeder Browser einzeln aufgeräumt wird.
+}

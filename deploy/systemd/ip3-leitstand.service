@@ -1,0 +1,40 @@
+[Unit]
+Description=ip³ Leitstand – Projekt- und Finanz-Cockpit
+Documentation=file:/opt/ip3-leitstand/RUNBOOK.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ip3
+Group=ip3
+WorkingDirectory=/opt/ip3-leitstand
+
+Environment=IP3_CONFIG=/opt/ip3-leitstand/config.toml
+EnvironmentFile=/opt/ip3-leitstand/.env
+
+# Genau ein Prozess. Mit mehreren würde der nächtliche Zeitplan in jedem laufen: doppelte
+# Sicherungen, später doppelte Importe (PLAN §2). Der Startbefehl trägt darum kein --workers.
+ExecStart=/opt/ip3-leitstand/backend/.venv/bin/ip3-leitstand server
+
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+
+# Härtung. ReadWritePaths muss alle Verzeichnisse nennen, in die der Leitstand schreibt –
+# fehlt eines, scheitert der Dienst mit einem Rechtefehler, der schwer zuzuordnen ist.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+ReadWritePaths=/opt/ip3-leitstand/daten /opt/ip3-leitstand/logs /mnt/onedrive/04_Backup /mnt/onedrive/01_Rechnungen
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ip3-leitstand
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,18 @@
+# Caddy für die Testinstanz (PLAN §2: Updates laufen erst dort).
+#
+# Zweiter Leitstand auf demselben Host, mit einer Kopie der Datenbank und eigenem Port.
+# Die Testinstanz startet mit IP3_APP__PORT=8010 und IP3_APP__UMGEBUNG=test.
+
+leitstand-test.ip3.local {
+	tls internal
+	encode zstd gzip
+
+	reverse_proxy 127.0.0.1:8010 {
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Real-IP {remote_host}
+	}
+
+	# Deutlich machen, dass hier nichts echt ist: die Testinstanz arbeitet mit einer
+	# Datenbankkopie, und eine dort erzeugte Rechnung ist keine Rechnung.
+	header X-Ip3-Umgebung "Testinstanz"
+}

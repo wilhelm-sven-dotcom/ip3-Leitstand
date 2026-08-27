@@ -33,26 +33,68 @@ Technische Einzelheiten: PLAN §2, Betriebsabläufe: RUNBOOK.
 
 ## 4. Zugriffsschutz
 
-Anmeldung mit persönlicher Kennung und Passwort; Passwörter werden nur als bcrypt-Hash gespeichert.
-Sitzungen laufen serverseitig und werden über ein `httpOnly`-Cookie geführt. Berechtigungen sind
-Schlüssel nach dem Muster `ressource.aktion` und werden ausschließlich serverseitig geprüft. Nach
-mehreren Fehlanmeldungen wird die Kennung zeitweise gesperrt. Nutzer werden nie gelöscht, nur
-deaktiviert, damit die Nachvollziehbarkeit der Protokolleinträge erhalten bleibt.
+Anmeldung mit persönlicher Kennung (E-Mail-Adresse) und Passwort. Passwörter werden nur als
+bcrypt-Hash gespeichert, Sitzungsschlüssel nur als SHA-256-Hash – eine Sicherungskopie der
+Datenbank enthält damit keine verwendbaren Zugangsdaten.
+
+Sitzungen laufen serverseitig und werden über ein `httpOnly`-Cookie mit `SameSite=Lax` geführt.
+Sie enden nach zwölf Stunden, mit „Angemeldet bleiben" nach 30 Tagen, zusätzlich nach acht
+Stunden ohne Aktivität. Alle schreibenden Anfragen tragen ein sitzungsgebundenes Token
+(CSRF-Schutz); zusätzlich wird die Herkunft der Anfrage geprüft.
+
+Berechtigungen sind Schlüssel nach dem Muster `ressource.aktion` und werden ausschließlich
+serverseitig geprüft; die Oberfläche blendet zusätzlich aus. Ein automatischer Test verlangt für
+jede schreibende Schnittstelle eine solche Prüfung. Die Zuordnung von Rollen zu Berechtigungen
+steht in `docs/BERECHTIGUNGEN.md` und wird aus dem Programmcode erzeugt.
+
+Nach fünf Fehlanmeldungen wird die Kennung 15 Minuten gesperrt; während der Sperre wird auch ein
+richtiges Passwort abgelehnt. Zusätzlich wird die Absenderadresse gedrosselt. Alle Fehlversuche
+stehen im Änderungsprotokoll.
+
+Nutzer werden nie gelöscht, nur deaktiviert. Ein deaktivierter Nutzer verliert seine Sitzung
+sofort, und die Verweise im Änderungsprotokoll bleiben auflösbar.
 
 ## 5. Belegfluss und Unveränderbarkeit
 
-_wird in Phase 3 gefüllt (Fakturierung)._ Vorgesehen: Entwurf beliebig änderbar, danach
-Festschreibung mit Vergabe der Rechnungsnummer, Zeitstempel und SHA-256-Hash über die Belegdaten;
-ab diesem Zeitpunkt ist der Beleg unveränderbar – technisch durch Datenbank-Trigger abgesichert.
-Korrekturen erfolgen ausschließlich über Stornobeleg oder Gutschrift mit Verweis auf den
-Ursprungsbeleg und Neuausstellung. Rechnungsnummern sind je Nummernkreis lückenlos und fortlaufend.
+Die Belegverarbeitung entsteht in Phase 3. Die **technische Absicherung der Unveränderbarkeit
+steht seit Phase 0**, damit sie nicht nachträglich aufgesetzt werden muss:
+
+Datenbank-Trigger verhindern jede Änderung und jedes Löschen an einem Beleg mit dem Status
+`festgeschrieben` – auch durch ein Importskript oder einen direkten Zugriff mit einem
+Datenbankwerkzeug, nicht nur durch die Anwendung. Erlaubt ist ausschließlich der Statuswechsel
+auf `storniert` mit Verweis auf den Stornobeleg; ein weiterer Trigger stellt sicher, dass dabei
+Nummer, Beträge, Datum, Hash und Kundenstand unverändert bleiben. Ebenso gesperrt sind
+Rechnungspositionen festgeschriebener Belege und Zahlungsplanpositionen, die einem Beleg
+zugeordnet sind.
+
+Vorgesehener Ablauf ab Phase 3: Entwurf beliebig änderbar, danach Festschreibung mit Vergabe der
+Rechnungsnummer, Zeitstempel und SHA-256-Hash über die Belegdaten. Korrekturen erfolgen
+ausschließlich über Stornobeleg oder Gutschrift mit Verweis auf den Ursprungsbeleg und
+Neuausstellung.
+
+Rechnungsnummern sind je Nummernkreis lückenlos und fortlaufend. Die Vergabe läuft in derselben
+Transaktion wie die Festschreibung des Belegs – eine vorab geholte und dann nicht verwendete
+Nummer wäre eine Lücke. Ein automatischer Test lässt zehn gleichzeitige Vorgänge Nummern ziehen
+und prüft, dass keine doppelt und keine übersprungen wird.
 
 ## 6. Protokollierung
 
 Jede schreibende Aktion wird im Änderungsprotokoll (`audit_log`) mit Zeitpunkt (UTC), Nutzer,
-Aktion, betroffenem Datensatz sowie Alt- und Neuwerten festgehalten. Passwörter, Hashes und
-Sitzungsschlüssel werden dabei nicht protokolliert. Das Protokoll wird von der Anwendung nur
-geschrieben, nie geändert oder gelöscht.
+Aktion, betroffenem Datensatz sowie Alt- und Neuwerten festgehalten. Ein Filter entfernt vor dem
+Schreiben alle Felder, deren Bezeichnung auf ein Geheimnis hindeutet (Passwort, Hash, Token) –
+auch in verschachtelten Strukturen. Das ist keine Vorsichtsmaßnahme am Rand: die Datenbank samt
+Protokoll liegt nach jeder Nacht als Sicherungskopie im OneDrive-Ordner.
+
+Der Protokolleintrag entsteht in derselben Transaktion wie die Änderung. Scheitert die Änderung,
+verschwindet auch der Eintrag – ein Protokoll über einen Vorgang, der nie stattgefunden hat,
+wäre schlimmer als kein Eintrag.
+
+Die Anwendung schreibt das Protokoll ausschließlich; es gibt keinen Programmpfad, der einen
+Eintrag ändert oder löscht. Ein automatischer Test prüft das.
+
+Zusätzlich hält die Anwendung jeden Lauf eines Hintergrundjobs (`job_laeufe`) mit Beginn, Ende,
+Ergebnis und Meldung fest. Die Startseite zeigt daraus den Datenstand, damit ein ausgefallener
+nächtlicher Lauf auffällt.
 
 ## 7. Datensicherung und Wiederherstellung
 
