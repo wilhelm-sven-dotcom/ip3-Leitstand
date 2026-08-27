@@ -170,3 +170,29 @@ class TestGeaenderteFelder:
 
     def test_ohne_aenderung_leer(self):
         assert geaenderte_felder({"a": 1}, {"a": 1}) == {}
+
+    def test_decimal_und_float_sind_dieselbe_zahl(self):
+        """Sonst steht nach jedem Speichern „514.08 → 514.08" im Protokoll.
+
+        Die Datenbank liefert für ``pv_kwp`` ein ``Decimal``, die Maske schickt eine
+        Gleitkommazahl zurück. In Python sind die beiden nie gleich.
+        """
+        from decimal import Decimal
+
+        assert geaenderte_felder({"pv_kwp": Decimal("514.080")}, {"pv_kwp": 514.08}) == {}
+        assert geaenderte_felder({"kwh": Decimal("13.5")}, {"kwh": 13.5}) == {}
+        assert geaenderte_felder({"pv_kwp": Decimal("29.580")}, {"pv_kwp": 4}) == {
+            "pv_kwp": {"alt": Decimal("29.580"), "neu": 4}
+        }
+
+    def test_echte_zahlaenderung_bleibt_eine_aenderung(self):
+        from decimal import Decimal
+
+        assert geaenderte_felder({"pv_kwp": Decimal("514.080")}, {"pv_kwp": 600.5}) == {
+            "pv_kwp": {"alt": Decimal("514.080"), "neu": 600.5}
+        }
+
+    def test_none_gegen_zahl_ist_eine_aenderung(self):
+        assert geaenderte_felder({"pv_kwp": None}, {"pv_kwp": 0.0}) == {
+            "pv_kwp": {"alt": None, "neu": 0.0}
+        }

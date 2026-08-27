@@ -230,6 +230,33 @@ class TestUebernahme:
         assert [p.art for p in positionen] == ["abschlag", "abschlag", "abschlag", "schluss"]
         assert all(p.gewerk == "pv" for p in positionen)
 
+    def test_gleiche_bezeichnung_wird_gemeldet_nicht_umbenannt(self, bericht):
+        """Der Text bleibt, wie die Auftragsliste ihn führt – aber er fällt auf.
+
+        Bei HPZ, Irchenrieth heißen vier Zeilen mit verschiedenen Beträgen und Monaten alle
+        „1. Abschlag PV". Eine erfundene Nummerierung wäre eine Behauptung über die Quelle;
+        stillschweigend durchlassen wäre schlimmer, weil dieser Text ab Phase 3 auf der Rechnung
+        steht. Also: unverändert übernehmen und melden.
+        """
+        assert bericht.gleiche_bezeichnung, "Der doppelte Text wurde nicht gemeldet"
+        eintrag = bericht.gleiche_bezeichnung[0]
+        assert eintrag["bezeichnung"] == "2. Abschlag Speicher"
+        assert len(eintrag["zeilen"]) == 2
+
+        with lese_sitzung() as sitzung:
+            huber = sitzung.scalar(select(Kunde).where(Kunde.name == "Huber"))
+            positionen = list(
+                sitzung.scalars(
+                    select(Zahlungsplanposition)
+                    .join(Projekt, Projekt.id == Zahlungsplanposition.projekt_id)
+                    .where(Projekt.kunde_id == huber.id)
+                )
+            )
+        gleich = [p for p in positionen if p.bezeichnung == "2. Abschlag Speicher"]
+        assert len(gleich) == 2
+        # Unterschiedliche Beträge, gleicher Text: genau der Fall, um den es geht.
+        assert {p.betrag_netto for p in gleich} == {250000, 170000}
+
     def test_gestelltes_kreuz_wird_uebernommen(self, bericht, analyse):
         """PLAN §9: das Kreuz heißt 'Rechnung gestellt'. PLAN §6.7: nicht 'bezahlt'."""
         assert bericht.zahlungsplan_gestellt > 0

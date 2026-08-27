@@ -61,6 +61,12 @@ textarea::placeholder {
   font-variant-numeric: tabular-nums;
 }
 
+/* „wird geladen …" – steht in jeder Liste und jeder Maske, deshalb hier und nicht je Seite. */
+.lademeldung {
+  font-size: var(--text-m);
+  color: var(--text-sekundaer);
+}
+
 /* Negative Beträge in Akzent-Rot, positive im normalen Textton – kein Grün (PLAN §11). */
 .negativ {
   color: var(--akzent-rot);

@@ -274,6 +274,114 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projekte": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Projekte filtern und blättern
+         * @description Projektliste mit den Filtern aus design/Projektliste.dc.html.
+         */
+        get: operations["projekteListe"];
+        put?: never;
+        /**
+         * Projekt anlegen
+         * @description Neues Projekt. Die Projektnummer richtet sich nach dem Auftragsjahr (PLAN §3).
+         */
+        post: operations["projektAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projekte/projektleiter/uebersicht": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Projektleiternamen und ihre Zuordnung */
+        get: operations["projektleiterUebersicht"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projekte/projektleiter/zuordnen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Projektleiternamen Nutzerkonten zuordnen
+         * @description Setzt ``pl_user_id`` für alle Projekte eines Namens.
+         *
+         *     Der Name bleibt stehen: er ist der Herkunftsnachweis aus der Teamliste. Wäre er
+         *     überschrieben, ließe sich später nicht mehr prüfen, ob die Zuordnung stimmt.
+         */
+        put: operations["projektleiterZuordnen"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projekte/{projekt_nr}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Projekt mit Meilensteinen und Zahlungsplan lesen */
+        get: operations["projektLesen"];
+        /** Projekt ändern */
+        put: operations["projektAendern"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projekte/{projekt_nr}/meilensteine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Meilensteine eines Projekts setzen
+         * @description Meilensteine als Ganzes setzen.
+         *
+         *     Übergeben wird der vollständige Stand, nicht einzelne Änderungen: die Zeitleiste im
+         *     Projektdetail bearbeitet mehrere Schritte in einem Zug, und ein Aufruf je Häkchen würde
+         *     zehn Anfragen und zehn Protokolleinträge für einen Vorgang erzeugen.
+         *
+         *     Typen, die nicht mitgeschickt werden, bleiben unverändert – gelöscht wird hier nichts.
+         */
+        put: operations["meilensteineSetzen"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/systemstatus": {
         parameters: {
             query?: never;
@@ -486,6 +594,15 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** Konto */
+        Konto: {
+            /** Email */
+            email: string;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+        };
         /**
          * KundeAendern
          * @description Wie :class:`KundeEingabe`, zusätzlich der gelesene Stand für die Konfliktprüfung.
@@ -640,12 +757,220 @@ export interface components {
             /** Versatz */
             versatz: number;
         };
+        /** MeilensteinAntwort */
+        MeilensteinAntwort: {
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Erledigt */
+            erledigt?: boolean | null;
+            /** Erledigt Am */
+            erledigt_am?: string | null;
+            /** Geplant Kw */
+            geplant_kw?: string | null;
+            /** Id */
+            id: number;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Typ */
+            typ: string;
+        };
+        /** MeilensteinEingabe */
+        MeilensteinEingabe: {
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Erledigt */
+            erledigt?: boolean | null;
+            /** Erledigt Am */
+            erledigt_am?: string | null;
+            /** Geplant Kw */
+            geplant_kw?: string | null;
+            /**
+             * Typ
+             * @enum {string}
+             */
+            typ: "uebergabetermin" | "freigabe_planung" | "plan_erstellt" | "anmeldung_nb" | "mastr" | "fertigmeldung" | "zaehler" | "abnahme" | "montage_uk" | "montage_elektro" | "zaehlerschrank" | "lieferung_uk" | "lieferung_wr_pv" | "lieferung_wr_speicher" | "lieferung_speicher" | "lieferung_wallbox" | "montage" | "lieferung" | "inbetriebnahme";
+        };
         /** PasswortDaten */
         PasswortDaten: {
             /** Altes Passwort */
             altes_passwort: string;
             /** Neues Passwort */
             neues_passwort: string;
+        };
+        /** ProjektAendern */
+        ProjektAendern: {
+            /** Ab Wert Netto */
+            ab_wert_netto?: number | null;
+            /** Anlagenart */
+            anlagenart?: ("aufdach" | "aufdach_speicher" | "freiflaeche" | "speicher" | "ladestation" | "sonstig") | null;
+            /** Auftrag Vom */
+            auftrag_vom?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Ladestation */
+            ladestation?: string | null;
+            /** Pl Name */
+            pl_name?: string | null;
+            /** Pl User Id */
+            pl_user_id?: number | null;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /** Speicher Typ */
+            speicher_typ?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Standort */
+            standort?: string | null;
+            /**
+             * Status
+             * @default beauftragt
+             * @enum {string}
+             */
+            status: "angebot" | "beauftragt" | "in_bau" | "abgeschlossen" | "storniert";
+            /**
+             * Typ
+             * @default projekt
+             * @enum {string}
+             */
+            typ: "projekt" | "service";
+            /**
+             * Ust Kz
+             * @default 19
+             * @enum {string}
+             */
+            ust_kz: "19" | "0" | "13b" | "gemischt";
+            /** Vertriebsweg */
+            vertriebsweg?: string | null;
+            /** Wr Typ */
+            wr_typ?: string | null;
+        };
+        /** ProjektAntwort */
+        ProjektAntwort: {
+            /** Ab Wert Netto */
+            ab_wert_netto?: number | null;
+            /** Anlagenart */
+            anlagenart?: string | null;
+            /** Auftrag Vom */
+            auftrag_vom?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /**
+             * Darf Werte Sehen
+             * @default false
+             */
+            darf_werte_sehen: boolean;
+            /** Id */
+            id: number;
+            /** Kunde */
+            kunde: string;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Ladestation */
+            ladestation?: string | null;
+            /** Meilensteine */
+            meilensteine?: components["schemas"]["MeilensteinAntwort"][];
+            /** Pl Name */
+            pl_name?: string | null;
+            /** Pl User Id */
+            pl_user_id?: number | null;
+            /** Projekt Nr */
+            projekt_nr: number;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Quelle Migration */
+            quelle_migration?: string | null;
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /** Speicher Typ */
+            speicher_typ?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Standort */
+            standort?: string | null;
+            /** Status */
+            status: string;
+            /** Typ */
+            typ: string;
+            /** Ust Kz */
+            ust_kz: string;
+            /** Vertriebsweg */
+            vertriebsweg?: string | null;
+            /** Wr Typ */
+            wr_typ?: string | null;
+            /** Zahlungsplan */
+            zahlungsplan?: components["schemas"]["ZahlungsplanZeile"][];
+            /** Zahlungsplan Gestellt Summe */
+            zahlungsplan_gestellt_summe?: number | null;
+            /** Zahlungsplan Summe */
+            zahlungsplan_summe?: number | null;
+        };
+        /** ProjektEingabe */
+        ProjektEingabe: {
+            /** Ab Wert Netto */
+            ab_wert_netto?: number | null;
+            /** Anlagenart */
+            anlagenart?: ("aufdach" | "aufdach_speicher" | "freiflaeche" | "speicher" | "ladestation" | "sonstig") | null;
+            /** Auftrag Vom */
+            auftrag_vom?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Ladestation */
+            ladestation?: string | null;
+            /** Pl Name */
+            pl_name?: string | null;
+            /** Pl User Id */
+            pl_user_id?: number | null;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /** Speicher Typ */
+            speicher_typ?: string | null;
+            /** Standort */
+            standort?: string | null;
+            /**
+             * Status
+             * @default beauftragt
+             * @enum {string}
+             */
+            status: "angebot" | "beauftragt" | "in_bau" | "abgeschlossen" | "storniert";
+            /**
+             * Typ
+             * @default projekt
+             * @enum {string}
+             */
+            typ: "projekt" | "service";
+            /**
+             * Ust Kz
+             * @default 19
+             * @enum {string}
+             */
+            ust_kz: "19" | "0" | "13b" | "gemischt";
+            /** Vertriebsweg */
+            vertriebsweg?: string | null;
+            /** Wr Typ */
+            wr_typ?: string | null;
         };
         /**
          * ProjektKandidat
@@ -666,6 +991,96 @@ export interface components {
             pv_kwp?: string | null;
             /** Zeile */
             zeile: number;
+        };
+        /**
+         * ProjektZeile
+         * @description Projekt in der Liste (design/Projektliste.dc.html).
+         */
+        ProjektZeile: {
+            /** Ab Wert Netto */
+            ab_wert_netto?: number | null;
+            /** Anlagenart */
+            anlagenart?: string | null;
+            /** Auftrag Vom */
+            auftrag_vom?: string | null;
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /** Id */
+            id: number;
+            /** Kunde */
+            kunde: string;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Pl Name */
+            pl_name?: string | null;
+            /** Projekt Nr */
+            projekt_nr: number;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /** Standort */
+            standort?: string | null;
+            /** Status */
+            status: string;
+        };
+        /** ProjekteSeite */
+        ProjekteSeite: {
+            /** Anzahl */
+            anzahl: number;
+            /** Auftragsvolumen */
+            auftragsvolumen?: number | null;
+            /** Eintraege */
+            eintraege: components["schemas"]["ProjektZeile"][];
+            /** Gesamt */
+            gesamt: number;
+            /** Jahre */
+            jahre?: number[];
+            /** Projektleiter */
+            projektleiter?: string[];
+            /** Versatz */
+            versatz: number;
+        };
+        /** ProjektleiterErgebnis */
+        ProjektleiterErgebnis: {
+            /** Geaendert */
+            geaendert: number;
+            /** Meldung */
+            meldung: string;
+        };
+        /**
+         * ProjektleiterName
+         * @description Ein Name aus der Teamliste und wie weit er zugeordnet ist.
+         */
+        ProjektleiterName: {
+            /** Anzahl Projekte */
+            anzahl_projekte: number;
+            /**
+             * Ohne Konto
+             * @default 0
+             */
+            ohne_konto: number;
+            /** Pl Name */
+            pl_name: string;
+            /** User Ids */
+            user_ids?: number[];
+        };
+        /** ProjektleiterUebersicht */
+        ProjektleiterUebersicht: {
+            /** Konten */
+            konten: components["schemas"]["Konto"][];
+            /** Namen */
+            namen: components["schemas"]["ProjektleiterName"][];
+        };
+        /**
+         * ProjektleiterZuordnung
+         * @description Name auf Konto; ``None`` löst die Zuordnung wieder.
+         */
+        ProjektleiterZuordnung: {
+            /** Zuordnungen */
+            zuordnungen: {
+                [key: string]: number | null;
+            };
         };
         /**
          * StandAntwort
@@ -788,6 +1203,27 @@ export interface components {
             kunde: string;
             /** Projekt Zeile */
             projekt_zeile: number;
+        };
+        /** ZahlungsplanZeile */
+        ZahlungsplanZeile: {
+            /** Art */
+            art: string;
+            /** Berechnet */
+            berechnet: boolean;
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Gewerk */
+            gewerk: string;
+            /** Id */
+            id: number;
+            /** Migriert Gestellt */
+            migriert_gestellt?: boolean | null;
+            /** Plan Monat */
+            plan_monat?: string | null;
+            /** Pos Nr */
+            pos_nr: number;
         };
         /**
          * ZuordnungAntwort
@@ -1592,6 +2028,386 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    projekteListe: {
+        parameters: {
+            query?: {
+                /** @description Kunde, Ort, Bezeichnung oder Projektnummer */
+                suche?: string;
+                /** @description Auftragsjahr aus der Projektnummer */
+                jahr?: number | null;
+                status?: string;
+                projektleiter?: string;
+                anlagenart?: string;
+                versatz?: number;
+                anzahl?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjekteSeite"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung projekte.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    projektAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjektEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjektAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung projekte.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Das Projekt wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    projektleiterUebersicht: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjektleiterUebersicht"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung projekte.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    projektleiterZuordnen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjektleiterZuordnung"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjektleiterErgebnis"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung projekte.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Das Projekt wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    projektLesen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projekt_nr: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjektAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung projekte.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    projektAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projekt_nr: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjektAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjektAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung projekte.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Das Projekt wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    meilensteineSetzen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projekt_nr: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeilensteinEingabe"][];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeilensteinAntwort"][];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung meilensteine.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };

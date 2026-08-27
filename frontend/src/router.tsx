@@ -17,6 +17,10 @@ import { NichtGefunden } from "@/seiten/Fehlerseite";
 import { KomponentenGalerie } from "@/seiten/KomponentenGalerie";
 import { MigrationZuordnung } from "@/seiten/migration/Zuordnung";
 import { Kunden } from "@/seiten/stammdaten/Kunden";
+import { Projekte } from "@/seiten/projekte/Projekte";
+import { ProjektDetail } from "@/seiten/projekte/ProjektDetail";
+import { ProjektNeu } from "@/seiten/projekte/ProjektNeu";
+import { Projektleiter } from "@/seiten/projekte/Projektleiter";
 import { useSitzung } from "@/sitzung/SitzungKontext";
 
 function Ladeflaeche() {
@@ -78,6 +82,44 @@ export function AppRouten() {
         element={
           <GeschuetzteRoute>
             <Start />
+          </GeschuetzteRoute>
+        }
+      />
+
+      {/* Reihenfolge egal: React Router bewertet feste Pfadteile höher als `:projektNr`,
+          „/projekte/neu" landet also nicht im Detail. */}
+      <Route
+        path="/projekte"
+        element={
+          <GeschuetzteRoute>
+            <Projekte />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/projekte/neu"
+        element={
+          <GeschuetzteRoute>
+            <ProjektNeu />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/projekte/projektleiter"
+        element={
+          <GeschuetzteRoute>
+            <Projektleiter />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/projekte/:projektNr"
+        element={
+          <GeschuetzteRoute>
+            <ProjektDetail />
           </GeschuetzteRoute>
         }
       />

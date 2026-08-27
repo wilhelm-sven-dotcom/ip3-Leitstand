@@ -93,22 +93,34 @@ def beleg(db) -> dict[str, int]:
         }
 
 
-def _migration_laden():
-    """Migration 0002 als Modul laden.
+def _migration_laden(name: str):
+    """Eine Migration als Modul laden.
 
     Über den Dateipfad statt per Import: ``alembic/versions`` ist kein Paket, und nur wegen eines
     Tests dort eine ``__init__.py`` anzulegen würde Alembic beim Suchen der Migrationen irritieren.
     """
     import importlib.util
 
-    pfad = (
-        Path(__file__).resolve().parents[1] / "alembic" / "versions" / "0002_festschreibsperren.py"
-    )
-    spezifikation = importlib.util.spec_from_file_location("migration_0002", pfad)
+    pfad = Path(__file__).resolve().parents[1] / "alembic" / "versions" / f"{name}.py"
+    spezifikation = importlib.util.spec_from_file_location(f"migration_{name}", pfad)
     assert spezifikation is not None and spezifikation.loader is not None
     modul = importlib.util.module_from_spec(spezifikation)
     spezifikation.loader.exec_module(modul)
     return modul
+
+
+def _migrationen_mit_triggern() -> list:
+    """Alle Migrationen laden, die Trigger mitbringen.
+
+    Über das Verzeichnis statt über eine Liste im Test: sonst fällt eine spätere Phase, die einen
+    Trigger mit neuem Meldungstext anlegt, durch die Abgleichtests hindurch – und der Rohtext
+    landet auf dem Bildschirm.
+    """
+    verzeichnis = Path(__file__).resolve().parents[1] / "alembic" / "versions"
+    module = [_migration_laden(pfad.stem) for pfad in sorted(verzeichnis.glob("0*.py"))]
+    mit_triggern = [modul for modul in module if isinstance(getattr(modul, "TRIGGER", None), dict)]
+    assert mit_triggern, "Keine Migration mit Triggern gefunden"
+    return mit_triggern
 
 
 def _festschreiben(db, rechnung_id: int, nummer: str = "RE-2026-0087") -> None:
@@ -403,6 +415,152 @@ class TestZahlungsplanSperre:
             assert sitzung.get(Zahlungsplanposition, beleg["position"]).betrag_netto == 8000000
 
 
+class TestMigriertGestellteSindGesperrt:
+    """Die 150 Positionen, die der Altbestand als „Rechnung gestellt" führt (PLAN §9).
+
+    Sie zählen ab Phase 2 zum Umsatz-Ist, ohne dass es im Leitstand einen Beleg dazu gibt – die
+    Rechnungen wurden vorher gestellt. Ändert jemand Betrag oder Planmonat, verschiebt sich
+    rückwirkend Umsatz zwischen Monaten und nichts weist darauf hin.
+    """
+
+    @pytest.fixture
+    def gestellt(self, db, beleg) -> int:
+        """Die Position als migriert-gestellt kennzeichnen, wie es die Migration tut."""
+        with Session(db) as sitzung, schreib_transaktion(sitzung):
+            sitzung.execute(
+                text(
+                    "UPDATE zahlungsplan SET migriert_gestellt=1, rechnung_id=NULL, "
+                    "quelle_migration='Offene_Auftraege.xlsx Zeile 42' WHERE id=:id"
+                ),
+                {"id": beleg["position"]},
+            )
+        return beleg["position"]
+
+    @pytest.mark.parametrize(
+        ("feld", "wert"),
+        [
+            ("betrag_netto", 1),
+            ("plan_monat", "'2026-12'"),
+            ("bezeichnung", "'2. Abschlag PV'"),
+            ("gewerk", "'speicher'"),
+            ("art", "'schluss'"),
+        ],
+    )
+    def test_fachliche_felder_sind_gesperrt(self, db, gestellt, feld, wert):
+        with (
+            Session(db) as sitzung,
+            pytest.raises((IntegrityError, OperationalError)),
+            schreib_transaktion(sitzung),
+        ):
+            sitzung.execute(
+                text(f"UPDATE zahlungsplan SET {feld}={wert} WHERE id=:id"), {"id": gestellt}
+            )
+
+    def test_loeschen_ist_gesperrt(self, db, gestellt):
+        """Löschen entzieht dem Umsatz-Ist einen Betrag genauso still wie eine Änderung."""
+        with (
+            Session(db) as sitzung,
+            pytest.raises((IntegrityError, OperationalError)),
+            schreib_transaktion(sitzung),
+        ):
+            sitzung.execute(text("DELETE FROM zahlungsplan WHERE id=:id"), {"id": gestellt})
+        with Session(db) as sitzung:
+            assert sitzung.get(Zahlungsplanposition, gestellt) is not None
+
+    def test_ruecknahme_des_kennzeichens_ist_der_weg(self, db, gestellt):
+        """Zuerst das Kennzeichen zurücknehmen, dann ist die Position frei."""
+        with Session(db) as sitzung, schreib_transaktion(sitzung):
+            sitzung.execute(
+                text("UPDATE zahlungsplan SET migriert_gestellt=NULL WHERE id=:id"),
+                {"id": gestellt},
+            )
+        with Session(db) as sitzung, schreib_transaktion(sitzung):
+            sitzung.execute(
+                text("UPDATE zahlungsplan SET betrag_netto=8000000 WHERE id=:id"),
+                {"id": gestellt},
+            )
+        with Session(db) as sitzung:
+            assert sitzung.get(Zahlungsplanposition, gestellt).betrag_netto == 8000000
+
+    def test_ruecknahme_und_aenderung_in_einem_zug_wird_abgewiesen(self, db, gestellt):
+        """Sonst verschiebt ein einziges UPDATE den Umsatz, ohne dass die Rücknahme auffällt.
+
+        Die Rücknahme soll eine eigene, sichtbare Entscheidung sein – im Änderungsprotokoll steht
+        dann ein Eintrag über sie und ein zweiter über die Betragsänderung.
+        """
+        with (
+            Session(db) as sitzung,
+            pytest.raises((IntegrityError, OperationalError)),
+            schreib_transaktion(sitzung),
+        ):
+            sitzung.execute(
+                text("UPDATE zahlungsplan SET migriert_gestellt=NULL, betrag_netto=1 WHERE id=:id"),
+                {"id": gestellt},
+            )
+        with Session(db) as sitzung:
+            position = sitzung.get(Zahlungsplanposition, gestellt)
+            assert position.betrag_netto == 9187500
+            assert position.migriert_gestellt is True
+
+    def test_verknuepfung_mit_einem_beleg_bleibt_moeglich(self, db, gestellt, beleg):
+        """Phase 3 muss eine Altposition mit einem echten Beleg verbinden können."""
+        with Session(db) as sitzung, schreib_transaktion(sitzung):
+            sitzung.execute(
+                text("UPDATE zahlungsplan SET rechnung_id=:r WHERE id=:id"),
+                {"r": beleg["rechnung"], "id": gestellt},
+            )
+        with Session(db) as sitzung:
+            assert sitzung.get(Zahlungsplanposition, gestellt).rechnung_id == beleg["rechnung"]
+
+    def test_verknuepfung_deckt_keine_betragsaenderung(self, db, gestellt, beleg):
+        """Der Weg für Phase 3 darf kein Schlupfloch für den Betrag sein."""
+        with (
+            Session(db) as sitzung,
+            pytest.raises((IntegrityError, OperationalError)),
+            schreib_transaktion(sitzung),
+        ):
+            sitzung.execute(
+                text("UPDATE zahlungsplan SET rechnung_id=:r, betrag_netto=1 WHERE id=:id"),
+                {"r": beleg["rechnung"], "id": gestellt},
+            )
+
+    def test_offene_migrationsposition_bleibt_aenderbar(self, db, beleg):
+        """Nur das Kennzeichen sperrt, nicht die Herkunft aus der Migration."""
+        with Session(db) as sitzung, schreib_transaktion(sitzung):
+            sitzung.execute(
+                text(
+                    "UPDATE zahlungsplan SET quelle_migration='Zeile 42', migriert_gestellt=0 "
+                    "WHERE id=:id"
+                ),
+                {"id": beleg["position"]},
+            )
+        with Session(db) as sitzung, schreib_transaktion(sitzung):
+            sitzung.execute(
+                text("UPDATE zahlungsplan SET plan_monat='2026-10' WHERE id=:id"),
+                {"id": beleg["position"]},
+            )
+        with Session(db) as sitzung:
+            assert sitzung.get(Zahlungsplanposition, beleg["position"]).plan_monat == "2026-10"
+
+    def test_meldung_wird_zu_einem_konflikt_mit_dem_weg_zur_ruecknahme(self, db, gestellt):
+        with Session(db) as sitzung:
+            try:
+                with schreib_transaktion(sitzung):
+                    sitzung.execute(
+                        text("UPDATE zahlungsplan SET betrag_netto=1 WHERE id=:id"),
+                        {"id": gestellt},
+                    )
+            except Exception as fehler:
+                uebersetzt = als_fachfehler(fehler)
+                assert isinstance(uebersetzt, Konflikt)
+                assert uebersetzt.status_code == 409
+                assert uebersetzt.code == "zahlungsplan_migriert_gestellt"
+                assert "Kennzeichen" in uebersetzt.naechster_schritt
+                assert "aenderbar" not in uebersetzt.meldung, "Der Rohtext darf nicht durchsickern"
+            else:
+                pytest.fail("Die Sperre hat nicht gegriffen")
+
+
 class TestMeldungenSindVerstaendlich:
     def test_meldungen_in_migration_und_uebersetzung_sind_deckungsgleich(self):
         """Ohne Übersetzung landet der Triggertext im Rohzustand auf dem Bildschirm.
@@ -411,9 +569,9 @@ class TestMeldungenSindVerstaendlich:
         ``app.datenbank_sperren`` (als Übersetzung). Läuft das auseinander, zeigt der Leitstand
         „festgeschriebene Rechnung nicht aenderbar" statt eines verständlichen Satzes.
         """
-        migration = _migration_laden()
         in_migration = {
             wert
+            for migration in _migrationen_mit_triggern()
             for name, wert in vars(migration).items()
             if name.startswith("MELDUNG_") and isinstance(wert, str)
         }
@@ -426,8 +584,9 @@ class TestMeldungenSindVerstaendlich:
 
     def test_jeder_triggertext_kommt_auch_im_sql_vor(self):
         """Eine Konstante, die in keinem Trigger verwendet wird, ist eine tote Übersetzung."""
-        migration = _migration_laden()
-        alle_trigger = "\n".join(migration.TRIGGER.values())
+        alle_trigger = "\n".join(
+            sql for migration in _migrationen_mit_triggern() for sql in migration.TRIGGER.values()
+        )
         for meldung in SPERRMELDUNGEN:
             assert meldung in alle_trigger, f"Meldung in keinem Trigger verwendet: {meldung}"
 
@@ -494,5 +653,7 @@ class TestTriggerSindVorhanden:
             "trg_rechnungspos_insert",
             "trg_zahlungsplan_berechnet_update",
             "trg_zahlungsplan_berechnet_delete",
+            "trg_zahlungsplan_migriert_gestellt",
+            "trg_zahlungsplan_migriert_gestellt_delete",
         }
         assert erwartet <= vorhandene, "Fehlende Trigger: " + ", ".join(erwartet - vorhandene)

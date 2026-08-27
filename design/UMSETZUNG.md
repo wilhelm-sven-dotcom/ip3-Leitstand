@@ -47,6 +47,29 @@ Mockups zum Ansehen einfach im Browser öffnen.
    vorgesehen, von PLAN §7 und §9 ausdrücklich verlangt. Umgesetzt im Duktus der Projektliste:
    Kennzahlenreihe, Tabelle, Fußzeile mit dem Fortschritt.
 
+8. **Zweiter Badge-Satz für den Projektstatus.** `design/README.md` legt genau acht
+   Statusbadges fest – die beschreiben **Belege** (Entwurf, Gestellt, Bezahlt …). Die
+   Projektliste zeichnet daneben einen Projektlebenslauf (Angebot, Beauftragt, In Bau,
+   Abgeschlossen, Storniert) mit eigenen Farben. Umgesetzt als eigene Komponente
+   `ProjektStatusBadge` mit denselben Maßen und derselben Formsprache; der Achter-Satz bleibt
+   unangetastet. „Gestellt" an einem Projekt wäre eine Aussage über eine Rechnung, die es nicht
+   gibt.
+9. **Zeitleiste der Meilensteine als Tabelle in drei Gruppen.** Die Mockups zeigen den Reiter
+   „Übersicht" nicht. Die 19 Meilensteintypen folgen der Teamliste (PLAN §9) und sind nach
+   Projektablauf, Liefer- und Montageterminen und zusammenfassenden Schritten gruppiert. Je
+   Schritt drei Zustände (keine Angabe, offen, erledigt) – so, wie es Migration 0003 vorsieht.
+   Erledigte Schritte stehen in ip³ Blau, nicht in Grün.
+10. **Reiter für spätere Phasen bleiben sichtbar**, als `<button disabled>` mit dem Hinweis
+    „ab Phase 4" bzw. „ab Phase 6" – wie die Menüpunkte in der Seitenleiste. Wer nur einen
+    Reiter sieht, hält den Rest für verloren.
+11. **Übergreifende Suche in der Kopfzeile (Strg K) kommt später.** Projektliste und Kundenliste
+    haben je eine eigene Suche mit serverseitigem Blättern. Eine zweite, die überall gleichzeitig
+    sucht, ist erst sinnvoll, wenn es mehr zu finden gibt als Projekte und Kunden – vorgesehen ab
+    Phase 3 (Belege). Das Feld steht als Platzhalter mit Hinweis in der Kopfzeile.
+12. **Neues Projekt als eigene Seite**, nicht im Seitenpanel: es sind mehr Felder als in einer
+    Liste Platz haben, und der Kunde wird über ein Suchfeld gewählt (475 Kunden in einem
+    Auswahlfeld sind unbenutzbar). Bearbeitet wird dagegen im Panel, wie bei den Kunden.
+
 ## Prüfliste vor dem Abschluss einer Frontend-Änderung
 
 - Farben ausschließlich über die Token-Variablen, kein Grün, keine Verläufe.

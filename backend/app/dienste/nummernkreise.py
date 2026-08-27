@@ -95,30 +95,52 @@ def naechste_projektnummer(
 
     Bestandsprojekte bekommen bei der Migration Nummern nach ihrem Auftragsjahr; der Zähler wird
     dabei je Jahr fortgeschrieben, sodass anschließend keine Nummer doppelt vergeben wird.
+
+    Trotzdem wird geprüft, ob die Nummer schon vergeben ist, und notfalls weitergezählt: gerät
+    ein Projekt ohne den Zähler in die Datenbank – eine Korrektur von Hand, eine Rücksicherung,
+    ein künftiger Import –, dann liefe die nächste Neuanlage in einen Datenbankfehler, und der
+    Nutzer sähe beim Speichern einen Serverfehler statt einer Nummer. **Lücken sind hier
+    unschädlich:** lückenlos müssen nur die Rechnungsnummern sein (PLAN §6.4), nicht die
+    Projektnummern.
     """
     verwendetes_jahr = jahr if jahr is not None else heute_ortszeit().year
     jahr_zweistellig = verwendetes_jahr % 100
     kreis = "SA" if service else "PR"
-    laufend = naechster_wert(sitzung, firma_id, kreis, verwendetes_jahr)
 
-    if service:
-        # 9JJNN: zwei Stellen für die laufende Nummer, also 99 Serviceaufträge je Jahr.
-        if laufend > 99:
-            raise NummernkreisFehler(
-                f"Für {verwendetes_jahr} sind alle Serviceauftragsnummern vergeben "
-                f"(Schema 9JJNN erlaubt 99 Aufträge je Jahr).",
-                "Das Nummernschema muss erweitert werden. Bitte Sven informieren.",
-            )
-        return 900000 + jahr_zweistellig * 100 + laufend
+    while True:
+        laufend = naechster_wert(sitzung, firma_id, kreis, verwendetes_jahr)
 
-    # JJNNN: drei Stellen, also 999 Projekte je Jahr.
-    if laufend > 999:
-        raise NummernkreisFehler(
-            f"Für {verwendetes_jahr} sind alle Projektnummern vergeben "
-            f"(Schema JJNNN erlaubt 999 Projekte je Jahr).",
-            "Das Nummernschema muss erweitert werden. Bitte Sven informieren.",
-        )
-    return jahr_zweistellig * 1000 + laufend
+        if service:
+            # 9JJNN: zwei Stellen für die laufende Nummer, also 99 Serviceaufträge je Jahr.
+            if laufend > 99:
+                raise NummernkreisFehler(
+                    f"Für {verwendetes_jahr} sind alle Serviceauftragsnummern vergeben "
+                    f"(Schema 9JJNN erlaubt 99 Aufträge je Jahr).",
+                    "Das Nummernschema muss erweitert werden. Bitte Sven informieren.",
+                )
+            nummer = 900000 + jahr_zweistellig * 100 + laufend
+        else:
+            # JJNNN: drei Stellen, also 999 Projekte je Jahr.
+            if laufend > 999:
+                raise NummernkreisFehler(
+                    f"Für {verwendetes_jahr} sind alle Projektnummern vergeben "
+                    f"(Schema JJNNN erlaubt 999 Projekte je Jahr).",
+                    "Das Nummernschema muss erweitert werden. Bitte Sven informieren.",
+                )
+            nummer = jahr_zweistellig * 1000 + laufend
+
+        if not _projektnummer_vergeben(sitzung, nummer):
+            return nummer
+
+
+def _projektnummer_vergeben(sitzung: Session, nummer: int) -> bool:
+    # Import an dieser Stelle, weil app.modelle.projekte seinerseits auf die Basisklassen
+    # zugreift und ein Import am Modulkopf einen Ringschluss ergäbe.
+    from app.modelle.projekte import Projekt
+
+    return (
+        sitzung.scalar(select(Projekt.id).where(Projekt.projekt_nr == nummer).limit(1)) is not None
+    )
 
 
 def stand(sitzung: Session, firma_id: int, kreis: str, jahr: int | None = None) -> int:

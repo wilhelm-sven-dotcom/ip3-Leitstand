@@ -11,6 +11,8 @@ zu löschen; ein Test prüft das.
 
 from __future__ import annotations
 
+from datetime import date, datetime
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -39,8 +41,40 @@ def _feld_ist_geheim(name: str) -> bool:
     return any(kennzeichen in klein for kennzeichen in GEHEIME_FELDER)
 
 
+def _als_json_wert(wert: Any) -> Any:
+    """Werte in etwas verwandeln, was in einer JSON-Spalte Platz hat.
+
+    Die Aufrufer übergeben Feldwerte direkt aus den Modellen, und dort stehen Typen, die
+    ``json.dumps`` nicht kennt: ``Numeric`` liefert ``Decimal`` (pv_kwp, speicher_kwh),
+    Datumsfelder liefern ``date``. Ohne diese Umwandlung scheitert erst das ``INSERT`` in
+    ``audit_log`` – und mit ihm die fachliche Änderung, für die es geschrieben wird. Der Nutzer
+    sieht dann einen Serverfehler beim Speichern eines Projekts, dessen Leistung in kWp
+    eingetragen ist.
+
+    Unbekannte Typen werden als Text protokolliert. Ein lesbarer Eintrag ist besser als ein
+    abgebrochener Speichervorgang; die Protokollspalte ist zum Nachlesen da, nicht zum Rechnen.
+    """
+    if wert is None or isinstance(wert, bool | int | float | str):
+        return wert
+    if isinstance(wert, Decimal):
+        # Nur Anlagendaten sind Decimal; Geld ist überall Integer in Cent (CLAUDE.md Regel 3),
+        # eine Umwandlung in float kann hier also keinen Cent verlieren.
+        return float(wert)
+    if isinstance(wert, datetime | date):
+        return wert.isoformat()
+    if isinstance(wert, dict):
+        return {name: _als_json_wert(w) for name, w in wert.items()}
+    if isinstance(wert, list | tuple):
+        return [_als_json_wert(w) for w in wert]
+    return str(wert)
+
+
 def filtern(daten: dict[str, Any] | None) -> dict[str, Any] | None:
-    """Geheime Felder ersetzen, verschachtelte Strukturen eingeschlossen."""
+    """Geheime Felder ersetzen und alles Übrige JSON-fähig machen.
+
+    Verschachtelte Strukturen eingeschlossen – die Routen protokollieren teils Bäume
+    (``{"schritte": {"montage_uk": {"alt": …, "neu": …}}}``).
+    """
     if daten is None:
         return None
     ergebnis: dict[str, Any] = {}
@@ -50,9 +84,11 @@ def filtern(daten: dict[str, Any] | None) -> dict[str, Any] | None:
         elif isinstance(wert, dict):
             ergebnis[name] = filtern(wert)
         elif isinstance(wert, list):
-            ergebnis[name] = [filtern(e) if isinstance(e, dict) else e for e in wert]
+            ergebnis[name] = [
+                filtern(e) if isinstance(e, dict) else _als_json_wert(e) for e in wert
+            ]
         else:
-            ergebnis[name] = wert
+            ergebnis[name] = _als_json_wert(wert)
     return ergebnis
 
 

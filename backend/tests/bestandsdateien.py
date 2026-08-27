@@ -117,6 +117,10 @@ def _auftragszeilen() -> list[tuple[str | None, object, int | None, bool]]:
         ("Gruber, Bechtsrieth - 1. Abschlag", 4000.00, 7, False),
         # Ohne Monatsmarker: unterminiert.
         ("Huber, Pressath - 2. Abschlag Speicher", 2500.00, None, True),
+        # Zweimal derselbe Text bei einem Kunden, mit verschiedenen Beträgen und Monaten. Im
+        # echten Bestand steht das bei HPZ, Irchenrieth viermal als '1. Abschlag PV'; gemeint
+        # sind der erste bis vierte Abschlag. Der Text bleibt, wie er ist – der Import meldet es.
+        ("Huber, Pressath - 2. Abschlag Speicher", 1700.00, 8, False),
         # Auftragssummen ohne Rechnungsart und ohne Zahlungsplan.
         ("Speicherprojekt Irlbacher, Störnstein", 160000, None, False),
         ("Gewerbepark Konnersreuth", 80000, 11, False),

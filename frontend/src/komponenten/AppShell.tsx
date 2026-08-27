@@ -152,7 +152,14 @@ export function AppShell({ children }: Props) {
 
       <div className="inhalt">
         <header className="topbar">
-          <div className="topbar__suche" title="Suche kommt mit Phase 1">
+          {/* Die übergreifende Suche aus dem Mockup (Strg K) kommt später. Projekte und
+              Kunden haben je eine eigene Suche in ihrer Liste; eine zweite, die überall
+              gleichzeitig sucht, gehört in die Phase, in der es mehr zu finden gibt als
+              Projekte und Kunden. Siehe design/UMSETZUNG.md. */}
+          <div
+            className="topbar__suche"
+            title="Übergreifende Suche kommt mit Phase 3"
+          >
             <span>Suchen …</span>
             <kbd>Strg K</kbd>
           </div>

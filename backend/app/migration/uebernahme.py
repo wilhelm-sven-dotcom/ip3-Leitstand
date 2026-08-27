@@ -20,6 +20,7 @@ Vier Regeln, die hier ihren Platz haben:
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -142,6 +143,10 @@ class Analyse:
                 "summe_pv_kwp": str(self.projekte.summe_pv_kwp),
                 "anzahl_je_status": self.projekte.anzahl_je_status(),
                 "meilensteine": sum(len(z.meilensteine) for z in self.projekte.zeilen),
+                # Die Anlagenart ist aus PV-, Speicher- und Ladestationsdaten abgeleitet.
+                # 'freiflaeche' erkennt der Import nur, wenn es im Namen steht – die Übersicht
+                # macht sichtbar, wie viel davon in der Projektmaske nachzusehen ist.
+                "anlagenart_abgeleitet": _zaehlen(z.anlagenart for z in self.projekte.zeilen),
             },
             "zuordnung": {
                 "kunden_je_art": self.vorschau.je_art(),
@@ -177,10 +182,20 @@ class Uebernahmebericht:
     ab_luecken: list[dict[str, object]] = field(default_factory=list)
     gewerk_abgeleitet: list[dict[str, object]] = field(default_factory=list)
     nicht_uebernommen: list[dict[str, object]] = field(default_factory=list)
+    gleiche_bezeichnung: list[dict[str, object]] = field(default_factory=list)
 
     @property
     def luecke_gesamt_cent(self) -> int:
         return sum(int(eintrag["differenz_cent"]) for eintrag in self.ab_luecken)
+
+
+def _zaehlen(werte: Iterable[str | None]) -> dict[str, int]:
+    """Häufigkeit je Wert, ``None`` als ``'ohne Angabe'``."""
+    zaehler: dict[str, int] = {}
+    for wert in werte:
+        schluessel = wert or "ohne Angabe"
+        zaehler[schluessel] = zaehler.get(schluessel, 0) + 1
+    return dict(sorted(zaehler.items(), key=lambda paar: (-paar[1], paar[0])))
 
 
 def quelldateien_finden(ordner: Path) -> tuple[Path, Path]:
@@ -315,6 +330,7 @@ def _protokoll_bauen(lauf: _Lauf) -> dict[str, object]:
         "ab_luecken": bericht.ab_luecken,
         "gewerk_abgeleitet": bericht.gewerk_abgeleitet,
         "nicht_uebernommen": bericht.nicht_uebernommen,
+        "gleiche_bezeichnung": bericht.gleiche_bezeichnung,
         "befunde": [
             {
                 "datei": b.datei,
@@ -364,6 +380,7 @@ def _projekte_anlegen(lauf: _Lauf) -> None:
             speicher_typ=zeile.speicher_typ,
             speicher_kwh=zeile.speicher_kwh,
             ladestation=zeile.ladestation,
+            anlagenart=zeile.anlagenart,
             auftrag_vom=zeile.auftrag_vom,
             ab_wert_netto=zeile.ab_wert_cent,
             pl_name=zeile.pl_name,
@@ -489,6 +506,7 @@ def _zahlungsplan_anlegen(lauf: _Lauf) -> None:
             lauf.bericht.zahlungsplan_summe_cent += auftragszeile.betrag_cent
             if auftragszeile.gestellt:
                 lauf.bericht.zahlungsplan_gestellt += 1
+        _gleiche_bezeichnungen_melden(lauf, projekt, positionen, datei)
         lauf.sitzung.flush()
 
 
@@ -550,6 +568,32 @@ def _bezeichnung(zeile: AuftragsZeile) -> str:
     if zeile.rechnungsart.text:
         return zeile.rechnungsart.text
     return f"Auftragssumme (Altbestand, Zeile {zeile.zeile})"
+
+
+def _gleiche_bezeichnungen_melden(
+    lauf: _Lauf, projekt: Projekt, positionen: list[AuftragsZeile], datei: str
+) -> None:
+    """Melden, wenn mehrere Positionen eines Projekts denselben Text tragen.
+
+    Die Auftragsliste führt das vor: bei HPZ, Irchenrieth heißen vier Zeilen mit
+    unterschiedlichen Beträgen und Monaten alle „1. Abschlag PV". Gemeint sind offensichtlich
+    der erste bis vierte Abschlag. Der Text wird **nicht** verändert – er ist die Quelle, und
+    eine erfundene Nummerierung wäre eine Behauptung. Aber ab Phase 3 steht dieser Text auf der
+    Rechnung, deshalb gehört er in die Liste dessen, was in der Maske nachzuziehen ist.
+    """
+    je_text: dict[str, list[int]] = {}
+    for zeile in positionen:
+        je_text.setdefault(_bezeichnung(zeile), []).append(zeile.zeile)
+    for text, zeilen in je_text.items():
+        if len(zeilen) > 1:
+            lauf.bericht.gleiche_bezeichnung.append(
+                {
+                    "datei": datei,
+                    "projekt_nr": projekt.projekt_nr,
+                    "bezeichnung": text,
+                    "zeilen": zeilen,
+                }
+            )
 
 
 def _gewerk_bestimmen(lauf: _Lauf, zeile: AuftragsZeile, projekt: Projekt, datei: str) -> str:

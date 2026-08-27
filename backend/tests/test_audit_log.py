@@ -65,6 +65,63 @@ class TestFeldfilter:
         assert audit.filtern(daten) == daten
 
 
+class TestJsonFaehigkeit:
+    """Werte aus den Modellen müssen in eine JSON-Spalte passen.
+
+    Der Fall, der das erzwungen hat: ein Projekt mit Leistung in kWp speichern. ``pv_kwp`` ist
+    ``Numeric`` und liefert ein ``Decimal``; das ``INSERT`` in ``audit_log`` scheiterte daran,
+    und mit ihm die Änderung, für die das Protokoll geschrieben wird – der Nutzer bekam beim
+    Speichern einen Serverfehler.
+    """
+
+    def test_decimal_wird_zahl(self):
+        from decimal import Decimal
+
+        gefiltert = audit.filtern({"pv_kwp": Decimal("514.150")})
+        assert gefiltert == {"pv_kwp": 514.15}
+
+    def test_datum_wird_text(self):
+        from datetime import date
+
+        assert audit.filtern({"auftrag_vom": date(2026, 8, 14)}) == {"auftrag_vom": "2026-08-14"}
+
+    def test_zeitpunkt_wird_text(self):
+        from datetime import UTC, datetime
+
+        gefiltert = audit.filtern({"ts": datetime(2026, 8, 27, 14, 40, tzinfo=UTC)})
+        assert gefiltert == {"ts": "2026-08-27T14:40:00+00:00"}
+
+    def test_unbekannter_typ_wird_lesbar_statt_zum_fehler(self):
+        class Etwas:
+            def __str__(self) -> str:
+                return "etwas Besonderes"
+
+        assert audit.filtern({"feld": Etwas()}) == {"feld": "etwas Besonderes"}
+
+    def test_alles_gefilterte_laesst_sich_serialisieren(self):
+        """Die eigentliche Zusage: was durch den Filter geht, kommt in die Spalte."""
+        import json
+        from datetime import date
+        from decimal import Decimal
+
+        gefiltert = audit.filtern(
+            {
+                "pv_kwp": Decimal("29.580"),
+                "auftrag_vom": date(2026, 3, 10),
+                "schritte": {"montage_uk": {"erledigt_am": date(2026, 8, 20)}},
+                "liste": [Decimal("1.5"), date(2026, 1, 1), {"a": Decimal("2")}],
+                "passwort": "geheim",
+            }
+        )
+        assert json.loads(json.dumps(gefiltert)) == {
+            "pv_kwp": 29.58,
+            "auftrag_vom": "2026-03-10",
+            "schritte": {"montage_uk": {"erledigt_am": "2026-08-20"}},
+            "liste": [1.5, "2026-01-01", {"a": 2.0}],
+            "passwort": "(nicht protokolliert)",
+        }
+
+
 class TestEintragen:
     def test_eintrag_mit_nutzerobjekt(self, gesäte_db, buchhaltung):
         with schreib_sitzung() as sitzung:

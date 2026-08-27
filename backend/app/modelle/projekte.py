@@ -24,7 +24,12 @@ from app.modelle.basis import (
     Text,
     ZeitstempelMixin,
 )
-from app.modelle.pruefungen import in_werten, monat_check, nicht_negativ
+from app.modelle.pruefungen import (
+    in_werten,
+    in_werten_oder_leer,
+    monat_check,
+    nicht_negativ,
+)
 
 if TYPE_CHECKING:
     from app.modelle.anlagen import Anlage
@@ -34,6 +39,18 @@ if TYPE_CHECKING:
 
 PROJEKT_STATUS = ("angebot", "beauftragt", "in_bau", "abgeschlossen", "storniert")
 UST_KENNZEICHEN = ("19", "0", "13b", "gemischt")
+
+# Anlagenart für Filter und Liste (design/Projektliste.dc.html). Aus PV- und Speicherdaten
+# ableitbar bis auf 'freiflaeche' – dass eine Anlage auf einer Freifläche steht, sagt kein
+# anderes Feld. Siehe Migration 0005.
+ANLAGENARTEN = (
+    "aufdach",
+    "aufdach_speicher",
+    "freiflaeche",
+    "speicher",
+    "ladestation",
+    "sonstig",
+)
 GEWERKE = ("pv", "speicher", "ls", "service", "nachtrag")
 
 # Die Typen der Meilensteine folgen der Teamliste (PLAN §9). Sie liefern die Auslöser für
@@ -76,6 +93,7 @@ class Projekt(OptimistischMixin, ZeitstempelMixin, Base):
         in_werten("typ", ("projekt", "service")),
         in_werten("status", PROJEKT_STATUS),
         in_werten("ust_kz", UST_KENNZEICHEN),
+        in_werten_oder_leer("anlagenart", ANLAGENARTEN),
         # Projektnummer rein numerisch, höchstens 8 Stellen (DATEV-KOST-tauglich, PLAN §3).
         nicht_negativ("projekt_nr"),
     )
@@ -85,7 +103,11 @@ class Projekt(OptimistischMixin, ZeitstempelMixin, Base):
     firma_id: Mapped[int] = mapped_column(ForeignKey("firmen.id"), nullable=False, index=True)
     typ: Mapped[str] = mapped_column(Kurztext, nullable=False, default="projekt", index=True)
     kunde_id: Mapped[int] = mapped_column(ForeignKey("kunden.id"), nullable=False, index=True)
+    # Projektname aus der Liste (design/Projektliste.dc.html). Für die migrierten Projekte leer –
+    # die Bestandsdateien führen keinen; die Anzeige fällt dann auf den Kundennamen zurück.
+    bezeichnung: Mapped[str | None] = mapped_column(Text, nullable=True)
     standort: Mapped[str | None] = mapped_column(Text, nullable=True)
+    anlagenart: Mapped[str | None] = mapped_column(Kurztext, nullable=True, index=True)
 
     # Anlagendaten. Leistungen als Dezimalzahl, nicht als Geldbetrag – hier ist Gleitkomma
     # unschädlich, weil damit nicht gerechnet wird, was zu Cent-Differenzen führen könnte.

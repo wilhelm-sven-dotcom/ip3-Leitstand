@@ -44,6 +44,15 @@ er nicht treffen.
 | Teambesprechung_NEU | `C6` | derselbe Bereichsfehler | PV-Leistung 14.088,40 kWp ausgewiesen, tatsächlich 15.423,20 kWp. |
 | Offene_Auftraege_2025 | `Z5` | `SUMME(Z8:AC3243)` summiert ein Rechteck über die Augustspalte | Die Juli-Summe zählt den August mit: 360.813,53 € statt 226.302,01 €. |
 
+Dazu ein Befund aus den Datenzeilen selbst:
+
+**Mehrere Positionen eines Projekts tragen denselben Namen.** Bei `HPZ, Irchenrieth` heißen vier
+Zeilen der Auftragsliste (272–275) alle „1. Abschlag PV", mit 115.285,27 €, 134.499,48 €,
+115.285,27 € und 19.214,21 € in September bis November. Gemeint sind offensichtlich der erste bis
+vierte Abschlag. Der Import übernimmt den Text unverändert – eine erfundene Nummerierung wäre
+eine Behauptung über die Quelle – und **listet jeden solchen Fall im Importprotokoll**. Ab Phase 3
+steht dieser Text auf der Rechnung; er ist im Zahlungsplan des Projekts nachzuziehen.
+
 ## Zulieferungen, ohne die spätere Phasen nicht starten können
 
 | Phase | Was fehlt | Wofür |

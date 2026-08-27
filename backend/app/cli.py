@@ -670,6 +670,25 @@ def _bericht_ausgeben(bericht) -> None:
             f"\n{len(bericht.gewerk_abgeleitet)} Positionen ohne Gewerk im Text – aus den "
             "Anlagendaten abgeleitet, bitte in der Projektmaske nachsehen."
         )
+    if bericht.gleiche_bezeichnung:
+        typer.echo(
+            f"\n{len(bericht.gleiche_bezeichnung)} Projekte mit mehreren Positionen gleichen "
+            "Namens – der Text kommt unverändert aus der Auftragsliste:"
+        )
+        for eintrag in bericht.gleiche_bezeichnung[:10]:
+            zeilen = ", ".join(str(z) for z in eintrag["zeilen"])  # type: ignore[union-attr]
+            typer.echo(
+                f"  Projekt {eintrag['projekt_nr']}: "
+                f"\u201e{eintrag['bezeichnung']}\u201c in den Zeilen {zeilen}"
+            )
+        if len(bericht.gleiche_bezeichnung) > 10:
+            typer.echo(
+                f"  ... und {len(bericht.gleiche_bezeichnung) - 10} weitere, siehe Importprotokoll"
+            )
+        typer.echo(
+            "  Gemeint sind meist der erste, zweite, dritte Abschlag. Ab Phase 3 steht dieser "
+            "Text auf der Rechnung – im Zahlungsplan des Projekts nachziehen."
+        )
     typer.echo(f"\nImportprotokoll: importlaeufe Nr. {bericht.importlauf_id}")
 
 

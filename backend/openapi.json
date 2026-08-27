@@ -499,6 +499,29 @@
         "title": "JobStatus",
         "type": "object"
       },
+      "Konto": {
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email"
+        ],
+        "title": "Konto",
+        "type": "object"
+      },
       "KundeAendern": {
         "description": "Wie :class:`KundeEingabe`, zusätzlich der gelesene Stand für die Konfliktprüfung.",
         "properties": {
@@ -1030,6 +1053,155 @@
         "title": "KundenSeite",
         "type": "object"
       },
+      "MeilensteinAntwort": {
+        "properties": {
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "erledigt": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erledigt"
+          },
+          "erledigt_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erledigt Am"
+          },
+          "geplant_kw": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geplant Kw"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "typ": {
+            "title": "Typ",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "typ",
+          "stand"
+        ],
+        "title": "MeilensteinAntwort",
+        "type": "object"
+      },
+      "MeilensteinEingabe": {
+        "properties": {
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "erledigt": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erledigt"
+          },
+          "erledigt_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erledigt Am"
+          },
+          "geplant_kw": {
+            "anyOf": [
+              {
+                "maxLength": 20,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geplant Kw"
+          },
+          "typ": {
+            "enum": [
+              "uebergabetermin",
+              "freigabe_planung",
+              "plan_erstellt",
+              "anmeldung_nb",
+              "mastr",
+              "fertigmeldung",
+              "zaehler",
+              "abnahme",
+              "montage_uk",
+              "montage_elektro",
+              "zaehlerschrank",
+              "lieferung_uk",
+              "lieferung_wr_pv",
+              "lieferung_wr_speicher",
+              "lieferung_speicher",
+              "lieferung_wallbox",
+              "montage",
+              "lieferung",
+              "inbetriebnahme"
+            ],
+            "title": "Typ",
+            "type": "string"
+          }
+        },
+        "required": [
+          "typ"
+        ],
+        "title": "MeilensteinEingabe",
+        "type": "object"
+      },
       "PasswortDaten": {
         "properties": {
           "altes_passwort": {
@@ -1050,6 +1222,708 @@
           "neues_passwort"
         ],
         "title": "PasswortDaten",
+        "type": "object"
+      },
+      "ProjektAendern": {
+        "properties": {
+          "ab_wert_netto": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ab Wert Netto"
+          },
+          "anlagenart": {
+            "anyOf": [
+              {
+                "enum": [
+                  "aufdach",
+                  "aufdach_speicher",
+                  "freiflaeche",
+                  "speicher",
+                  "ladestation",
+                  "sonstig"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anlagenart"
+          },
+          "auftrag_vom": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auftrag Vom"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "ladestation": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ladestation"
+          },
+          "pl_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl Name"
+          },
+          "pl_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl User Id"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "speicher_typ": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Typ"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "status": {
+            "default": "beauftragt",
+            "enum": [
+              "angebot",
+              "beauftragt",
+              "in_bau",
+              "abgeschlossen",
+              "storniert"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "typ": {
+            "default": "projekt",
+            "enum": [
+              "projekt",
+              "service"
+            ],
+            "title": "Typ",
+            "type": "string"
+          },
+          "ust_kz": {
+            "default": "19",
+            "enum": [
+              "19",
+              "0",
+              "13b",
+              "gemischt"
+            ],
+            "title": "Ust Kz",
+            "type": "string"
+          },
+          "vertriebsweg": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertriebsweg"
+          },
+          "wr_typ": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wr Typ"
+          }
+        },
+        "required": [
+          "kunde_id",
+          "stand"
+        ],
+        "title": "ProjektAendern",
+        "type": "object"
+      },
+      "ProjektAntwort": {
+        "properties": {
+          "ab_wert_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ab Wert Netto"
+          },
+          "anlagenart": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anlagenart"
+          },
+          "auftrag_vom": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auftrag Vom"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "darf_werte_sehen": {
+            "default": false,
+            "title": "Darf Werte Sehen",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "ladestation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ladestation"
+          },
+          "meilensteine": {
+            "items": {
+              "$ref": "#/components/schemas/MeilensteinAntwort"
+            },
+            "title": "Meilensteine",
+            "type": "array"
+          },
+          "pl_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl Name"
+          },
+          "pl_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl User Id"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "quelle_migration": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quelle Migration"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "speicher_typ": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Typ"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "typ": {
+            "title": "Typ",
+            "type": "string"
+          },
+          "ust_kz": {
+            "title": "Ust Kz",
+            "type": "string"
+          },
+          "vertriebsweg": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertriebsweg"
+          },
+          "wr_typ": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wr Typ"
+          },
+          "zahlungsplan": {
+            "items": {
+              "$ref": "#/components/schemas/ZahlungsplanZeile"
+            },
+            "title": "Zahlungsplan",
+            "type": "array"
+          },
+          "zahlungsplan_gestellt_summe": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zahlungsplan Gestellt Summe"
+          },
+          "zahlungsplan_summe": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zahlungsplan Summe"
+          }
+        },
+        "required": [
+          "id",
+          "projekt_nr",
+          "kunde",
+          "kunde_id",
+          "typ",
+          "ust_kz",
+          "status",
+          "stand"
+        ],
+        "title": "ProjektAntwort",
+        "type": "object"
+      },
+      "ProjektEingabe": {
+        "properties": {
+          "ab_wert_netto": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ab Wert Netto"
+          },
+          "anlagenart": {
+            "anyOf": [
+              {
+                "enum": [
+                  "aufdach",
+                  "aufdach_speicher",
+                  "freiflaeche",
+                  "speicher",
+                  "ladestation",
+                  "sonstig"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anlagenart"
+          },
+          "auftrag_vom": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auftrag Vom"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "ladestation": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ladestation"
+          },
+          "pl_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl Name"
+          },
+          "pl_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl User Id"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "speicher_typ": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Typ"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "status": {
+            "default": "beauftragt",
+            "enum": [
+              "angebot",
+              "beauftragt",
+              "in_bau",
+              "abgeschlossen",
+              "storniert"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "typ": {
+            "default": "projekt",
+            "enum": [
+              "projekt",
+              "service"
+            ],
+            "title": "Typ",
+            "type": "string"
+          },
+          "ust_kz": {
+            "default": "19",
+            "enum": [
+              "19",
+              "0",
+              "13b",
+              "gemischt"
+            ],
+            "title": "Ust Kz",
+            "type": "string"
+          },
+          "vertriebsweg": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertriebsweg"
+          },
+          "wr_typ": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wr Typ"
+          }
+        },
+        "required": [
+          "kunde_id"
+        ],
+        "title": "ProjektEingabe",
         "type": "object"
       },
       "ProjektKandidat": {
@@ -1124,6 +1998,282 @@
           "kunde"
         ],
         "title": "ProjektKandidat",
+        "type": "object"
+      },
+      "ProjektZeile": {
+        "description": "Projekt in der Liste (design/Projektliste.dc.html).",
+        "properties": {
+          "ab_wert_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ab Wert Netto"
+          },
+          "anlagenart": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anlagenart"
+          },
+          "auftrag_vom": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auftrag Vom"
+          },
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "pl_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl Name"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "projekt_nr",
+          "kunde",
+          "kunde_id",
+          "status"
+        ],
+        "title": "ProjektZeile",
+        "type": "object"
+      },
+      "ProjekteSeite": {
+        "properties": {
+          "anzahl": {
+            "title": "Anzahl",
+            "type": "integer"
+          },
+          "auftragsvolumen": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auftragsvolumen"
+          },
+          "eintraege": {
+            "items": {
+              "$ref": "#/components/schemas/ProjektZeile"
+            },
+            "title": "Eintraege",
+            "type": "array"
+          },
+          "gesamt": {
+            "title": "Gesamt",
+            "type": "integer"
+          },
+          "jahre": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Jahre",
+            "type": "array"
+          },
+          "projektleiter": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Projektleiter",
+            "type": "array"
+          },
+          "versatz": {
+            "title": "Versatz",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "eintraege",
+          "gesamt",
+          "versatz",
+          "anzahl"
+        ],
+        "title": "ProjekteSeite",
+        "type": "object"
+      },
+      "ProjektleiterErgebnis": {
+        "properties": {
+          "geaendert": {
+            "title": "Geaendert",
+            "type": "integer"
+          },
+          "meldung": {
+            "title": "Meldung",
+            "type": "string"
+          }
+        },
+        "required": [
+          "geaendert",
+          "meldung"
+        ],
+        "title": "ProjektleiterErgebnis",
+        "type": "object"
+      },
+      "ProjektleiterName": {
+        "description": "Ein Name aus der Teamliste und wie weit er zugeordnet ist.",
+        "properties": {
+          "anzahl_projekte": {
+            "title": "Anzahl Projekte",
+            "type": "integer"
+          },
+          "ohne_konto": {
+            "default": 0,
+            "title": "Ohne Konto",
+            "type": "integer"
+          },
+          "pl_name": {
+            "title": "Pl Name",
+            "type": "string"
+          },
+          "user_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "User Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "pl_name",
+          "anzahl_projekte"
+        ],
+        "title": "ProjektleiterName",
+        "type": "object"
+      },
+      "ProjektleiterUebersicht": {
+        "properties": {
+          "konten": {
+            "items": {
+              "$ref": "#/components/schemas/Konto"
+            },
+            "title": "Konten",
+            "type": "array"
+          },
+          "namen": {
+            "items": {
+              "$ref": "#/components/schemas/ProjektleiterName"
+            },
+            "title": "Namen",
+            "type": "array"
+          }
+        },
+        "required": [
+          "namen",
+          "konten"
+        ],
+        "title": "ProjektleiterUebersicht",
+        "type": "object"
+      },
+      "ProjektleiterZuordnung": {
+        "description": "Name auf Konto; ``None`` löst die Zuordnung wieder.",
+        "properties": {
+          "zuordnungen": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Zuordnungen",
+            "type": "object"
+          }
+        },
+        "required": [
+          "zuordnungen"
+        ],
+        "title": "ProjektleiterZuordnung",
         "type": "object"
       },
       "StandAntwort": {
@@ -1478,6 +2628,71 @@
           "guete"
         ],
         "title": "Vorschlag",
+        "type": "object"
+      },
+      "ZahlungsplanZeile": {
+        "properties": {
+          "art": {
+            "title": "Art",
+            "type": "string"
+          },
+          "berechnet": {
+            "title": "Berechnet",
+            "type": "boolean"
+          },
+          "betrag_netto": {
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "gewerk": {
+            "title": "Gewerk",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "migriert_gestellt": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Migriert Gestellt"
+          },
+          "plan_monat": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Monat"
+          },
+          "pos_nr": {
+            "title": "Pos Nr",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "pos_nr",
+          "bezeichnung",
+          "gewerk",
+          "art",
+          "betrag_netto",
+          "berechnet"
+        ],
+        "title": "ZahlungsplanZeile",
         "type": "object"
       },
       "ZuordnungAntwort": {
@@ -2318,6 +3533,445 @@
         "summary": "Bestandsdateien lesen und Zuordnung vorschlagen",
         "tags": [
           "Migration"
+        ]
+      }
+    },
+    "/api/projekte": {
+      "get": {
+        "description": "Projektliste mit den Filtern aus design/Projektliste.dc.html.",
+        "operationId": "projekteListe",
+        "parameters": [
+          {
+            "description": "Kunde, Ort, Bezeichnung oder Projektnummer",
+            "in": "query",
+            "name": "suche",
+            "required": false,
+            "schema": {
+              "default": "",
+              "description": "Kunde, Ort, Bezeichnung oder Projektnummer",
+              "title": "Suche",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Auftragsjahr aus der Projektnummer",
+            "in": "query",
+            "name": "jahr",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Auftragsjahr aus der Projektnummer",
+              "title": "Jahr"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "projektleiter",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "title": "Projektleiter",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anlagenart",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "title": "Anlagenart",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "versatz",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Versatz",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anzahl",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Anzahl",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjekteSeite"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung projekte.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Projekte filtern und blättern",
+        "tags": [
+          "Projekte"
+        ]
+      },
+      "post": {
+        "description": "Neues Projekt. Die Projektnummer richtet sich nach dem Auftragsjahr (PLAN §3).",
+        "operationId": "projektAnlegen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjektEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjektAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung projekte.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt nicht gefunden"
+          },
+          "409": {
+            "description": "Das Projekt wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Projekt anlegen",
+        "tags": [
+          "Projekte"
+        ]
+      }
+    },
+    "/api/projekte/projektleiter/uebersicht": {
+      "get": {
+        "operationId": "projektleiterUebersicht",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjektleiterUebersicht"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung projekte.lesen fehlt"
+          }
+        },
+        "summary": "Projektleiternamen und ihre Zuordnung",
+        "tags": [
+          "Projekte"
+        ]
+      }
+    },
+    "/api/projekte/projektleiter/zuordnen": {
+      "put": {
+        "description": "Setzt ``pl_user_id`` für alle Projekte eines Namens.\n\nDer Name bleibt stehen: er ist der Herkunftsnachweis aus der Teamliste. Wäre er\nüberschrieben, ließe sich später nicht mehr prüfen, ob die Zuordnung stimmt.",
+        "operationId": "projektleiterZuordnen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjektleiterZuordnung"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjektleiterErgebnis"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung projekte.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt nicht gefunden"
+          },
+          "409": {
+            "description": "Das Projekt wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Projektleiternamen Nutzerkonten zuordnen",
+        "tags": [
+          "Projekte"
+        ]
+      }
+    },
+    "/api/projekte/{projekt_nr}": {
+      "get": {
+        "operationId": "projektLesen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projekt_nr",
+            "required": true,
+            "schema": {
+              "title": "Projekt Nr",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjektAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung projekte.lesen fehlt"
+          },
+          "404": {
+            "description": "Projekt nicht gefunden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Projekt mit Meilensteinen und Zahlungsplan lesen",
+        "tags": [
+          "Projekte"
+        ]
+      },
+      "put": {
+        "operationId": "projektAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projekt_nr",
+            "required": true,
+            "schema": {
+              "title": "Projekt Nr",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjektAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjektAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung projekte.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt nicht gefunden"
+          },
+          "409": {
+            "description": "Das Projekt wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Projekt ändern",
+        "tags": [
+          "Projekte"
+        ]
+      }
+    },
+    "/api/projekte/{projekt_nr}/meilensteine": {
+      "put": {
+        "description": "Meilensteine als Ganzes setzen.\n\nÜbergeben wird der vollständige Stand, nicht einzelne Änderungen: die Zeitleiste im\nProjektdetail bearbeitet mehrere Schritte in einem Zug, und ein Aufruf je Häkchen würde\nzehn Anfragen und zehn Protokolleinträge für einen Vorgang erzeugen.\n\nTypen, die nicht mitgeschickt werden, bleiben unverändert – gelöscht wird hier nichts.",
+        "operationId": "meilensteineSetzen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projekt_nr",
+            "required": true,
+            "schema": {
+              "title": "Projekt Nr",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/MeilensteinEingabe"
+                },
+                "title": "Eingaben",
+                "type": "array"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MeilensteinAntwort"
+                  },
+                  "title": "Response Meilensteinesetzen",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung meilensteine.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt nicht gefunden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Meilensteine eines Projekts setzen",
+        "tags": [
+          "Projekte"
         ]
       }
     },

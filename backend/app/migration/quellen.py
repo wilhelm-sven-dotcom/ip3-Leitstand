@@ -148,6 +148,21 @@ MARKER_JA = ("x", "X", "✓")
 MARKER_NEIN = ("-", "–", "—")
 MARKER_OFFEN = ("o", "O")
 _KALENDERWOCHE = re.compile(r"^\s*(\d{1,2})\s*/\s*(\d{2,4})\s*$")
+
+# Dass eine Anlage auf einer Freifläche steht, sagt kein Feld der Teamliste – es steht allenfalls
+# im Klartext des Namens. Der Ausdruck ist bewusst kurz gehalten: am echten Bestand geprüft
+# findet er genau eine Zeile („Thanstein Kulz Freifläche"), und jede Erweiterung war entweder
+# wirkungslos oder falsch. `ff` als Abkürzung und `bürgerenergie` (eine Rechtsform, keine
+# Bauart) sind deshalb draußen, und `park` erst recht: **Parkstein ist ein Ort in der
+# Oberpfalz** und käme neunmal fälschlich durch.
+#
+# Die Anlagenart ist damit im Wesentlichen ein Feld, das in der Projektmaske gepflegt wird. Was
+# sich aus PV-, Speicher- und Ladestationsdaten sicher ergeben lässt, leitet der Import ab; ob
+# eine 1.364-kWp-Anlage auf einem Hallendach oder auf einer Wiese steht, steht in keiner Spalte.
+_FREIFLAECHE = re.compile(
+    r"(?<![a-zäöüß])(freifl(ae|ä)che|freiland|solarpark|pv[- ]?park)(?![a-zäöüß])",
+    re.IGNORECASE,
+)
 _EXCEL_NULLTAG = date(1899, 12, 30)  # Excel zählt ab 1900 mit dem bekannten Schaltjahrfehler
 
 
@@ -230,6 +245,7 @@ class ProjektZeile:
     speicher_typ: str | None = None
     speicher_kwh: Decimal | None = None
     ladestation: str | None = None
+    anlagenart: str | None = None
     auftrag_vom: date | None = None
     ab_wert_cent: int | None = None
     pl_name: str | None = None
@@ -564,6 +580,25 @@ def _stammdaten_lesen(
         )
         projekt.speicher_kwh = projekt.speicher_kwh or _kapazitaet_aus_text(storage)
 
+    projekt.anlagenart, per_stichwort = anlagenart_ableiten(
+        projekt.pv_kwp,
+        projekt.speicher_typ,
+        projekt.ladestation,
+        f"{projekt.kundenteil} {projekt.ort or ''}",
+    )
+    if per_stichwort:
+        befunde.append(
+            Befund(
+                datei,
+                projekt.zeile,
+                SPALTE_KUNDE,
+                projekt.kundenteil,
+                "Anlagenart 'Freifläche' aus dem Namen erschlossen – kein Feld der Teamliste "
+                "sagt das. Bitte in der Projektmaske bestätigen",
+                schwere="hinweis",
+            )
+        )
+
     datum_roh = _text(zellen.get(SPALTE_AUFTRAG_VOM))
     projekt.auftrag_vom = excel_datum(zellen.get(SPALTE_AUFTRAG_VOM))
     if datum_roh and projekt.auftrag_vom is None and datum_roh not in MARKER_NEIN:
@@ -598,6 +633,37 @@ def _stammdaten_lesen(
     pl = _freitext_oder_none(zellen.get(SPALTE_PL))
     projekt.pl_name = pl
     projekt.bemerkung = _freitext_oder_none(zellen.get(SPALTE_BEMERKUNG))
+
+
+def anlagenart_ableiten(
+    pv_kwp: Decimal | None,
+    speicher: str | None,
+    ladestation: str | None,
+    freitext: str,
+) -> tuple[str | None, bool]:
+    """Anlagenart für Liste und Filter (design/Projektliste.dc.html).
+
+    Rückgabe ist ``(art, per_stichwort)``. ``per_stichwort`` sagt, ob die Freifläche über den
+    Klartext erkannt wurde – dann ist die Angabe geraten und gehört ins Protokoll.
+
+    Ohne PV, Speicher und Ladestation bleibt die Art leer: ``sonstig`` wäre eine Aussage, und
+    hier ist nichts bekannt.
+    """
+    hat_pv = pv_kwp is not None
+    hat_speicher = speicher is not None
+    per_stichwort = bool(_FREIFLAECHE.search(freitext))
+
+    if hat_pv and per_stichwort:
+        return "freiflaeche", True
+    if hat_pv and hat_speicher:
+        return "aufdach_speicher", False
+    if hat_pv:
+        return "aufdach", False
+    if hat_speicher:
+        return "speicher", False
+    if ladestation is not None:
+        return "ladestation", False
+    return None, False
 
 
 def _freitext_oder_none(wert: Any) -> str | None:

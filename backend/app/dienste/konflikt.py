@@ -18,6 +18,7 @@ Zwei Wege, beide hier:
 from __future__ import annotations
 
 from datetime import datetime
+from decimal import Decimal
 from typing import Any, Protocol
 
 from sqlalchemy.orm.exc import StaleDataError
@@ -88,6 +89,25 @@ def konflikt_uebersetzen(fehler: Exception, bezeichnung: str = "Der Datensatz") 
         ) from fehler
 
 
+def _gleichwertig(vorher: Any, nachher: Any) -> bool:
+    """Ob zwei Werte dasselbe bedeuten.
+
+    ``Decimal`` und ``float`` sind in Python nie gleich, auch wenn sie dieselbe Zahl meinen:
+    ``Decimal("514.08") == 514.08`` ist ``False``. Genau das passiert bei jeder Speicherung aus
+    einer Maske – die Datenbank liefert ``Decimal`` (``pv_kwp``, ``speicher_kwh``), die
+    Schnittstelle schickt eine Gleitkommazahl zurück. Ohne diesen Vergleich stünde nach jedem
+    Speichern „514.08 → 514.08" im Änderungsprotokoll, und die echten Änderungen gingen darin
+    unter.
+
+    Geldbeträge sind davon nicht betroffen: sie sind überall Integer in Cent (CLAUDE.md Regel 3).
+    """
+    if vorher == nachher:
+        return True
+    if isinstance(vorher, Decimal | float | int) and isinstance(nachher, Decimal | float | int):
+        return Decimal(str(vorher)) == Decimal(str(nachher))
+    return False
+
+
 def geaenderte_felder(alt: dict[str, Any], neu: dict[str, Any]) -> dict[str, dict[str, Any]]:
     """Unterschiede zwischen zwei Zuständen – für das Änderungsprotokoll.
 
@@ -98,6 +118,6 @@ def geaenderte_felder(alt: dict[str, Any], neu: dict[str, Any]) -> dict[str, dic
     for feld in set(alt) | set(neu):
         vorher = alt.get(feld)
         nachher = neu.get(feld)
-        if vorher != nachher:
+        if not _gleichwertig(vorher, nachher):
             unterschiede[feld] = {"alt": vorher, "neu": nachher}
     return unterschiede

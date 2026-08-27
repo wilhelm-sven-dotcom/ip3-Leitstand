@@ -74,6 +74,89 @@
   text-decoration: line-through;
 }
 
+/* Projektstatus – ein zweiter, getrennter Satz (design/Projektliste.dc.html). Er beschreibt
+   den Lebenslauf eines Projekts, nicht den eines Belegs; die Formsprache ist dieselbe.
+   Angebot und Storniert teilen die neutrale Kontur, Storniert zusätzlich den Durchstrich. */
+.badge--projekt-angebot {
+  border-color: var(--linie-badge);
+  color: var(--text-sekundaer);
+}
+.badge--projekt-beauftragt {
+  border-color: var(--ip3-blau);
+  color: var(--ip3-blau);
+}
+.badge--projekt-in-bau {
+  background: var(--ip3-blau);
+  color: var(--weiss);
+}
+.badge--projekt-abgeschlossen {
+  background: var(--ip3-navy);
+  color: var(--weiss);
+}
+.badge--projekt-storniert {
+  border-color: var(--linie-badge);
+  color: var(--text-sekundaer);
+  text-decoration: line-through;
+}
+
+/* ---------------------------------------------------------------- Reiter -------------------- */
+
+.reiter {
+  display: flex;
+  align-items: center;
+  gap: var(--abstand-5);
+  border-bottom: 1px solid var(--linie);
+  margin: var(--abstand-5) 0 var(--abstand-4);
+}
+
+.reiter__knopf {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0 0 10px;
+  font-family: var(--font-ui);
+  font-size: var(--text-m);
+  color: var(--text-sekundaer);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--abstand-2);
+}
+
+.reiter__knopf:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.reiter__knopf--aktiv {
+  color: var(--ip3-blau);
+  font-weight: 600;
+  border-bottom-color: var(--ip3-blau);
+}
+
+.reiter__knopf:disabled {
+  cursor: default;
+  color: var(--platzhalter);
+}
+
+.reiter__knopf:focus-visible {
+  outline: none;
+  box-shadow: var(--fokus);
+}
+
+.reiter__spaeter {
+  font-size: var(--text-xs);
+  color: var(--platzhalter);
+  font-weight: 400;
+}
+
+.reiter__rechts {
+  margin-left: auto;
+  padding-bottom: 10px;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
 /* ---------------------------------------------------------------- Schaltflächen ------------ */
 
 .knopf {

@@ -46,6 +46,20 @@ SPERRMELDUNGEN: dict[str, tuple[str, str, str]] = {
         "Wenn sich der Betrag ändern muss: zuerst die zugehörige Rechnung stornieren, dann ist "
         "die Position wieder frei.",
     ),
+    "migriert gestellte Zahlungsplanposition nicht aenderbar": (
+        "zahlungsplan_migriert_gestellt",
+        "Diese Position ist im Altbestand als gestellt gekennzeichnet und deshalb gesperrt.",
+        "Die Rechnung dazu entstand vor der Einführung des Leitstands. Wenn der Betrag oder der "
+        'Monat wirklich falsch ist: zuerst das Kennzeichen „gestellt“ zurücknehmen, dann ist '
+        "die Position frei. Beides steht im Änderungsprotokoll.",
+    ),
+    "migriert gestellte Zahlungsplanposition nicht loeschbar": (
+        "zahlungsplan_migriert_gestellt",
+        "Diese Position ist im Altbestand als gestellt gekennzeichnet und kann nicht gelöscht "
+        "werden.",
+        "Ihr Betrag zählt zum Umsatz des Altbestands. Wenn die Position wirklich nicht in den "
+        'Zahlungsplan gehört: zuerst das Kennzeichen „gestellt“ zurücknehmen, dann ist sie frei.',
+    ),
     "berechnete Zahlungsplanposition nicht loeschbar": (
         "zahlungsplan_berechnet",
         "Diese Zahlungsplanposition ist bereits berechnet und kann nicht gelöscht werden.",

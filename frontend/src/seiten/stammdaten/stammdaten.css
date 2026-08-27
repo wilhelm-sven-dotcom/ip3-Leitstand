@@ -101,8 +101,7 @@
 }
 
 .partner__leer,
-.dialogtext,
-.lademeldung {
+.dialogtext {
   font-size: var(--text-m);
   color: var(--text-sekundaer);
 }

@@ -16,7 +16,13 @@ type Props = {
   gesamt: number;
   versatz: number;
   anzahl: number;
-  /** Wort für die Einträge, Einzahl und Mehrzahl, z. B. „Kunde" / „Kunden". */
+  /**
+   * Wort für die Einträge, Einzahl und Mehrzahl.
+   *
+   * Die Mehrzahl steht hier nach „von" und gehört deshalb in den **Dativ**: „von 530
+   * Projekten", nicht „von 530 Projekte". Bei „Kunden" fallen beide Formen zusammen, bei
+   * „Projekte" nicht – und genau das liest man sofort.
+   */
   einheit: [string, string];
   onVersatz: (versatz: number) => void;
 };

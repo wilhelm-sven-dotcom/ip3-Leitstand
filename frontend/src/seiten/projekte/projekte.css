@@ -1,0 +1,266 @@
+/* Projektliste, Projektdetail und Projektleiter-Zuordnung
+   (design/Projektliste.dc.html, design/Projektdetail.dc.html). */
+
+.projekte__name {
+  display: block;
+  font-weight: 600;
+}
+
+.projekte__kunde {
+  display: block;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.projekte__leer {
+  color: var(--text-sekundaer);
+}
+
+/* Rücksprung über der Kopfzeile – im Mockup „← Projekte". */
+.zurueck {
+  display: inline-block;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  margin-bottom: var(--abstand-3);
+}
+
+.zurueck:hover {
+  color: var(--ip3-blau);
+}
+
+.projektkopf {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--abstand-4);
+  flex-wrap: wrap;
+}
+
+.projektkopf__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--abstand-3);
+  flex-wrap: wrap;
+  margin-top: var(--abstand-2);
+  font-size: var(--text-m);
+  color: var(--text-sekundaer);
+}
+
+/* Anlagendaten im Reiter Übersicht: zweispaltig, Beschriftung über dem Wert. */
+.datenblock {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--abstand-4);
+  margin: 0 0 var(--abstand-5);
+  padding: var(--abstand-5);
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+}
+
+.datenblock dt {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  margin-bottom: 2px;
+}
+
+.datenblock dd {
+  margin: 0;
+  font-size: var(--text-m);
+  color: var(--text);
+}
+
+.datenblock__herkunft {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.bemerkung {
+  margin: 0 0 var(--abstand-5);
+  padding: var(--abstand-4);
+  background: var(--flaeche-info);
+  border-radius: var(--radius-m);
+  font-size: var(--text-m);
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.abschnittstitel {
+  font-size: var(--text-l);
+  font-weight: 700;
+  color: var(--ip3-blau);
+  margin: var(--abstand-6) 0 var(--abstand-3);
+}
+
+.summenzeile {
+  margin: var(--abstand-3) 0 0;
+  text-align: right;
+  font-size: var(--text-m);
+  color: var(--text-sekundaer);
+}
+
+.summenzeile .zahl {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Die Lücke zwischen Zahlungsplan und Auftragswert steht in Akzent-Rot: bei den migrierten
+   Projekten ist sie der Hinweis, dass noch nicht alles verplant ist (PLAN §6.2). */
+.summenzeile__luecke {
+  color: var(--akzent-rot);
+}
+
+.summenzeile__luecke .zahl {
+  color: var(--akzent-rot);
+}
+
+/* ------------------------------------------------------------------ Zeitleiste -------------- */
+
+.zeitleiste__huelle {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: var(--abstand-5);
+}
+
+.zeitleiste__gruppe {
+  border: none;
+  padding: 0;
+  margin: 0 0 var(--abstand-6);
+}
+
+.zeitleiste__gruppe:last-of-type {
+  margin-bottom: 0;
+}
+
+.zeitleiste__legende {
+  font-size: var(--text-m);
+  font-weight: 600;
+  color: var(--ip3-blau);
+  padding: 0;
+}
+
+.zeitleiste__erlaeuterung {
+  margin: var(--abstand-1) 0 var(--abstand-3);
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.zeitleiste {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.zeitleiste th,
+.zeitleiste td {
+  text-align: left;
+  padding: 6px 8px 6px 0;
+  font-size: var(--text-m);
+  font-weight: 400;
+  vertical-align: middle;
+}
+
+.zeitleiste thead th {
+  font-size: var(--text-s);
+  font-weight: 600;
+  color: var(--text-sekundaer);
+  border-bottom: 1px solid var(--linie);
+}
+
+.zeitleiste tbody tr:nth-child(even) {
+  background: var(--flaeche-info);
+}
+
+.zeitleiste__schritt {
+  font-weight: 500;
+  color: var(--text);
+  width: 34%;
+  padding-left: var(--abstand-2);
+}
+
+/* Erledigte Schritte in ip³ Blau – die Zeitleiste soll auf einen Blick zeigen, wie weit ein
+   Projekt ist. Kein Grün (PLAN §11). */
+.zeitleiste__zeile--erledigt .zeitleiste__schritt {
+  color: var(--ip3-blau);
+  font-weight: 600;
+}
+
+.zeitleiste__feld {
+  font-family: var(--font-ui);
+  font-size: var(--text-m);
+  padding: 5px 8px;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-m);
+  background: var(--weiss);
+  color: var(--text);
+  width: 100%;
+  max-width: 220px;
+  box-sizing: border-box;
+}
+
+.zeitleiste__feld:focus-visible {
+  outline: none;
+  box-shadow: var(--fokus);
+}
+
+/* ------------------------------------------------------------------ Zuordnung ---------------- */
+
+.zuordnungstabelle {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.zuordnungstabelle th,
+.zuordnungstabelle td {
+  text-align: left;
+  padding: 8px 12px 8px 0;
+  font-size: var(--text-m);
+  font-weight: 400;
+  vertical-align: middle;
+}
+
+.zuordnungstabelle thead th {
+  font-size: var(--text-s);
+  font-weight: 600;
+  color: var(--text-sekundaer);
+  border-bottom: 1px solid var(--linie);
+}
+
+.zuordnungstabelle tbody th {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.zuordnungstabelle .rechts {
+  text-align: right;
+}
+
+.zuordnungstabelle__warnung {
+  display: block;
+  margin-top: var(--abstand-1);
+  font-size: var(--text-s);
+  color: var(--akzent-rot);
+}
+
+/* Die Neuanlage steht als eigene Seite, nicht im Panel – deshalb eine eigene Breite. */
+.projektformular {
+  max-width: 720px;
+  margin-top: var(--abstand-5);
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: var(--abstand-5);
+}
+
+.hinweistext {
+  font-size: var(--text-m);
+  color: var(--text-sekundaer);
+  max-width: 78ch;
+  margin: var(--abstand-3) 0 var(--abstand-4);
+}
+
+.auswahlzeile--breit {
+  flex: 1 1 100%;
+}
