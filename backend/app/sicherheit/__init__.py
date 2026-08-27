@@ -1,0 +1,1 @@
+"""Anmeldung, Sitzungen und Berechtigungen."""
