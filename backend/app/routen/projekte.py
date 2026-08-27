@@ -102,8 +102,24 @@ class ZahlungsplanZeile(BaseModel):
     art: str
     betrag_netto: int
     plan_monat: str | None = None
+    trigger_status: str | None = None
     migriert_gestellt: bool | None = None
     berechnet: bool
+    quelle_migration: str | None = None
+    stand: datetime
+    # Warum die Position nicht bearbeitbar ist – leer, wenn sie es ist. Die Maske zeichnet sie
+    # damit von Anfang an als gesperrt, statt den Nutzer beim Speichern auflaufen zu lassen.
+    sperrgrund: str | None = None
+
+
+class NachtragZeile(BaseModel):
+    id: int
+    bezeichnung: str
+    betrag_netto: int
+    status: str
+    datum: date | None = None
+    zaehlt_zum_soll: bool
+    stand: datetime
 
 
 class ProjektAntwort(BaseModel):
@@ -135,6 +151,12 @@ class ProjektAntwort(BaseModel):
     zahlungsplan: list[ZahlungsplanZeile] = Field(default_factory=list)
     zahlungsplan_summe: int | None = None
     zahlungsplan_gestellt_summe: int | None = None
+    nachtraege: list[NachtragZeile] = Field(default_factory=list)
+    # Soll-Ist-Vergleich des Zahlungsplans (PLAN §6.12): Auftragswert plus beauftragte Nachträge
+    # gegen die Summe der Positionen. Eine Abweichung ist eine Warnung, keine Sperre.
+    soll_netto: int | None = None
+    nachtraege_summe: int | None = None
+    deckung_differenz: int | None = None
     darf_werte_sehen: bool = False
 
 
@@ -270,6 +292,11 @@ def _als_antwort(db: Session, projekt: Projekt, darf_werte: bool) -> ProjektAntw
 
     # Beträge nur mit projekte.werte_lesen – die Felder fehlen sonst ganz (PLAN §4).
     if darf_werte:
+        # Die Sperrgründe und die Deckungsrechnung stehen in app/routen/zahlungsplan.py – dort
+        # gehören sie fachlich hin, und so gibt es sie nur einmal.
+        from app.routen.zahlungsplan import NACHTRAG_ZAEHLT, deckung_berechnen
+        from app.routen.zahlungsplan import _sperrgrund as sperrgrund
+
         antwort.ab_wert_netto = projekt.ab_wert_netto
         antwort.zahlungsplan = [
             ZahlungsplanZeile(
@@ -280,8 +307,12 @@ def _als_antwort(db: Session, projekt: Projekt, darf_werte: bool) -> ProjektAntw
                 art=p.art,
                 betrag_netto=p.betrag_netto,
                 plan_monat=p.plan_monat,
+                trigger_status=p.trigger_status,
                 migriert_gestellt=p.migriert_gestellt,
                 berechnet=p.rechnung_id is not None,
+                quelle_migration=p.quelle_migration,
+                stand=p.updated_at,
+                sperrgrund=sperrgrund(p),
             )
             for p in positionen
         ]
@@ -289,6 +320,22 @@ def _als_antwort(db: Session, projekt: Projekt, darf_werte: bool) -> ProjektAntw
         antwort.zahlungsplan_gestellt_summe = sum(
             p.betrag_netto for p in positionen if p.migriert_gestellt or p.rechnung_id
         )
+        antwort.nachtraege = [
+            NachtragZeile(
+                id=n.id,
+                bezeichnung=n.bezeichnung,
+                betrag_netto=n.betrag_netto,
+                status=n.status,
+                datum=n.datum,
+                zaehlt_zum_soll=n.status in NACHTRAG_ZAEHLT,
+                stand=n.updated_at,
+            )
+            for n in sorted(projekt.nachtraege, key=lambda n: n.id)
+        ]
+        deckung = deckung_berechnen(db, projekt)
+        antwort.soll_netto = deckung.soll_netto
+        antwort.nachtraege_summe = deckung.nachtraege_netto
+        antwort.deckung_differenz = deckung.differenz_netto
     return antwort
 
 
@@ -763,7 +810,7 @@ def projektleiter_zuordnen(
     return ProjektleiterErgebnis(
         geaendert=geaendert,
         meldung=(
-            f'{geaendert} Projekte wurden zugeordnet. Der Sichtbarkeits-Scope „eigene“ wirkt '
+            f"{geaendert} Projekte wurden zugeordnet. Der Sichtbarkeits-Scope „eigene“ wirkt "
             "ab sofort."
             if geaendert
             else "Es gab nichts zu ändern."

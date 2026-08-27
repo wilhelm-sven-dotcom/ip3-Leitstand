@@ -70,6 +70,13 @@ Mockups zum Ansehen einfach im Browser öffnen.
     Liste Platz haben, und der Kunde wird über ein Suchfeld gewählt (475 Kunden in einem
     Auswahlfeld sind unbenutzbar). Bearbeitet wird dagegen im Panel, wie bei den Kunden.
 
+13. **Gesperrte Zahlungsplanpositionen sind von Anfang an als gesperrt gezeichnet.** Die
+    Schnittstelle liefert je Position einen `sperrgrund`; steht dort etwas, trägt die Zeile ein
+    Schloss und das Seitenpanel zeigt den Grund samt Ausweg statt eines Formulars. Niemand soll
+    erst beim Speichern erfahren, dass er etwas nicht ändern darf (CLAUDE.md Regel 8). Die
+    Rücknahme des Kennzeichens „gestellt" ist ein eigener Knopf mit Rückfrage – kein
+    Nebeneffekt des Speicherns.
+
 ## Prüfliste vor dem Abschluss einer Frontend-Änderung
 
 - Farben ausschließlich über die Token-Variablen, kein Grün, keine Verläufe.

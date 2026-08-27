@@ -92,6 +92,39 @@
   margin: var(--abstand-6) 0 var(--abstand-3);
 }
 
+/* Abschnittstitel mit Aktion rechts – „Zahlungsplan" und „Position hinzufügen" in einer Zeile. */
+.abschnittskopf {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--abstand-4);
+}
+
+.abschnittskopf .abschnittstitel {
+  margin-bottom: var(--abstand-3);
+}
+
+/* Das Schloss steht direkt hinter der Bezeichnung – die Zeile ist damit auf einen Blick als
+   gesperrt erkennbar, ohne eine eigene Spalte dafür. */
+.zahlungsplan__schloss {
+  font-size: var(--text-s);
+}
+
+.gesperrt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-4);
+  align-items: flex-start;
+}
+
+.datenblock--panel {
+  grid-template-columns: 1fr;
+  gap: var(--abstand-3);
+  padding: var(--abstand-4);
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .summenzeile {
   margin: var(--abstand-3) 0 0;
   text-align: right;

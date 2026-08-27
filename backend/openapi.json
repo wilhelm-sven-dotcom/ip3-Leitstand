@@ -1202,6 +1202,203 @@
         "title": "MeilensteinEingabe",
         "type": "object"
       },
+      "NachtragAendern": {
+        "properties": {
+          "betrag_netto": {
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datum"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "status": {
+            "default": "angeboten",
+            "enum": [
+              "angeboten",
+              "beauftragt",
+              "berechnet"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "bezeichnung",
+          "betrag_netto",
+          "stand"
+        ],
+        "title": "NachtragAendern",
+        "type": "object"
+      },
+      "NachtragAntwort": {
+        "properties": {
+          "betrag_netto": {
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datum"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "projekt_id": {
+            "title": "Projekt Id",
+            "type": "integer"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "zaehlt_zum_soll": {
+            "title": "Zaehlt Zum Soll",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "projekt_id",
+          "bezeichnung",
+          "betrag_netto",
+          "status",
+          "zaehlt_zum_soll",
+          "stand"
+        ],
+        "title": "NachtragAntwort",
+        "type": "object"
+      },
+      "NachtragEingabe": {
+        "properties": {
+          "betrag_netto": {
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datum"
+          },
+          "status": {
+            "default": "angeboten",
+            "enum": [
+              "angeboten",
+              "beauftragt",
+              "berechnet"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "bezeichnung",
+          "betrag_netto"
+        ],
+        "title": "NachtragEingabe",
+        "type": "object"
+      },
+      "NachtragZeile": {
+        "properties": {
+          "betrag_netto": {
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datum"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "zaehlt_zum_soll": {
+            "title": "Zaehlt Zum Soll",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "bezeichnung",
+          "betrag_netto",
+          "status",
+          "zaehlt_zum_soll",
+          "stand"
+        ],
+        "title": "NachtragZeile",
+        "type": "object"
+      },
       "PasswortDaten": {
         "properties": {
           "altes_passwort": {
@@ -1222,6 +1419,295 @@
           "neues_passwort"
         ],
         "title": "PasswortDaten",
+        "type": "object"
+      },
+      "PositionAendern": {
+        "properties": {
+          "art": {
+            "enum": [
+              "abschlag",
+              "schluss",
+              "einmal"
+            ],
+            "title": "Art",
+            "type": "string"
+          },
+          "betrag_netto": {
+            "minimum": 0.0,
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "gewerk": {
+            "enum": [
+              "pv",
+              "speicher",
+              "ls",
+              "service",
+              "nachtrag"
+            ],
+            "title": "Gewerk",
+            "type": "string"
+          },
+          "plan_monat": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Monat"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "trigger_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "uebergabetermin",
+                  "freigabe_planung",
+                  "plan_erstellt",
+                  "anmeldung_nb",
+                  "mastr",
+                  "fertigmeldung",
+                  "zaehler",
+                  "abnahme",
+                  "montage_uk",
+                  "montage_elektro",
+                  "zaehlerschrank",
+                  "lieferung_uk",
+                  "lieferung_wr_pv",
+                  "lieferung_wr_speicher",
+                  "lieferung_speicher",
+                  "lieferung_wallbox",
+                  "montage",
+                  "lieferung",
+                  "inbetriebnahme"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger Status"
+          }
+        },
+        "required": [
+          "bezeichnung",
+          "gewerk",
+          "art",
+          "betrag_netto",
+          "stand"
+        ],
+        "title": "PositionAendern",
+        "type": "object"
+      },
+      "PositionAntwort": {
+        "properties": {
+          "art": {
+            "title": "Art",
+            "type": "string"
+          },
+          "berechnet": {
+            "title": "Berechnet",
+            "type": "boolean"
+          },
+          "betrag_netto": {
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "gewerk": {
+            "title": "Gewerk",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "migriert_gestellt": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Migriert Gestellt"
+          },
+          "plan_monat": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Monat"
+          },
+          "pos_nr": {
+            "title": "Pos Nr",
+            "type": "integer"
+          },
+          "projekt_id": {
+            "title": "Projekt Id",
+            "type": "integer"
+          },
+          "quelle_migration": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quelle Migration"
+          },
+          "sperrgrund": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sperrgrund"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "trigger_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger Status"
+          }
+        },
+        "required": [
+          "id",
+          "projekt_id",
+          "pos_nr",
+          "bezeichnung",
+          "gewerk",
+          "art",
+          "betrag_netto",
+          "berechnet",
+          "stand"
+        ],
+        "title": "PositionAntwort",
+        "type": "object"
+      },
+      "PositionEingabe": {
+        "properties": {
+          "art": {
+            "enum": [
+              "abschlag",
+              "schluss",
+              "einmal"
+            ],
+            "title": "Art",
+            "type": "string"
+          },
+          "betrag_netto": {
+            "minimum": 0.0,
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "gewerk": {
+            "enum": [
+              "pv",
+              "speicher",
+              "ls",
+              "service",
+              "nachtrag"
+            ],
+            "title": "Gewerk",
+            "type": "string"
+          },
+          "plan_monat": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Monat"
+          },
+          "trigger_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "uebergabetermin",
+                  "freigabe_planung",
+                  "plan_erstellt",
+                  "anmeldung_nb",
+                  "mastr",
+                  "fertigmeldung",
+                  "zaehler",
+                  "abnahme",
+                  "montage_uk",
+                  "montage_elektro",
+                  "zaehlerschrank",
+                  "lieferung_uk",
+                  "lieferung_wr_pv",
+                  "lieferung_wr_speicher",
+                  "lieferung_speicher",
+                  "lieferung_wallbox",
+                  "montage",
+                  "lieferung",
+                  "inbetriebnahme"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger Status"
+          }
+        },
+        "required": [
+          "bezeichnung",
+          "gewerk",
+          "art",
+          "betrag_netto"
+        ],
+        "title": "PositionEingabe",
         "type": "object"
       },
       "ProjektAendern": {
@@ -1513,6 +1999,17 @@
             "title": "Darf Werte Sehen",
             "type": "boolean"
           },
+          "deckung_differenz": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deckung Differenz"
+          },
           "id": {
             "title": "Id",
             "type": "integer"
@@ -1542,6 +2039,24 @@
             },
             "title": "Meilensteine",
             "type": "array"
+          },
+          "nachtraege": {
+            "items": {
+              "$ref": "#/components/schemas/NachtragZeile"
+            },
+            "title": "Nachtraege",
+            "type": "array"
+          },
+          "nachtraege_summe": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nachtraege Summe"
           },
           "pl_name": {
             "anyOf": [
@@ -1590,6 +2105,17 @@
               }
             ],
             "title": "Quelle Migration"
+          },
+          "soll_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soll Netto"
           },
           "speicher_kwh": {
             "anyOf": [
@@ -2681,6 +3207,44 @@
           "pos_nr": {
             "title": "Pos Nr",
             "type": "integer"
+          },
+          "quelle_migration": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quelle Migration"
+          },
+          "sperrgrund": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sperrgrund"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "trigger_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger Status"
           }
         },
         "required": [
@@ -2690,7 +3254,8 @@
           "gewerk",
           "art",
           "betrag_netto",
-          "berechnet"
+          "berechnet",
+          "stand"
         ],
         "title": "ZahlungsplanZeile",
         "type": "object"
@@ -3536,6 +4101,116 @@
         ]
       }
     },
+    "/api/nachtraege/{nachtrag_id}": {
+      "delete": {
+        "description": "Angebotene und beauftragte Nachträge dürfen weg, berechnete nicht.",
+        "operationId": "nachtragLoeschen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nachtrag_id",
+            "required": true,
+            "schema": {
+              "title": "Nachtrag Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung zahlungsplan.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Position gesperrt oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Nachtrag löschen",
+        "tags": [
+          "Zahlungsplan"
+        ]
+      },
+      "put": {
+        "operationId": "nachtragAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nachtrag_id",
+            "required": true,
+            "schema": {
+              "title": "Nachtrag Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NachtragAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NachtragAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung zahlungsplan.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Position gesperrt oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Nachtrag ändern",
+        "tags": [
+          "Zahlungsplan"
+        ]
+      }
+    },
     "/api/projekte": {
       "get": {
         "description": "Projektliste mit den Filtern aus design/Projektliste.dc.html.",
@@ -3975,6 +4650,134 @@
         ]
       }
     },
+    "/api/projekte/{projekt_nr}/nachtraege": {
+      "post": {
+        "operationId": "nachtragAnlegen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projekt_nr",
+            "required": true,
+            "schema": {
+              "title": "Projekt Nr",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NachtragEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NachtragAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung zahlungsplan.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Position gesperrt oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Nachtrag anlegen",
+        "tags": [
+          "Zahlungsplan"
+        ]
+      }
+    },
+    "/api/projekte/{projekt_nr}/zahlungsplan": {
+      "post": {
+        "operationId": "zahlungsplanAnlegen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projekt_nr",
+            "required": true,
+            "schema": {
+              "title": "Projekt Nr",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PositionEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung zahlungsplan.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Position gesperrt oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Zahlungsplanposition anlegen",
+        "tags": [
+          "Zahlungsplan"
+        ]
+      }
+    },
     "/api/systemstatus": {
       "get": {
         "operationId": "systemstatus_abrufen",
@@ -4054,6 +4857,171 @@
         "summary": "Hintergrundlauf von Hand starten",
         "tags": [
           "System"
+        ]
+      }
+    },
+    "/api/zahlungsplan/{position_id}": {
+      "delete": {
+        "description": "Löschen ist hier erlaubt – solange keine Sperre greift.\n\nEine offene Zahlungsplanposition ist eine Planung, kein Beleg: an ihr hängt nichts, und eine\nPlanung, die sich nicht korrigieren lässt, wäre in der Maske unbrauchbar. Berechnete und\nmigriert-gestellte Positionen sind dagegen Umsatz und bleiben (CLAUDE.md Regel 5).",
+        "operationId": "zahlungsplanLoeschen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "position_id",
+            "required": true,
+            "schema": {
+              "title": "Position Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung zahlungsplan.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Position gesperrt oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Zahlungsplanposition löschen",
+        "tags": [
+          "Zahlungsplan"
+        ]
+      },
+      "put": {
+        "operationId": "zahlungsplanAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "position_id",
+            "required": true,
+            "schema": {
+              "title": "Position Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PositionAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung zahlungsplan.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Position gesperrt oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Zahlungsplanposition ändern",
+        "tags": [
+          "Zahlungsplan"
+        ]
+      }
+    },
+    "/api/zahlungsplan/{position_id}/gestellt-zuruecknehmen": {
+      "put": {
+        "description": "Eigener Weg für eine eigene Entscheidung (docs/OFFENE-PUNKTE.md Nr. 5).\n\nDer Betrag einer migriert-gestellten Position zählt zum Umsatz eines vergangenen Monats. Ihn\nim Rahmen einer gewöhnlichen Änderung mitzuverschieben würde rückwirkend Umsatz zwischen\nMonaten bewegen, ohne dass es auffällt. Deshalb: erst das Kennzeichen zurücknehmen – ein\neigener Aufruf, ein eigener Protokolleintrag –, danach ist die Position frei.",
+        "operationId": "zahlungsplanGestelltZuruecknehmen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "position_id",
+            "required": true,
+            "schema": {
+              "title": "Position Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung zahlungsplan.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Position gesperrt oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Kennzeichen „gestellt“ einer migrierten Position zurücknehmen",
+        "tags": [
+          "Zahlungsplan"
         ]
       }
     }

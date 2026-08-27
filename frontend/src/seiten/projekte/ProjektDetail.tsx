@@ -12,27 +12,27 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { DataTable } from "@/komponenten/DataTable";
-import type { Spalte } from "@/komponenten/DataTable";
 import { DetailPanel } from "@/komponenten/DetailPanel";
 import { EmptyState } from "@/komponenten/EmptyState";
 import { Knopf } from "@/komponenten/Knopf";
 import { Meldung } from "@/komponenten/Meldung";
 import { ProjektStatusBadge } from "@/komponenten/ProjektStatusBadge";
-import { StatusBadge } from "@/komponenten/StatusBadge";
 import { Tabs } from "@/komponenten/Tabs";
 import { api, fehlerAuslesen } from "@/api/client";
 import type { ApiFehler } from "@/api/client";
 import {
-  anteil,
   datum as datumText,
   euro,
   kapazitaet,
   leistung,
-  monat as monatText,
 } from "@/format/formate";
 import { useSitzung } from "@/sitzung/SitzungKontext";
 import { Meilensteine, type MeilensteinDaten } from "./Meilensteine";
+import {
+  Zahlungsplan,
+  type NachtragZeile,
+  type Position,
+} from "./Zahlungsplan";
 import { ProjektFormular, type ProjektDaten } from "./ProjektFormular";
 import {
   ANLAGENART_TEXT,
@@ -42,41 +42,6 @@ import {
   type Anlagenart,
 } from "./begriffe";
 import "./projekte.css";
-
-type Zahlungsplanzeile = {
-  id: number;
-  pos_nr: number;
-  bezeichnung: string;
-  gewerk: string;
-  art: string;
-  betrag_netto: number;
-  plan_monat?: string | null;
-  migriert_gestellt?: boolean | null;
-  berechnet: boolean;
-};
-
-const ART_TEXT: Record<string, string> = {
-  abschlag: "Abschlag",
-  schluss: "Schlussrechnung",
-  einmal: "Einmalbetrag",
-};
-
-/**
- * Ab welcher Abweichung die Lücke zwischen Zahlungsplan und Auftragswert ausgewiesen wird.
- *
- * Dieselbe Toleranz wie im Import (`RUNDUNGSTOLERANZ_CENT` in app/migration/uebernahme.py):
- * Abschläge sind in der Auftragsliste als Prozentsätze gerechnet, da bleibt regelmäßig ein Cent
- * übrig. „Nicht verplant 0,01 €" in Akzent-Rot wäre ein Alarm über nichts.
- */
-const RUNDUNGSTOLERANZ_CENT = 100;
-
-const GEWERK_TEXT: Record<string, string> = {
-  pv: "PV",
-  speicher: "Speicher",
-  ls: "Ladestation",
-  service: "Service",
-  nachtrag: "Nachtrag",
-};
 
 export function ProjektDetail() {
   const { projektNr } = useParams();
@@ -189,62 +154,6 @@ export function ProjektDetail() {
 
   const p = projekt.data;
   if (!p) return null;
-
-  const positionen = (p.zahlungsplan ?? []) as Zahlungsplanzeile[];
-  const spalten: Spalte<Zahlungsplanzeile>[] = [
-    { kopf: "Pos.", zahl: true, zelle: (z) => z.pos_nr, breite: "60px" },
-    {
-      kopf: "Bezeichnung",
-      hervorgehoben: true,
-      zelle: (z) => (
-        <>
-          <span className="projekte__name">{z.bezeichnung}</span>
-          <span className="projekte__kunde">
-            {ART_TEXT[z.art] ?? z.art} · {GEWERK_TEXT[z.gewerk] ?? z.gewerk}
-          </span>
-        </>
-      ),
-    },
-    {
-      kopf: "Planmonat",
-      zelle: (z) =>
-        z.plan_monat ? (
-          monatText(z.plan_monat)
-        ) : (
-          <span className="projekte__leer">unterminiert</span>
-        ),
-    },
-    {
-      kopf: "Anteil (%)",
-      zahl: true,
-      zelle: (z) =>
-        p.ab_wert_netto
-          ? anteil((z.betrag_netto / p.ab_wert_netto) * 100)
-          : "–",
-    },
-    {
-      kopf: "Betrag netto (€)",
-      zahl: true,
-      zelle: (z) => euro(z.betrag_netto, false),
-    },
-    {
-      kopf: "Status",
-      zelle: (z) =>
-        z.berechnet ? (
-          <StatusBadge zustand="festgeschrieben" />
-        ) : z.migriert_gestellt ? (
-          <StatusBadge
-            zustand="gestellt"
-            titel="Vor der Einführung des Leitstands gestellt – Betrag und Monat sind gesperrt."
-          />
-        ) : (
-          <StatusBadge zustand="geplant" />
-        ),
-    },
-  ];
-
-  const summe = positionen.reduce((s, z) => s + z.betrag_netto, 0);
-  const luecke = (p.ab_wert_netto ?? 0) - summe;
 
   return (
     <>
@@ -400,48 +309,16 @@ export function ProjektDetail() {
             text="Zum Ansehen von Auftragswerten und Zahlungsplan fehlt die Berechtigung „Auftragswerte und Zahlungsplanbeträge ansehen“."
           />
         ) : (
-          <>
-            <DataTable
-              spalten={spalten}
-              zeilen={positionen}
-              schluessel={(z) => z.id}
-              beschriftung="Zahlungsplan"
-              leer={
-                <EmptyState
-                  titel="Kein Zahlungsplan"
-                  text="Für dieses Projekt sind keine Zahlungsplanpositionen erfasst."
-                />
-              }
-            />
-            {positionen.length ? (
-              <p className="summenzeile">
-                Summe Zahlungsplan <span className="zahl">{euro(summe)}</span>
-                {p.ab_wert_netto ? (
-                  <>
-                    {" von "}
-                    <span className="zahl">{euro(p.ab_wert_netto)}</span>
-                    {Math.abs(luecke) > RUNDUNGSTOLERANZ_CENT ? (
-                      <>
-                        {" · "}
-                        <span className="summenzeile__luecke">
-                          {luecke > 0
-                            ? "nicht verplant "
-                            : "über dem Auftragswert "}
-                          <span className="zahl">{euro(Math.abs(luecke))}</span>
-                        </span>
-                      </>
-                    ) : null}
-                  </>
-                ) : null}
-              </p>
-            ) : null}
-            <h2 className="abschnittstitel">Belege</h2>
-            <EmptyState
-              titel="Rechnungen ab Phase 3"
-              text="Belege werden im Leitstand ab Phase 3 erstellt und festgeschrieben. Positionen, die vorher abgerechnet wurden, sind oben als „Gestellt“ gekennzeichnet."
-              ohneZeichen
-            />
-          </>
+          <Zahlungsplan
+            projektNr={nummer}
+            positionen={(p.zahlungsplan ?? []) as Position[]}
+            nachtraege={(p.nachtraege ?? []) as NachtragZeile[]}
+            abWertNetto={p.ab_wert_netto}
+            sollNetto={p.soll_netto}
+            nachtraegeSumme={p.nachtraege_summe}
+            deckungDifferenz={p.deckung_differenz}
+            darfSchreiben={darf("zahlungsplan.schreiben")}
+          />
         )
       ) : null}
 

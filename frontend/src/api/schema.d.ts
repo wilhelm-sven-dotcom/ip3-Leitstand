@@ -274,6 +274,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/nachtraege/{nachtrag_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Nachtrag ändern */
+        put: operations["nachtragAendern"];
+        post?: never;
+        /**
+         * Nachtrag löschen
+         * @description Angebotene und beauftragte Nachträge dürfen weg, berechnete nicht.
+         */
+        delete: operations["nachtragLoeschen"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projekte": {
         parameters: {
             query?: never;
@@ -382,6 +403,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projekte/{projekt_nr}/nachtraege": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Nachtrag anlegen */
+        post: operations["nachtragAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projekte/{projekt_nr}/zahlungsplan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Zahlungsplanposition anlegen */
+        post: operations["zahlungsplanAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/systemstatus": {
         parameters: {
             query?: never;
@@ -413,6 +468,56 @@ export interface paths {
          * @description Einen Lauf sofort auslösen – für die Prüfung nach der Einrichtung und nach einer Störung.
          */
         post: operations["job_starten"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/zahlungsplan/{position_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Zahlungsplanposition ändern */
+        put: operations["zahlungsplanAendern"];
+        post?: never;
+        /**
+         * Zahlungsplanposition löschen
+         * @description Löschen ist hier erlaubt – solange keine Sperre greift.
+         *
+         *     Eine offene Zahlungsplanposition ist eine Planung, kein Beleg: an ihr hängt nichts, und eine
+         *     Planung, die sich nicht korrigieren lässt, wäre in der Maske unbrauchbar. Berechnete und
+         *     migriert-gestellte Positionen sind dagegen Umsatz und bleiben (CLAUDE.md Regel 5).
+         */
+        delete: operations["zahlungsplanLoeschen"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/zahlungsplan/{position_id}/gestellt-zuruecknehmen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Kennzeichen „gestellt“ einer migrierten Position zurücknehmen
+         * @description Eigener Weg für eine eigene Entscheidung (docs/OFFENE-PUNKTE.md Nr. 5).
+         *
+         *     Der Betrag einer migriert-gestellten Position zählt zum Umsatz eines vergangenen Monats. Ihn
+         *     im Rahmen einer gewöhnlichen Änderung mitzuverschieben würde rückwirkend Umsatz zwischen
+         *     Monaten bewegen, ohne dass es auffällt. Deshalb: erst das Kennzeichen zurücknehmen – ein
+         *     eigener Aufruf, ein eigener Protokolleintrag –, danach ist die Position frei.
+         */
+        put: operations["zahlungsplanGestelltZuruecknehmen"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -793,12 +898,170 @@ export interface components {
              */
             typ: "uebergabetermin" | "freigabe_planung" | "plan_erstellt" | "anmeldung_nb" | "mastr" | "fertigmeldung" | "zaehler" | "abnahme" | "montage_uk" | "montage_elektro" | "zaehlerschrank" | "lieferung_uk" | "lieferung_wr_pv" | "lieferung_wr_speicher" | "lieferung_speicher" | "lieferung_wallbox" | "montage" | "lieferung" | "inbetriebnahme";
         };
+        /** NachtragAendern */
+        NachtragAendern: {
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Datum */
+            datum?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /**
+             * Status
+             * @default angeboten
+             * @enum {string}
+             */
+            status: "angeboten" | "beauftragt" | "berechnet";
+        };
+        /** NachtragAntwort */
+        NachtragAntwort: {
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Datum */
+            datum?: string | null;
+            /** Id */
+            id: number;
+            /** Projekt Id */
+            projekt_id: number;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Status */
+            status: string;
+            /** Zaehlt Zum Soll */
+            zaehlt_zum_soll: boolean;
+        };
+        /** NachtragEingabe */
+        NachtragEingabe: {
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Datum */
+            datum?: string | null;
+            /**
+             * Status
+             * @default angeboten
+             * @enum {string}
+             */
+            status: "angeboten" | "beauftragt" | "berechnet";
+        };
+        /** NachtragZeile */
+        NachtragZeile: {
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Datum */
+            datum?: string | null;
+            /** Id */
+            id: number;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Status */
+            status: string;
+            /** Zaehlt Zum Soll */
+            zaehlt_zum_soll: boolean;
+        };
         /** PasswortDaten */
         PasswortDaten: {
             /** Altes Passwort */
             altes_passwort: string;
             /** Neues Passwort */
             neues_passwort: string;
+        };
+        /** PositionAendern */
+        PositionAendern: {
+            /**
+             * Art
+             * @enum {string}
+             */
+            art: "abschlag" | "schluss" | "einmal";
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /**
+             * Gewerk
+             * @enum {string}
+             */
+            gewerk: "pv" | "speicher" | "ls" | "service" | "nachtrag";
+            /** Plan Monat */
+            plan_monat?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Trigger Status */
+            trigger_status?: ("uebergabetermin" | "freigabe_planung" | "plan_erstellt" | "anmeldung_nb" | "mastr" | "fertigmeldung" | "zaehler" | "abnahme" | "montage_uk" | "montage_elektro" | "zaehlerschrank" | "lieferung_uk" | "lieferung_wr_pv" | "lieferung_wr_speicher" | "lieferung_speicher" | "lieferung_wallbox" | "montage" | "lieferung" | "inbetriebnahme") | null;
+        };
+        /** PositionAntwort */
+        PositionAntwort: {
+            /** Art */
+            art: string;
+            /** Berechnet */
+            berechnet: boolean;
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Gewerk */
+            gewerk: string;
+            /** Id */
+            id: number;
+            /** Migriert Gestellt */
+            migriert_gestellt?: boolean | null;
+            /** Plan Monat */
+            plan_monat?: string | null;
+            /** Pos Nr */
+            pos_nr: number;
+            /** Projekt Id */
+            projekt_id: number;
+            /** Quelle Migration */
+            quelle_migration?: string | null;
+            /** Sperrgrund */
+            sperrgrund?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Trigger Status */
+            trigger_status?: string | null;
+        };
+        /** PositionEingabe */
+        PositionEingabe: {
+            /**
+             * Art
+             * @enum {string}
+             */
+            art: "abschlag" | "schluss" | "einmal";
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /**
+             * Gewerk
+             * @enum {string}
+             */
+            gewerk: "pv" | "speicher" | "ls" | "service" | "nachtrag";
+            /** Plan Monat */
+            plan_monat?: string | null;
+            /** Trigger Status */
+            trigger_status?: ("uebergabetermin" | "freigabe_planung" | "plan_erstellt" | "anmeldung_nb" | "mastr" | "fertigmeldung" | "zaehler" | "abnahme" | "montage_uk" | "montage_elektro" | "zaehlerschrank" | "lieferung_uk" | "lieferung_wr_pv" | "lieferung_wr_speicher" | "lieferung_speicher" | "lieferung_wallbox" | "montage" | "lieferung" | "inbetriebnahme") | null;
         };
         /** ProjektAendern */
         ProjektAendern: {
@@ -873,6 +1136,8 @@ export interface components {
              * @default false
              */
             darf_werte_sehen: boolean;
+            /** Deckung Differenz */
+            deckung_differenz?: number | null;
             /** Id */
             id: number;
             /** Kunde */
@@ -883,6 +1148,10 @@ export interface components {
             ladestation?: string | null;
             /** Meilensteine */
             meilensteine?: components["schemas"]["MeilensteinAntwort"][];
+            /** Nachtraege */
+            nachtraege?: components["schemas"]["NachtragZeile"][];
+            /** Nachtraege Summe */
+            nachtraege_summe?: number | null;
             /** Pl Name */
             pl_name?: string | null;
             /** Pl User Id */
@@ -893,6 +1162,8 @@ export interface components {
             pv_kwp?: number | null;
             /** Quelle Migration */
             quelle_migration?: string | null;
+            /** Soll Netto */
+            soll_netto?: number | null;
             /** Speicher Kwh */
             speicher_kwh?: number | null;
             /** Speicher Typ */
@@ -1224,6 +1495,17 @@ export interface components {
             plan_monat?: string | null;
             /** Pos Nr */
             pos_nr: number;
+            /** Quelle Migration */
+            quelle_migration?: string | null;
+            /** Sperrgrund */
+            sperrgrund?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Trigger Status */
+            trigger_status?: string | null;
         };
         /**
          * ZuordnungAntwort
@@ -2031,6 +2313,126 @@ export interface operations {
             };
         };
     };
+    nachtragAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nachtrag_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NachtragAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NachtragAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung zahlungsplan.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Position gesperrt oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    nachtragLoeschen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nachtrag_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung zahlungsplan.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Position gesperrt oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     projekteListe: {
         parameters: {
             query?: {
@@ -2411,6 +2813,132 @@ export interface operations {
             };
         };
     };
+    nachtragAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projekt_nr: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NachtragEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NachtragAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung zahlungsplan.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Position gesperrt oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    zahlungsplanAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projekt_nr: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PositionEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PositionAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung zahlungsplan.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Position gesperrt oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     systemstatus_abrufen: {
         parameters: {
             query?: never;
@@ -2487,6 +3015,185 @@ export interface operations {
                 content?: never;
             };
             /** @description Der Job ist in dieser Phase noch nicht eingerichtet */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    zahlungsplanAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                position_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PositionAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PositionAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung zahlungsplan.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Position gesperrt oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    zahlungsplanLoeschen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                position_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung zahlungsplan.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Position gesperrt oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    zahlungsplanGestelltZuruecknehmen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                position_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PositionAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung zahlungsplan.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Position gesperrt oder zwischenzeitlich geändert */
             409: {
                 headers: {
                     [name: string]: unknown;

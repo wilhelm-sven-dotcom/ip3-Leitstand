@@ -16,7 +16,7 @@ import { FormRow } from "@/komponenten/FormRow";
 import { Formular } from "@/komponenten/Formular";
 import { api } from "@/api/client";
 import type { ApiFehler } from "@/api/client";
-import { euro } from "@/format/formate";
+import { centAusText, euro } from "@/format/formate";
 import {
   ANLAGENART_TEXT,
   ANLAGENARTEN,
@@ -73,14 +73,6 @@ function alsZahl(wert: string): number | null {
   return Number.isFinite(zahl) ? zahl : null;
 }
 
-/** Euro-Eingabe in Cent, weil Beträge im Datenmodell ganze Cent sind (CLAUDE.md Regel 3). */
-function alsCent(wert: string): number | null {
-  const text = wert.trim().replace(/\./g, "").replace(",", ".");
-  if (!text) return null;
-  const betrag = Number(text);
-  return Number.isFinite(betrag) ? Math.round(betrag * 100) : null;
-}
-
 function centAlsText(cent: number | null | undefined): string {
   if (cent === null || cent === undefined) return "";
   return euro(cent, false);
@@ -129,7 +121,9 @@ export function ProjektFormular({
       onSpeichern={() =>
         onSpeichern({
           ...entwurf,
-          ab_wert_netto: darfWerte ? alsCent(wertText) : entwurf.ab_wert_netto,
+          ab_wert_netto: darfWerte
+            ? centAusText(wertText)
+            : entwurf.ab_wert_netto,
         })
       }
       onAbbrechen={onAbbrechen}
