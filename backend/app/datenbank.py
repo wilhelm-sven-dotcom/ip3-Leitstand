@@ -20,8 +20,9 @@ import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Any
 
-from sqlalchemy import Engine, create_engine, event, text
+from sqlalchemy import Engine, NullPool, create_engine, event, text
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.konfiguration import Einstellungen, einstellungen
@@ -51,9 +52,14 @@ def _pragmas_setzen(dbapi_verbindung: sqlite3.Connection, _verbindungsdaten: obj
         cursor.close()
 
 
-def engine_erzeugen(datenbank: Path, echo: bool = False) -> Engine:
-    """Engine für eine Datenbankdatei erzeugen (auch von Tests und der Kommandozeile genutzt)."""
+def engine_erzeugen(datenbank: Path, echo: bool = False, ohne_pool: bool = False) -> Engine:
+    """Engine für eine Datenbankdatei erzeugen (auch von Tests und der Kommandozeile genutzt).
+
+    ``ohne_pool`` für kurzlebige Verbindungen wie Migrationen und Sicherungen: dort ist ein
+    Verbindungspool nur eine Quelle für offen bleibende Dateihandles.
+    """
     datenbank.parent.mkdir(parents=True, exist_ok=True)
+    zusatz: dict[str, Any] = {"poolclass": NullPool} if ohne_pool else {}
     neue_engine = create_engine(
         f"sqlite+pysqlite:///{datenbank}",
         echo=echo,
@@ -61,6 +67,7 @@ def engine_erzeugen(datenbank: Path, echo: bool = False) -> Engine:
         # Der nächtliche Job läuft in einem eigenen Thread; SQLite-Verbindungen sind nicht
         # threadübergreifend nutzbar, deshalb gibt der Pool jedem Thread eine eigene.
         connect_args={"check_same_thread": False},
+        **zusatz,
     )
     event.listen(neue_engine, "connect", _pragmas_setzen)
     return neue_engine
