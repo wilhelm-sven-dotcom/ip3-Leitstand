@@ -14,11 +14,15 @@ dependencies = [
     "apscheduler>=3.11,<4",
     "python-multipart>=0.0.20",
     "typer>=0.15",
+    # Phase 1: Lesen der beiden Excel-Bestandsdateien und der unscharfe Abgleich zwischen
+    # Teamliste und Auftragsliste (PLAN §9).
+    "openpyxl>=3.1",
+    "rapidfuzz>=3.10",
 ]
 
 # Weitere Abhängigkeiten kommen erst in der Phase, in der sie gebraucht werden (PLAN §14):
-# WeasyPrint (Phase 3, braucht auf Windows GTK/Pango), openpyxl und rapidfuzz (Phase 1),
-# pandas (Phase 4/5), requests (Phase 4, TimeTac), drafthorse oder factur-x (Phase 3).
+# WeasyPrint (Phase 3, braucht auf Windows GTK/Pango), pandas (Phase 4/5),
+# requests (Phase 4, TimeTac), drafthorse oder factur-x (Phase 3).
 
 [project.scripts]
 ip3-leitstand = "app.cli:main"
