@@ -1,0 +1,67 @@
+[project]
+name = "ip3-leitstand"
+version = "0.1.0"
+description = "Projekt- und Finanz-Cockpit der ip³ Energietechnik GmbH"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.34",
+    "sqlalchemy>=2.0.36",
+    "alembic>=1.14",
+    "pydantic>=2.10",
+    "pydantic-settings>=2.7",
+    "bcrypt>=4.2",
+    "apscheduler>=3.11,<4",
+    "python-multipart>=0.0.20",
+    "typer>=0.15",
+]
+
+# Weitere Abhängigkeiten kommen erst in der Phase, in der sie gebraucht werden (PLAN §14):
+# WeasyPrint (Phase 3, braucht auf Windows GTK/Pango), openpyxl und rapidfuzz (Phase 1),
+# pandas (Phase 4/5), requests (Phase 4, TimeTac), drafthorse oder factur-x (Phase 3).
+
+[project.scripts]
+ip3-leitstand = "app.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "httpx>=0.28",
+    "ruff>=0.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = [
+    # Fachbegriffe und Feldnamen sind deutsch (PLAN §5); RUF001/002/003 würden an Umlauten
+    # und typografischen Zeichen in Kommentaren und Meldungen hängen.
+    "RUF001",
+    "RUF002",
+    "RUF003",
+    # FastAPI-Abhängigkeiten stehen üblicherweise als Standardwert im Funktionskopf.
+    "B008",
+    # Ausnahmeklassen heißen deutsch: "…Fehler" ist das Gegenstück zum englischen "…Error"
+    # (PLAN §14: Fachbegriffe und Bezeichner auf Deutsch).
+    "N818",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+filterwarnings = ["error::DeprecationWarning:app.*"]

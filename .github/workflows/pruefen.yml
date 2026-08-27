@@ -1,0 +1,35 @@
+name: Prüfen
+
+# Läuft bei jedem Push und Pull Request. Was hier grün ist, sollte auch auf dem Bürorechner
+# funktionieren – die Testinstanz bleibt trotzdem der letzte Schritt vor einem Update (RUNBOOK).
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: uv einrichten
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Abhängigkeiten installieren
+        run: uv sync --frozen
+
+      - name: Linter
+        run: uv run ruff check .
+
+      - name: Formatierung
+        run: uv run ruff format --check .
+
+      - name: Tests
+        run: uv run pytest

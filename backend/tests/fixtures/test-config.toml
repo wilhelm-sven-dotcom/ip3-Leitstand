@@ -1,0 +1,21 @@
+## Konfiguration für die Testsuite. Die Tests überschreiben Pfade über die Fixture
+## `test_einstellungen`; diese Datei stellt nur sicher, dass kein Test versehentlich die
+## config.toml des Entwicklers oder des Hosts liest.
+
+[app]
+umgebung = "test"
+adresse = "127.0.0.1"
+port = 8099
+erlaubte_herkunft = ["http://testserver"]
+
+[pfade]
+datenbank = "daten/test-leitstand.sqlite3"
+logs = "logs"
+
+[sitzung]
+cookie_secure = false
+
+[firma]
+kuerzel = "ip3"
+firmierung = "ip³ Energietechnik GmbH"
+ort = "Theisseil"
