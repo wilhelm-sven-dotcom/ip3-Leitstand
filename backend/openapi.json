@@ -302,6 +302,57 @@
         "title": "AnsprechpartnerEingabe",
         "type": "object"
       },
+      "AuftragsbestandAntwort": {
+        "properties": {
+          "bestand_netto": {
+            "title": "Bestand Netto",
+            "type": "integer"
+          },
+          "nicht_verplant_netto": {
+            "title": "Nicht Verplant Netto",
+            "type": "integer"
+          },
+          "ohne_auftragswert": {
+            "items": {
+              "$ref": "#/components/schemas/ProjektbestandAntwort"
+            },
+            "title": "Ohne Auftragswert",
+            "type": "array"
+          },
+          "projekte": {
+            "items": {
+              "$ref": "#/components/schemas/ProjektbestandAntwort"
+            },
+            "title": "Projekte",
+            "type": "array"
+          },
+          "projektleiter": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Projektleiter",
+            "type": "array"
+          },
+          "zahlungsplan_offen_netto": {
+            "title": "Zahlungsplan Offen Netto",
+            "type": "integer"
+          },
+          "zu_pruefen": {
+            "items": {
+              "$ref": "#/components/schemas/ProjektbestandAntwort"
+            },
+            "title": "Zu Pruefen",
+            "type": "array"
+          }
+        },
+        "required": [
+          "bestand_netto",
+          "zahlungsplan_offen_netto",
+          "nicht_verplant_netto"
+        ],
+        "title": "AuftragsbestandAntwort",
+        "type": "object"
+      },
       "BefundAntwort": {
         "properties": {
           "datei": {
@@ -1200,6 +1251,100 @@
           "typ"
         ],
         "title": "MeilensteinEingabe",
+        "type": "object"
+      },
+      "MonatAntwort": {
+        "properties": {
+          "ist_anzahl": {
+            "title": "Ist Anzahl",
+            "type": "integer"
+          },
+          "ist_netto": {
+            "title": "Ist Netto",
+            "type": "integer"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "plan_anzahl": {
+            "title": "Plan Anzahl",
+            "type": "integer"
+          },
+          "plan_netto": {
+            "title": "Plan Netto",
+            "type": "integer"
+          },
+          "summe_netto": {
+            "title": "Summe Netto",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "monat",
+          "ist_netto",
+          "plan_netto",
+          "summe_netto",
+          "ist_anzahl",
+          "plan_anzahl"
+        ],
+        "title": "MonatAntwort",
+        "type": "object"
+      },
+      "MonateAntwort": {
+        "properties": {
+          "hinweise": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hinweise",
+            "type": "array"
+          },
+          "ist_netto": {
+            "title": "Ist Netto",
+            "type": "integer"
+          },
+          "jahr": {
+            "title": "Jahr",
+            "type": "integer"
+          },
+          "jahre": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Jahre",
+            "type": "array"
+          },
+          "monate": {
+            "items": {
+              "$ref": "#/components/schemas/MonatAntwort"
+            },
+            "title": "Monate",
+            "type": "array"
+          },
+          "plan_netto": {
+            "title": "Plan Netto",
+            "type": "integer"
+          },
+          "projektleiter": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Projektleiter",
+            "type": "array"
+          },
+          "unterminiert": {
+            "$ref": "#/components/schemas/UnterminiertAntwort"
+          }
+        },
+        "required": [
+          "jahr",
+          "monate",
+          "ist_netto",
+          "plan_netto",
+          "unterminiert"
+        ],
+        "title": "MonateAntwort",
         "type": "object"
       },
       "NachtragAendern": {
@@ -2649,6 +2794,99 @@
         "title": "ProjektZeile",
         "type": "object"
       },
+      "ProjektbestandAntwort": {
+        "properties": {
+          "ab_wert_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ab Wert Netto"
+          },
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "fakturiert_netto": {
+            "title": "Fakturiert Netto",
+            "type": "integer"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "nachtraege_netto": {
+            "title": "Nachtraege Netto",
+            "type": "integer"
+          },
+          "pl_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl Name"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          },
+          "rest_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rest Netto"
+          },
+          "soll_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soll Netto"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "zahlungsplan_offen_netto": {
+            "title": "Zahlungsplan Offen Netto",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "projekt_nr",
+          "kunde",
+          "status",
+          "nachtraege_netto",
+          "fakturiert_netto",
+          "zahlungsplan_offen_netto"
+        ],
+        "title": "ProjektbestandAntwort",
+        "type": "object"
+      },
       "ProjekteSeite": {
         "properties": {
           "anzahl": {
@@ -3048,6 +3286,45 @@
           "meldung"
         ],
         "title": "UebernahmeAntwort",
+        "type": "object"
+      },
+      "UnterminiertAntwort": {
+        "description": "Positionen ohne Planmonat – auch gestellte (PLAN §7 Phase 2).",
+        "properties": {
+          "anzahl": {
+            "title": "Anzahl",
+            "type": "integer"
+          },
+          "ist_anzahl": {
+            "title": "Ist Anzahl",
+            "type": "integer"
+          },
+          "ist_netto": {
+            "title": "Ist Netto",
+            "type": "integer"
+          },
+          "plan_anzahl": {
+            "title": "Plan Anzahl",
+            "type": "integer"
+          },
+          "plan_netto": {
+            "title": "Plan Netto",
+            "type": "integer"
+          },
+          "summe_netto": {
+            "title": "Summe Netto",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ist_netto",
+          "plan_netto",
+          "summe_netto",
+          "ist_anzahl",
+          "plan_anzahl",
+          "anzahl"
+        ],
+        "title": "UnterminiertAntwort",
         "type": "object"
       },
       "ValidationError": {
@@ -4857,6 +5134,182 @@
         "summary": "Hintergrundlauf von Hand starten",
         "tags": [
           "System"
+        ]
+      }
+    },
+    "/api/umsatz/auftragsbestand": {
+      "get": {
+        "description": "Auftragswert plus beauftragte Nachträge minus dem, was schon abgerechnet ist.\n\nNur laufende Projekte (``beauftragt``, ``in_bau``) – ein Angebot ist kein Auftrag, ein\nabgeschlossenes Projekt kein Bestand. Einen Statusfilter gibt es hier deshalb nicht.",
+        "operationId": "umsatzAuftragsbestand",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "projektleiter",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "title": "Projektleiter",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anlagenart",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "enum": [
+                "alle",
+                "aufdach",
+                "aufdach_speicher",
+                "freiflaeche",
+                "speicher",
+                "ladestation",
+                "sonstig"
+              ],
+              "title": "Anlagenart",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuftragsbestandAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung umsatz.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Offener Auftragsbestand gesamt und je Projekt",
+        "tags": [
+          "Umsatz"
+        ]
+      }
+    },
+    "/api/umsatz/monate": {
+      "get": {
+        "description": "Jahresverlauf mit zwölf Monaten – auch die leeren.\n\nEin Jahr ohne Positionen ist kein Fehler, sondern eine Auskunft: zwölf Nullen und die\nunterminierten Positionen, die an keinem Jahr hängen.",
+        "operationId": "umsatzMonate",
+        "parameters": [
+          {
+            "description": "Standard: laufendes Jahr",
+            "in": "query",
+            "name": "jahr",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Standard: laufendes Jahr",
+              "title": "Jahr"
+            }
+          },
+          {
+            "in": "query",
+            "name": "projektleiter",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "title": "Projektleiter",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anlagenart",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "enum": [
+                "alle",
+                "aufdach",
+                "aufdach_speicher",
+                "freiflaeche",
+                "speicher",
+                "ladestation",
+                "sonstig"
+              ],
+              "title": "Anlagenart",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "enum": [
+                "alle",
+                "angebot",
+                "beauftragt",
+                "in_bau",
+                "abgeschlossen",
+                "storniert"
+              ],
+              "title": "Status",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonateAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung umsatz.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Umsatz je Monat als Ist und Plan",
+        "tags": [
+          "Umsatz"
         ]
       }
     },
