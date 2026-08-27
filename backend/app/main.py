@@ -23,6 +23,7 @@ from app.routen import (
     gesundheit,
     migration,
     projekte,
+    rechnungen,
     stammdaten,
     systemstatus,
     umsatz,
@@ -96,6 +97,7 @@ def anwendung_erzeugen(
     app.include_router(projekte.router)
     app.include_router(zahlungsplan.router)
     app.include_router(umsatz.router)
+    app.include_router(rechnungen.router)
 
     # Zuletzt: der Rückfall auf index.html würde sonst die API-Pfade verschlucken
     # (siehe app/auslieferung.py).

@@ -437,6 +437,235 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/rechnungen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Belege auflisten */
+        get: operations["rechnungenListe"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/ab/{projekt_nr}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Auftragsbestätigung erzeugen */
+        post: operations["auftragsbestaetigungErzeugen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/aus-zahlungsplan/{position_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Abschlagsrechnung aus einer Zahlungsplanposition erzeugen */
+        post: operations["abschlagErzeugen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/schlussrechnung/{projekt_nr}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Schlussrechnung mit Absetzungsblock erzeugen */
+        post: operations["schlussrechnungErzeugen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/service": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Servicerechnung erzeugen */
+        post: operations["servicerechnungErzeugen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/vorschlaege": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Abschlagsvorschläge
+         * @description Positionen, deren Auslöser erreicht ist (PLAN §6.8). Vorschlag, kein Automatikversand.
+         */
+        get: operations["rechnungenVorschlaege"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/{beleg_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Beleg ansehen */
+        get: operations["rechnungLesen"];
+        /** Belegkopf ändern */
+        put: operations["rechnungAendern"];
+        post?: never;
+        /**
+         * Entwurf verwerfen
+         * @description Einen Entwurf löschen.
+         *
+         *     Zulässig, weil ein Entwurf noch keine Nummer trägt: es entsteht keine Lücke im Nummernkreis
+         *     (PLAN §6.4). Festgeschriebene Belege sind unlöschbar – dafür gibt es den Storno.
+         */
+        delete: operations["rechnungVerwerfen"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/{beleg_id}/festschreiben": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Beleg festschreiben
+         * @description Der unumkehrbare Schritt: Nummer, Hash, Sperre, Ablage (PLAN §6.4).
+         *
+         *     Läuft in einer eigenen Schreibtransaktion (``BEGIN IMMEDIATE``), damit zwei gleichzeitige
+         *     Festschreibungen nicht dieselbe Nummer bekommen. Die Dateien werden erst nach dem Commit
+         *     geschrieben – scheitert das, bleibt der Beleg gültig und die Antwort sagt, was noch fehlt.
+         */
+        post: operations["rechnungFestschreiben"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/{beleg_id}/gutschrift": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Gutschrift erzeugen
+         * @description Teilkorrektur als Entwurf mit leeren Positionen (PLAN §6.14).
+         */
+        post: operations["rechnungGutschrift"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/{beleg_id}/positionen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Position anfügen */
+        post: operations["rechnungPositionAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/{beleg_id}/positionen/{position_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Position ändern */
+        put: operations["rechnungPositionAendern"];
+        post?: never;
+        /** Position entfernen */
+        delete: operations["rechnungPositionLoeschen"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rechnungen/{beleg_id}/storno": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stornobeleg erzeugen
+         * @description Storno als Entwurf. Wirksam wird er erst mit dem Festschreiben (PLAN §6.4).
+         */
+        post: operations["rechnungStorno"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/systemstatus": {
         parameters: {
             query?: never;
@@ -582,6 +811,26 @@ export interface components {
              */
             abgemeldet: boolean;
         };
+        /** AbsetzungAntwort */
+        AbsetzungAntwort: {
+            /** Brutto */
+            brutto: number;
+            /**
+             * Datum
+             * Format: date
+             */
+            datum: string;
+            /** Netto */
+            netto: number;
+            /** Pos */
+            pos: number;
+            /** Rechnung Nr */
+            rechnung_nr: string;
+            /** Ust */
+            ust: number;
+            /** Ust Satz */
+            ust_satz: number;
+        };
         /**
          * AngemeldeterNutzer
          * @description Was die Oberfläche über den angemeldeten Nutzer wissen muss.
@@ -712,6 +961,104 @@ export interface components {
             /** Zeile */
             zeile: number;
         };
+        /** BelegAntwort */
+        BelegAntwort: {
+            /** Abschlag Nr */
+            abschlag_nr?: number | null;
+            /** Absetzung Netto */
+            absetzung_netto: number;
+            /** Absetzung Ust */
+            absetzung_ust: number;
+            /** Absetzungen */
+            absetzungen?: components["schemas"]["AbsetzungAntwort"][];
+            /** Aenderbar */
+            aenderbar: boolean;
+            /** Anschreiben */
+            anschreiben?: string | null;
+            /** Art */
+            art: string;
+            /** Betreff */
+            betreff?: string | null;
+            /** Brutto */
+            brutto: number;
+            /**
+             * Datum
+             * Format: date
+             */
+            datum: string;
+            /** Faellig Am */
+            faellig_am?: string | null;
+            /** Festgeschrieben Am */
+            festgeschrieben_am?: string | null;
+            /** Hash */
+            hash?: string | null;
+            /** Id */
+            id: number;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Kunde Name */
+            kunde_name: string;
+            /** Kunde Snapshot */
+            kunde_snapshot?: {
+                [key: string]: unknown;
+            } | null;
+            /** Leistungszeitraum */
+            leistungszeitraum?: string | null;
+            /** Netto */
+            netto: number;
+            /** Pdf Pfad */
+            pdf_pfad?: string | null;
+            /** Positionen */
+            positionen?: components["schemas"]["app__routen__rechnungen__PositionAntwort"][];
+            /** Projekt Id */
+            projekt_id?: number | null;
+            /** Projekt Nr */
+            projekt_nr?: number | null;
+            /** Rechnung Nr */
+            rechnung_nr?: string | null;
+            /** Schlusstext */
+            schlusstext?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Status */
+            status: string;
+            /** Steuer Hinweise */
+            steuer_hinweise?: string[];
+            /** Storniert Durch Nr */
+            storniert_durch_nr?: string | null;
+            /** Storno Ref */
+            storno_ref?: number | null;
+            /** Ust */
+            ust: number;
+            /** Ust Details */
+            ust_details?: components["schemas"]["SatzAntwort"][];
+            /** Ust Kz */
+            ust_kz: string;
+            /** Xml Pfad */
+            xml_pfad?: string | null;
+            /** Zahlbetrag */
+            zahlbetrag: number;
+        };
+        /** ErzeugenEingabe */
+        ErzeugenEingabe: {
+            /** Datum */
+            datum?: string | null;
+            /** Leistungszeitraum */
+            leistungszeitraum?: string | null;
+        };
+        /** FestschreibenAntwort */
+        FestschreibenAntwort: {
+            /** Ablage Offen */
+            ablage_offen?: string | null;
+            beleg: components["schemas"]["BelegAntwort"];
+            /** Berechnete Positionen */
+            berechnete_positionen?: number[];
+            /** Freigegebene Positionen */
+            freigegebene_positionen?: number[];
+        };
         /** Gesundheit */
         Gesundheit: {
             /** Datenbank */
@@ -770,6 +1117,41 @@ export interface components {
             id: number;
             /** Name */
             name: string;
+        };
+        /** KopfAendern */
+        KopfAendern: {
+            /** Anschreiben */
+            anschreiben?: string | null;
+            /** Betreff */
+            betreff?: string | null;
+            /**
+             * Datum
+             * Format: date
+             */
+            datum: string;
+            /** Faellig Am */
+            faellig_am?: string | null;
+            /** Leistungszeitraum */
+            leistungszeitraum?: string | null;
+            /** Schlusstext */
+            schlusstext?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /**
+             * Ust Kz
+             * @enum {string}
+             */
+            ust_kz: "19" | "0" | "13b" | "gemischt";
+        };
+        /** KorrekturEingabe */
+        KorrekturEingabe: {
+            /** Datum */
+            datum?: string | null;
+            /** Grund */
+            grund?: string | null;
         };
         /**
          * KundeAendern
@@ -924,6 +1306,17 @@ export interface components {
             gesamt: number;
             /** Versatz */
             versatz: number;
+        };
+        /** ListeAntwort */
+        ListeAntwort: {
+            /** Anzahl */
+            anzahl: number;
+            /** Jahre */
+            jahre: number[];
+            /** Summe Netto */
+            summe_netto: number;
+            /** Zeilen */
+            zeilen: components["schemas"]["ZeileAntwort"][];
         };
         /** MeilensteinAntwort */
         MeilensteinAntwort: {
@@ -1101,61 +1494,6 @@ export interface components {
              * Format: date-time
              */
             stand: string;
-            /** Trigger Status */
-            trigger_status?: ("uebergabetermin" | "freigabe_planung" | "plan_erstellt" | "anmeldung_nb" | "mastr" | "fertigmeldung" | "zaehler" | "abnahme" | "montage_uk" | "montage_elektro" | "zaehlerschrank" | "lieferung_uk" | "lieferung_wr_pv" | "lieferung_wr_speicher" | "lieferung_speicher" | "lieferung_wallbox" | "montage" | "lieferung" | "inbetriebnahme") | null;
-        };
-        /** PositionAntwort */
-        PositionAntwort: {
-            /** Art */
-            art: string;
-            /** Berechnet */
-            berechnet: boolean;
-            /** Betrag Netto */
-            betrag_netto: number;
-            /** Bezeichnung */
-            bezeichnung: string;
-            /** Gewerk */
-            gewerk: string;
-            /** Id */
-            id: number;
-            /** Migriert Gestellt */
-            migriert_gestellt?: boolean | null;
-            /** Plan Monat */
-            plan_monat?: string | null;
-            /** Pos Nr */
-            pos_nr: number;
-            /** Projekt Id */
-            projekt_id: number;
-            /** Quelle Migration */
-            quelle_migration?: string | null;
-            /** Sperrgrund */
-            sperrgrund?: string | null;
-            /**
-             * Stand
-             * Format: date-time
-             */
-            stand: string;
-            /** Trigger Status */
-            trigger_status?: string | null;
-        };
-        /** PositionEingabe */
-        PositionEingabe: {
-            /**
-             * Art
-             * @enum {string}
-             */
-            art: "abschlag" | "schluss" | "einmal";
-            /** Betrag Netto */
-            betrag_netto: number;
-            /** Bezeichnung */
-            bezeichnung: string;
-            /**
-             * Gewerk
-             * @enum {string}
-             */
-            gewerk: "pv" | "speicher" | "ls" | "service" | "nachtrag";
-            /** Plan Monat */
-            plan_monat?: string | null;
             /** Trigger Status */
             trigger_status?: ("uebergabetermin" | "freigabe_planung" | "plan_erstellt" | "anmeldung_nb" | "mastr" | "fertigmeldung" | "zaehler" | "abnahme" | "montage_uk" | "montage_elektro" | "zaehlerschrank" | "lieferung_uk" | "lieferung_wr_pv" | "lieferung_wr_speicher" | "lieferung_speicher" | "lieferung_wallbox" | "montage" | "lieferung" | "inbetriebnahme") | null;
         };
@@ -1474,6 +1812,32 @@ export interface components {
                 [key: string]: number | null;
             };
         };
+        /** SatzAntwort */
+        SatzAntwort: {
+            /** Netto */
+            netto: number;
+            /** Satz */
+            satz: number;
+            /** Ust */
+            ust: number;
+        };
+        /** ServiceEingabe */
+        ServiceEingabe: {
+            /** Datum */
+            datum?: string | null;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Leistungszeitraum */
+            leistungszeitraum?: string | null;
+            /** Projekt Nr */
+            projekt_nr?: number | null;
+            /**
+             * Ust Kz
+             * @default 19
+             * @enum {string}
+             */
+            ust_kz: "19" | "0" | "13b" | "gemischt";
+        };
         /**
          * StandAntwort
          * @description Ob und wann übernommen wurde.
@@ -1614,6 +1978,27 @@ export interface components {
             /** Projekt Zeile */
             projekt_zeile: number;
         };
+        /** VorschlagAntwort */
+        VorschlagAntwort: {
+            /** Ausloeser */
+            ausloeser: string;
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Erledigt Am */
+            erledigt_am?: string | null;
+            /** Pos Nr */
+            pos_nr: number;
+            /** Position Id */
+            position_id: number;
+            /** Projekt Id */
+            projekt_id: number;
+            /** Projekt Name */
+            projekt_name?: string | null;
+            /** Projekt Nr */
+            projekt_nr: number;
+        };
         /** ZahlungsplanZeile */
         ZahlungsplanZeile: {
             /** Art */
@@ -1647,6 +2032,39 @@ export interface components {
             trigger_status?: string | null;
         };
         /**
+         * ZeileAntwort
+         * @description Ein Beleg in der Liste – ohne Positionen, dafür mit dem, wonach gefiltert wird.
+         */
+        ZeileAntwort: {
+            /** Aenderbar */
+            aenderbar: boolean;
+            /** Art */
+            art: string;
+            /** Betreff */
+            betreff?: string | null;
+            /**
+             * Datum
+             * Format: date
+             */
+            datum: string;
+            /** Faellig Am */
+            faellig_am?: string | null;
+            /** Id */
+            id: number;
+            /** Kunde Name */
+            kunde_name: string;
+            /** Netto */
+            netto: number;
+            /** Projekt Nr */
+            projekt_nr?: number | null;
+            /** Rechnung Nr */
+            rechnung_nr?: string | null;
+            /** Status */
+            status: string;
+            /** Zahlbetrag */
+            zahlbetrag: number;
+        };
+        /**
          * ZuordnungAntwort
          * @description Ein Kunde der Auftragsliste mit dem Projekt, zu dem seine Zeilen gehören.
          */
@@ -1665,6 +2083,101 @@ export interface components {
             vorschlaege?: components["schemas"]["Vorschlag"][];
             /** Zeilen */
             zeilen: number[];
+        };
+        /** PositionAntwort */
+        app__routen__rechnungen__PositionAntwort: {
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Einheit */
+            einheit?: string | null;
+            /** Ep Netto */
+            ep_netto: number;
+            /** Id */
+            id: number;
+            /** Menge */
+            menge: string;
+            /** Netto */
+            netto: number;
+            /** Pos */
+            pos: number;
+            /** Ust Satz */
+            ust_satz: number;
+            /** Zahlungsplan Id */
+            zahlungsplan_id?: number | null;
+        };
+        /** PositionEingabe */
+        app__routen__rechnungen__PositionEingabe: {
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Einheit */
+            einheit?: string | null;
+            /** Ep Netto */
+            ep_netto: number;
+            /**
+             * Menge
+             * @default 1
+             */
+            menge: number | string;
+            /**
+             * Ust Satz
+             * @default 190
+             */
+            ust_satz: number;
+        };
+        /** PositionAntwort */
+        app__routen__zahlungsplan__PositionAntwort: {
+            /** Art */
+            art: string;
+            /** Berechnet */
+            berechnet: boolean;
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Gewerk */
+            gewerk: string;
+            /** Id */
+            id: number;
+            /** Migriert Gestellt */
+            migriert_gestellt?: boolean | null;
+            /** Plan Monat */
+            plan_monat?: string | null;
+            /** Pos Nr */
+            pos_nr: number;
+            /** Projekt Id */
+            projekt_id: number;
+            /** Quelle Migration */
+            quelle_migration?: string | null;
+            /** Sperrgrund */
+            sperrgrund?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Trigger Status */
+            trigger_status?: string | null;
+        };
+        /** PositionEingabe */
+        app__routen__zahlungsplan__PositionEingabe: {
+            /**
+             * Art
+             * @enum {string}
+             */
+            art: "abschlag" | "schluss" | "einmal";
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /**
+             * Gewerk
+             * @enum {string}
+             */
+            gewerk: "pv" | "speicher" | "ls" | "service" | "nachtrag";
+            /** Plan Monat */
+            plan_monat?: string | null;
+            /** Trigger Status */
+            trigger_status?: ("uebergabetermin" | "freigabe_planung" | "plan_erstellt" | "anmeldung_nb" | "mastr" | "fertigmeldung" | "zaehler" | "abnahme" | "montage_uk" | "montage_elektro" | "zaehlerschrank" | "lieferung_uk" | "lieferung_wr_pv" | "lieferung_wr_speicher" | "lieferung_speicher" | "lieferung_wallbox" | "montage" | "lieferung" | "inbetriebnahme") | null;
         };
     };
     responses: never;
@@ -3026,7 +3539,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["PositionEingabe"];
+                "application/json": components["schemas"]["app__routen__zahlungsplan__PositionEingabe"];
             };
         };
         responses: {
@@ -3036,7 +3549,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PositionAntwort"];
+                    "application/json": components["schemas"]["app__routen__zahlungsplan__PositionAntwort"];
                 };
             };
             /** @description Nicht angemeldet */
@@ -3061,6 +3574,898 @@ export interface operations {
                 content?: never;
             };
             /** @description Position gesperrt oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rechnungenListe: {
+        parameters: {
+            query?: {
+                jahr?: number | null;
+                art?: "alle" | "ab" | "abschlag" | "schluss" | "service" | "gutschrift" | "storno";
+                status?: "alle" | "entwurf" | "festgeschrieben" | "storniert";
+                projekt_nr?: number | null;
+                kunde_id?: number | null;
+                suche?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListeAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung rechnungen.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    auftragsbestaetigungErzeugen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projekt_nr: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ErzeugenEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    abschlagErzeugen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                position_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ErzeugenEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    schlussrechnungErzeugen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projekt_nr: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ErzeugenEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    servicerechnungErzeugen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rechnungenVorschlaege: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VorschlagAntwort"][];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung rechnungen.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    rechnungLesen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                beleg_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung rechnungen.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rechnungAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                beleg_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KopfAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rechnungVerwerfen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                beleg_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rechnungFestschreiben: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                beleg_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FestschreibenAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rechnungGutschrift: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                beleg_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KorrekturEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rechnungPositionAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                beleg_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__routen__rechnungen__PositionEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rechnungPositionAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                beleg_id: number;
+                position_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__routen__rechnungen__PositionEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rechnungPositionLoeschen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                beleg_id: number;
+                position_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rechnungStorno: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                beleg_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KorrekturEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BelegAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg, Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Beleg gesperrt, unvollständig oder zwischenzeitlich geändert */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3287,7 +4692,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PositionAntwort"];
+                    "application/json": components["schemas"]["app__routen__zahlungsplan__PositionAntwort"];
                 };
             };
             /** @description Nicht angemeldet */
@@ -3403,7 +4808,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PositionAntwort"];
+                    "application/json": components["schemas"]["app__routen__zahlungsplan__PositionAntwort"];
                 };
             };
             /** @description Nicht angemeldet */

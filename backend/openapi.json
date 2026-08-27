@@ -12,6 +12,50 @@
         "title": "Abmeldung",
         "type": "object"
       },
+      "AbsetzungAntwort": {
+        "properties": {
+          "brutto": {
+            "title": "Brutto",
+            "type": "integer"
+          },
+          "datum": {
+            "format": "date",
+            "title": "Datum",
+            "type": "string"
+          },
+          "netto": {
+            "title": "Netto",
+            "type": "integer"
+          },
+          "pos": {
+            "title": "Pos",
+            "type": "integer"
+          },
+          "rechnung_nr": {
+            "title": "Rechnung Nr",
+            "type": "string"
+          },
+          "ust": {
+            "title": "Ust",
+            "type": "integer"
+          },
+          "ust_satz": {
+            "title": "Ust Satz",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pos",
+          "rechnung_nr",
+          "datum",
+          "netto",
+          "ust_satz",
+          "ust",
+          "brutto"
+        ],
+        "title": "AbsetzungAntwort",
+        "type": "object"
+      },
       "AngemeldeterNutzer": {
         "description": "Was die Oberfläche über den angemeldeten Nutzer wissen muss.",
         "properties": {
@@ -391,6 +435,365 @@
         "title": "BefundAntwort",
         "type": "object"
       },
+      "BelegAntwort": {
+        "properties": {
+          "abschlag_nr": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abschlag Nr"
+          },
+          "absetzung_netto": {
+            "title": "Absetzung Netto",
+            "type": "integer"
+          },
+          "absetzung_ust": {
+            "title": "Absetzung Ust",
+            "type": "integer"
+          },
+          "absetzungen": {
+            "items": {
+              "$ref": "#/components/schemas/AbsetzungAntwort"
+            },
+            "title": "Absetzungen",
+            "type": "array"
+          },
+          "aenderbar": {
+            "title": "Aenderbar",
+            "type": "boolean"
+          },
+          "anschreiben": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anschreiben"
+          },
+          "art": {
+            "title": "Art",
+            "type": "string"
+          },
+          "betreff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Betreff"
+          },
+          "brutto": {
+            "title": "Brutto",
+            "type": "integer"
+          },
+          "datum": {
+            "format": "date",
+            "title": "Datum",
+            "type": "string"
+          },
+          "faellig_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faellig Am"
+          },
+          "festgeschrieben_am": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Festgeschrieben Am"
+          },
+          "hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hash"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "kunde_name": {
+            "title": "Kunde Name",
+            "type": "string"
+          },
+          "kunde_snapshot": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kunde Snapshot"
+          },
+          "leistungszeitraum": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leistungszeitraum"
+          },
+          "netto": {
+            "title": "Netto",
+            "type": "integer"
+          },
+          "pdf_pfad": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pdf Pfad"
+          },
+          "positionen": {
+            "items": {
+              "$ref": "#/components/schemas/app__routen__rechnungen__PositionAntwort"
+            },
+            "title": "Positionen",
+            "type": "array"
+          },
+          "projekt_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Id"
+          },
+          "projekt_nr": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Nr"
+          },
+          "rechnung_nr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rechnung Nr"
+          },
+          "schlusstext": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schlusstext"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "steuer_hinweise": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Steuer Hinweise",
+            "type": "array"
+          },
+          "storniert_durch_nr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storniert Durch Nr"
+          },
+          "storno_ref": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storno Ref"
+          },
+          "ust": {
+            "title": "Ust",
+            "type": "integer"
+          },
+          "ust_details": {
+            "items": {
+              "$ref": "#/components/schemas/SatzAntwort"
+            },
+            "title": "Ust Details",
+            "type": "array"
+          },
+          "ust_kz": {
+            "title": "Ust Kz",
+            "type": "string"
+          },
+          "xml_pfad": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Xml Pfad"
+          },
+          "zahlbetrag": {
+            "title": "Zahlbetrag",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "art",
+          "status",
+          "kunde_id",
+          "kunde_name",
+          "datum",
+          "ust_kz",
+          "netto",
+          "ust",
+          "brutto",
+          "absetzung_netto",
+          "absetzung_ust",
+          "zahlbetrag",
+          "aenderbar",
+          "stand"
+        ],
+        "title": "BelegAntwort",
+        "type": "object"
+      },
+      "ErzeugenEingabe": {
+        "properties": {
+          "datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datum"
+          },
+          "leistungszeitraum": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leistungszeitraum"
+          }
+        },
+        "title": "ErzeugenEingabe",
+        "type": "object"
+      },
+      "FestschreibenAntwort": {
+        "properties": {
+          "ablage_offen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ablage Offen"
+          },
+          "beleg": {
+            "$ref": "#/components/schemas/BelegAntwort"
+          },
+          "berechnete_positionen": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Berechnete Positionen",
+            "type": "array"
+          },
+          "freigegebene_positionen": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Freigegebene Positionen",
+            "type": "array"
+          }
+        },
+        "required": [
+          "beleg"
+        ],
+        "title": "FestschreibenAntwort",
+        "type": "object"
+      },
       "Gesundheit": {
         "properties": {
           "datenbank": {
@@ -571,6 +974,127 @@
           "email"
         ],
         "title": "Konto",
+        "type": "object"
+      },
+      "KopfAendern": {
+        "properties": {
+          "anschreiben": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anschreiben"
+          },
+          "betreff": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Betreff"
+          },
+          "datum": {
+            "format": "date",
+            "title": "Datum",
+            "type": "string"
+          },
+          "faellig_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faellig Am"
+          },
+          "leistungszeitraum": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leistungszeitraum"
+          },
+          "schlusstext": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schlusstext"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "ust_kz": {
+            "enum": [
+              "19",
+              "0",
+              "13b",
+              "gemischt"
+            ],
+            "title": "Ust Kz",
+            "type": "string"
+          }
+        },
+        "required": [
+          "datum",
+          "ust_kz",
+          "stand"
+        ],
+        "title": "KopfAendern",
+        "type": "object"
+      },
+      "KorrekturEingabe": {
+        "properties": {
+          "datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datum"
+          },
+          "grund": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grund"
+          }
+        },
+        "title": "KorrekturEingabe",
         "type": "object"
       },
       "KundeAendern": {
@@ -1102,6 +1626,40 @@
           "anzahl"
         ],
         "title": "KundenSeite",
+        "type": "object"
+      },
+      "ListeAntwort": {
+        "properties": {
+          "anzahl": {
+            "title": "Anzahl",
+            "type": "integer"
+          },
+          "jahre": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Jahre",
+            "type": "array"
+          },
+          "summe_netto": {
+            "title": "Summe Netto",
+            "type": "integer"
+          },
+          "zeilen": {
+            "items": {
+              "$ref": "#/components/schemas/ZeileAntwort"
+            },
+            "title": "Zeilen",
+            "type": "array"
+          }
+        },
+        "required": [
+          "zeilen",
+          "anzahl",
+          "summe_netto",
+          "jahre"
+        ],
+        "title": "ListeAntwort",
         "type": "object"
       },
       "MeilensteinAntwort": {
@@ -1657,202 +2215,6 @@
           "stand"
         ],
         "title": "PositionAendern",
-        "type": "object"
-      },
-      "PositionAntwort": {
-        "properties": {
-          "art": {
-            "title": "Art",
-            "type": "string"
-          },
-          "berechnet": {
-            "title": "Berechnet",
-            "type": "boolean"
-          },
-          "betrag_netto": {
-            "title": "Betrag Netto",
-            "type": "integer"
-          },
-          "bezeichnung": {
-            "title": "Bezeichnung",
-            "type": "string"
-          },
-          "gewerk": {
-            "title": "Gewerk",
-            "type": "string"
-          },
-          "id": {
-            "title": "Id",
-            "type": "integer"
-          },
-          "migriert_gestellt": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Migriert Gestellt"
-          },
-          "plan_monat": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Plan Monat"
-          },
-          "pos_nr": {
-            "title": "Pos Nr",
-            "type": "integer"
-          },
-          "projekt_id": {
-            "title": "Projekt Id",
-            "type": "integer"
-          },
-          "quelle_migration": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Quelle Migration"
-          },
-          "sperrgrund": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Sperrgrund"
-          },
-          "stand": {
-            "format": "date-time",
-            "title": "Stand",
-            "type": "string"
-          },
-          "trigger_status": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Trigger Status"
-          }
-        },
-        "required": [
-          "id",
-          "projekt_id",
-          "pos_nr",
-          "bezeichnung",
-          "gewerk",
-          "art",
-          "betrag_netto",
-          "berechnet",
-          "stand"
-        ],
-        "title": "PositionAntwort",
-        "type": "object"
-      },
-      "PositionEingabe": {
-        "properties": {
-          "art": {
-            "enum": [
-              "abschlag",
-              "schluss",
-              "einmal"
-            ],
-            "title": "Art",
-            "type": "string"
-          },
-          "betrag_netto": {
-            "minimum": 0.0,
-            "title": "Betrag Netto",
-            "type": "integer"
-          },
-          "bezeichnung": {
-            "maxLength": 500,
-            "minLength": 1,
-            "title": "Bezeichnung",
-            "type": "string"
-          },
-          "gewerk": {
-            "enum": [
-              "pv",
-              "speicher",
-              "ls",
-              "service",
-              "nachtrag"
-            ],
-            "title": "Gewerk",
-            "type": "string"
-          },
-          "plan_monat": {
-            "anyOf": [
-              {
-                "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Plan Monat"
-          },
-          "trigger_status": {
-            "anyOf": [
-              {
-                "enum": [
-                  "uebergabetermin",
-                  "freigabe_planung",
-                  "plan_erstellt",
-                  "anmeldung_nb",
-                  "mastr",
-                  "fertigmeldung",
-                  "zaehler",
-                  "abnahme",
-                  "montage_uk",
-                  "montage_elektro",
-                  "zaehlerschrank",
-                  "lieferung_uk",
-                  "lieferung_wr_pv",
-                  "lieferung_wr_speicher",
-                  "lieferung_speicher",
-                  "lieferung_wallbox",
-                  "montage",
-                  "lieferung",
-                  "inbetriebnahme"
-                ],
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Trigger Status"
-          }
-        },
-        "required": [
-          "bezeichnung",
-          "gewerk",
-          "art",
-          "betrag_netto"
-        ],
-        "title": "PositionEingabe",
         "type": "object"
       },
       "ProjektAendern": {
@@ -3040,6 +3402,88 @@
         "title": "ProjektleiterZuordnung",
         "type": "object"
       },
+      "SatzAntwort": {
+        "properties": {
+          "netto": {
+            "title": "Netto",
+            "type": "integer"
+          },
+          "satz": {
+            "title": "Satz",
+            "type": "integer"
+          },
+          "ust": {
+            "title": "Ust",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "satz",
+          "netto",
+          "ust"
+        ],
+        "title": "SatzAntwort",
+        "type": "object"
+      },
+      "ServiceEingabe": {
+        "properties": {
+          "datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datum"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "leistungszeitraum": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leistungszeitraum"
+          },
+          "projekt_nr": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Nr"
+          },
+          "ust_kz": {
+            "default": "19",
+            "enum": [
+              "19",
+              "0",
+              "13b",
+              "gemischt"
+            ],
+            "title": "Ust Kz",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kunde_id"
+        ],
+        "title": "ServiceEingabe",
+        "type": "object"
+      },
       "StandAntwort": {
         "description": "Ob und wann übernommen wurde.",
         "properties": {
@@ -3433,6 +3877,72 @@
         "title": "Vorschlag",
         "type": "object"
       },
+      "VorschlagAntwort": {
+        "properties": {
+          "ausloeser": {
+            "title": "Ausloeser",
+            "type": "string"
+          },
+          "betrag_netto": {
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "erledigt_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erledigt Am"
+          },
+          "pos_nr": {
+            "title": "Pos Nr",
+            "type": "integer"
+          },
+          "position_id": {
+            "title": "Position Id",
+            "type": "integer"
+          },
+          "projekt_id": {
+            "title": "Projekt Id",
+            "type": "integer"
+          },
+          "projekt_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Name"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "position_id",
+          "projekt_id",
+          "projekt_nr",
+          "pos_nr",
+          "bezeichnung",
+          "betrag_netto",
+          "ausloeser"
+        ],
+        "title": "VorschlagAntwort",
+        "type": "object"
+      },
       "ZahlungsplanZeile": {
         "properties": {
           "art": {
@@ -3537,6 +4047,101 @@
         "title": "ZahlungsplanZeile",
         "type": "object"
       },
+      "ZeileAntwort": {
+        "description": "Ein Beleg in der Liste – ohne Positionen, dafür mit dem, wonach gefiltert wird.",
+        "properties": {
+          "aenderbar": {
+            "title": "Aenderbar",
+            "type": "boolean"
+          },
+          "art": {
+            "title": "Art",
+            "type": "string"
+          },
+          "betreff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Betreff"
+          },
+          "datum": {
+            "format": "date",
+            "title": "Datum",
+            "type": "string"
+          },
+          "faellig_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faellig Am"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kunde_name": {
+            "title": "Kunde Name",
+            "type": "string"
+          },
+          "netto": {
+            "title": "Netto",
+            "type": "integer"
+          },
+          "projekt_nr": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Nr"
+          },
+          "rechnung_nr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rechnung Nr"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "zahlbetrag": {
+            "title": "Zahlbetrag",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "art",
+          "status",
+          "datum",
+          "kunde_name",
+          "netto",
+          "zahlbetrag",
+          "aenderbar"
+        ],
+        "title": "ZeileAntwort",
+        "type": "object"
+      },
       "ZuordnungAntwort": {
         "description": "Ein Kunde der Auftragsliste mit dem Projekt, zu dem seine Zeilen gehören.",
         "properties": {
@@ -3590,6 +4195,320 @@
           "offen"
         ],
         "title": "ZuordnungAntwort",
+        "type": "object"
+      },
+      "app__routen__rechnungen__PositionAntwort": {
+        "properties": {
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "einheit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Einheit"
+          },
+          "ep_netto": {
+            "title": "Ep Netto",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "menge": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Menge",
+            "type": "string"
+          },
+          "netto": {
+            "title": "Netto",
+            "type": "integer"
+          },
+          "pos": {
+            "title": "Pos",
+            "type": "integer"
+          },
+          "ust_satz": {
+            "title": "Ust Satz",
+            "type": "integer"
+          },
+          "zahlungsplan_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zahlungsplan Id"
+          }
+        },
+        "required": [
+          "id",
+          "pos",
+          "bezeichnung",
+          "menge",
+          "ep_netto",
+          "ust_satz",
+          "netto"
+        ],
+        "title": "PositionAntwort",
+        "type": "object"
+      },
+      "app__routen__rechnungen__PositionEingabe": {
+        "properties": {
+          "bezeichnung": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "einheit": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Einheit"
+          },
+          "ep_netto": {
+            "title": "Ep Netto",
+            "type": "integer"
+          },
+          "menge": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,9}|(?=[\\d.]{1,13}0*$)\\d{0,9}\\.\\d{0,3}0*$)",
+                "type": "string"
+              }
+            ],
+            "default": "1",
+            "title": "Menge"
+          },
+          "ust_satz": {
+            "default": 190,
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Ust Satz",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "bezeichnung",
+          "ep_netto"
+        ],
+        "title": "PositionEingabe",
+        "type": "object"
+      },
+      "app__routen__zahlungsplan__PositionAntwort": {
+        "properties": {
+          "art": {
+            "title": "Art",
+            "type": "string"
+          },
+          "berechnet": {
+            "title": "Berechnet",
+            "type": "boolean"
+          },
+          "betrag_netto": {
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "gewerk": {
+            "title": "Gewerk",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "migriert_gestellt": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Migriert Gestellt"
+          },
+          "plan_monat": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Monat"
+          },
+          "pos_nr": {
+            "title": "Pos Nr",
+            "type": "integer"
+          },
+          "projekt_id": {
+            "title": "Projekt Id",
+            "type": "integer"
+          },
+          "quelle_migration": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quelle Migration"
+          },
+          "sperrgrund": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sperrgrund"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "trigger_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger Status"
+          }
+        },
+        "required": [
+          "id",
+          "projekt_id",
+          "pos_nr",
+          "bezeichnung",
+          "gewerk",
+          "art",
+          "betrag_netto",
+          "berechnet",
+          "stand"
+        ],
+        "title": "PositionAntwort",
+        "type": "object"
+      },
+      "app__routen__zahlungsplan__PositionEingabe": {
+        "properties": {
+          "art": {
+            "enum": [
+              "abschlag",
+              "schluss",
+              "einmal"
+            ],
+            "title": "Art",
+            "type": "string"
+          },
+          "betrag_netto": {
+            "minimum": 0.0,
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "gewerk": {
+            "enum": [
+              "pv",
+              "speicher",
+              "ls",
+              "service",
+              "nachtrag"
+            ],
+            "title": "Gewerk",
+            "type": "string"
+          },
+          "plan_monat": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Monat"
+          },
+          "trigger_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "uebergabetermin",
+                  "freigabe_planung",
+                  "plan_erstellt",
+                  "anmeldung_nb",
+                  "mastr",
+                  "fertigmeldung",
+                  "zaehler",
+                  "abnahme",
+                  "montage_uk",
+                  "montage_elektro",
+                  "zaehlerschrank",
+                  "lieferung_uk",
+                  "lieferung_wr_pv",
+                  "lieferung_wr_speicher",
+                  "lieferung_speicher",
+                  "lieferung_wallbox",
+                  "montage",
+                  "lieferung",
+                  "inbetriebnahme"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger Status"
+          }
+        },
+        "required": [
+          "bezeichnung",
+          "gewerk",
+          "art",
+          "betrag_netto"
+        ],
+        "title": "PositionEingabe",
         "type": "object"
       }
     }
@@ -5009,7 +5928,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PositionEingabe"
+                "$ref": "#/components/schemas/app__routen__zahlungsplan__PositionEingabe"
               }
             }
           },
@@ -5020,7 +5939,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PositionAntwort"
+                  "$ref": "#/components/schemas/app__routen__zahlungsplan__PositionAntwort"
                 }
               }
             },
@@ -5052,6 +5971,972 @@
         "summary": "Zahlungsplanposition anlegen",
         "tags": [
           "Zahlungsplan"
+        ]
+      }
+    },
+    "/api/rechnungen": {
+      "get": {
+        "operationId": "rechnungenListe",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "jahr",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Jahr"
+            }
+          },
+          {
+            "in": "query",
+            "name": "art",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "enum": [
+                "alle",
+                "ab",
+                "abschlag",
+                "schluss",
+                "service",
+                "gutschrift",
+                "storno"
+              ],
+              "title": "Art",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "enum": [
+                "alle",
+                "entwurf",
+                "festgeschrieben",
+                "storniert"
+              ],
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "projekt_nr",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Projekt Nr"
+            }
+          },
+          {
+            "in": "query",
+            "name": "kunde_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kunde Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "suche",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Suche"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListeAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung rechnungen.lesen fehlt"
+          },
+          "404": {
+            "description": "Beleg nicht gefunden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Belege auflisten",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/ab/{projekt_nr}": {
+      "post": {
+        "operationId": "auftragsbestaetigungErzeugen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projekt_nr",
+            "required": true,
+            "schema": {
+              "title": "Projekt Nr",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErzeugenEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Auftragsbestätigung erzeugen",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/aus-zahlungsplan/{position_id}": {
+      "post": {
+        "operationId": "abschlagErzeugen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "position_id",
+            "required": true,
+            "schema": {
+              "title": "Position Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErzeugenEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Abschlagsrechnung aus einer Zahlungsplanposition erzeugen",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/schlussrechnung/{projekt_nr}": {
+      "post": {
+        "operationId": "schlussrechnungErzeugen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projekt_nr",
+            "required": true,
+            "schema": {
+              "title": "Projekt Nr",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErzeugenEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Schlussrechnung mit Absetzungsblock erzeugen",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/service": {
+      "post": {
+        "operationId": "servicerechnungErzeugen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Servicerechnung erzeugen",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/vorschlaege": {
+      "get": {
+        "description": "Positionen, deren Auslöser erreicht ist (PLAN §6.8). Vorschlag, kein Automatikversand.",
+        "operationId": "rechnungenVorschlaege",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VorschlagAntwort"
+                  },
+                  "title": "Response Rechnungenvorschlaege",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung rechnungen.lesen fehlt"
+          },
+          "404": {
+            "description": "Beleg nicht gefunden"
+          }
+        },
+        "summary": "Abschlagsvorschläge",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/{beleg_id}": {
+      "delete": {
+        "description": "Einen Entwurf löschen.\n\nZulässig, weil ein Entwurf noch keine Nummer trägt: es entsteht keine Lücke im Nummernkreis\n(PLAN §6.4). Festgeschriebene Belege sind unlöschbar – dafür gibt es den Storno.",
+        "operationId": "rechnungVerwerfen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "beleg_id",
+            "required": true,
+            "schema": {
+              "title": "Beleg Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Entwurf verwerfen",
+        "tags": [
+          "Fakturierung"
+        ]
+      },
+      "get": {
+        "operationId": "rechnungLesen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "beleg_id",
+            "required": true,
+            "schema": {
+              "title": "Beleg Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung rechnungen.lesen fehlt"
+          },
+          "404": {
+            "description": "Beleg nicht gefunden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Beleg ansehen",
+        "tags": [
+          "Fakturierung"
+        ]
+      },
+      "put": {
+        "operationId": "rechnungAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "beleg_id",
+            "required": true,
+            "schema": {
+              "title": "Beleg Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KopfAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Belegkopf ändern",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/{beleg_id}/festschreiben": {
+      "post": {
+        "description": "Der unumkehrbare Schritt: Nummer, Hash, Sperre, Ablage (PLAN §6.4).\n\nLäuft in einer eigenen Schreibtransaktion (``BEGIN IMMEDIATE``), damit zwei gleichzeitige\nFestschreibungen nicht dieselbe Nummer bekommen. Die Dateien werden erst nach dem Commit\ngeschrieben – scheitert das, bleibt der Beleg gültig und die Antwort sagt, was noch fehlt.",
+        "operationId": "rechnungFestschreiben",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "beleg_id",
+            "required": true,
+            "schema": {
+              "title": "Beleg Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FestschreibenAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Beleg festschreiben",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/{beleg_id}/gutschrift": {
+      "post": {
+        "description": "Teilkorrektur als Entwurf mit leeren Positionen (PLAN §6.14).",
+        "operationId": "rechnungGutschrift",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "beleg_id",
+            "required": true,
+            "schema": {
+              "title": "Beleg Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KorrekturEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Gutschrift erzeugen",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/{beleg_id}/positionen": {
+      "post": {
+        "operationId": "rechnungPositionAnlegen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "beleg_id",
+            "required": true,
+            "schema": {
+              "title": "Beleg Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__routen__rechnungen__PositionEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Position anfügen",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/{beleg_id}/positionen/{position_id}": {
+      "delete": {
+        "operationId": "rechnungPositionLoeschen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "beleg_id",
+            "required": true,
+            "schema": {
+              "title": "Beleg Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "position_id",
+            "required": true,
+            "schema": {
+              "title": "Position Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Position entfernen",
+        "tags": [
+          "Fakturierung"
+        ]
+      },
+      "put": {
+        "operationId": "rechnungPositionAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "beleg_id",
+            "required": true,
+            "schema": {
+              "title": "Beleg Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "position_id",
+            "required": true,
+            "schema": {
+              "title": "Position Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__routen__rechnungen__PositionEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Position ändern",
+        "tags": [
+          "Fakturierung"
+        ]
+      }
+    },
+    "/api/rechnungen/{beleg_id}/storno": {
+      "post": {
+        "description": "Storno als Entwurf. Wirksam wird er erst mit dem Festschreiben (PLAN §6.4).",
+        "operationId": "rechnungStorno",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "beleg_id",
+            "required": true,
+            "schema": {
+              "title": "Beleg Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KorrekturEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BelegAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung fehlt"
+          },
+          "404": {
+            "description": "Beleg, Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Beleg gesperrt, unvollständig oder zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Stornobeleg erzeugen",
+        "tags": [
+          "Fakturierung"
         ]
       }
     },
@@ -5388,7 +7273,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PositionAntwort"
+                  "$ref": "#/components/schemas/app__routen__zahlungsplan__PositionAntwort"
                 }
               }
             },
@@ -5443,7 +7328,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PositionAntwort"
+                  "$ref": "#/components/schemas/app__routen__zahlungsplan__PositionAntwort"
                 }
               }
             },
