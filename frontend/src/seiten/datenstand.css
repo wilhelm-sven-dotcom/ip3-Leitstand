@@ -1,0 +1,131 @@
+/* Datenstand-Leiste. Ruhig gehalten: Farbe bekommt nur, was nicht in Ordnung ist. */
+
+.datenstand {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: var(--abstand-5);
+}
+
+.datenstand__kopf {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--abstand-4);
+  flex-wrap: wrap;
+}
+
+.datenstand__titel {
+  font-size: var(--text-l);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.datenstand__naechster {
+  font-family: var(--font-zahl);
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.datenstand__naechster--warnung {
+  color: var(--akzent-rot);
+}
+
+.datenstand__laedt {
+  font-size: 13px;
+  color: var(--text-sekundaer);
+  margin-top: var(--abstand-3);
+}
+
+.datenstand__hinweise {
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-2);
+  margin-top: var(--abstand-4);
+}
+
+.datenstand__liste {
+  list-style: none;
+  margin: var(--abstand-4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.datenstand__zeile {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  align-items: center;
+  gap: var(--abstand-3);
+  padding: var(--abstand-3) 0;
+  border-top: 1px solid var(--linie);
+}
+
+.datenstand__zeile:first-child {
+  border-top: none;
+}
+
+.datenstand__punkt {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: block;
+}
+
+.datenstand__bezeichnung {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+.datenstand__beschreibung {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-sekundaer);
+  margin-top: 1px;
+}
+
+.datenstand__wert {
+  font-family: var(--font-zahl);
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.datenstand__wert--auffaellig {
+  color: var(--akzent-rot);
+}
+
+.datenstand__meldung {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-sekundaer);
+  max-width: 42ch;
+  text-align: right;
+}
+
+.datenstand__spaeter {
+  font-size: 12px;
+  color: var(--text-sekundaer);
+  margin: var(--abstand-4) 0 0;
+  padding-top: var(--abstand-3);
+  border-top: 1px solid var(--linie);
+}
+
+@media (max-width: 720px) {
+  .datenstand__zeile {
+    grid-template-columns: 10px 1fr;
+  }
+
+  .datenstand__wert,
+  .datenstand__meldung {
+    text-align: left;
+    grid-column: 2;
+  }
+}

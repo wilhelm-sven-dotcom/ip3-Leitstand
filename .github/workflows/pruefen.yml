@@ -37,3 +37,33 @@ jobs:
         env:
           IP3_BCRYPT_KOSTEN: "4"
         run: uv run pytest
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Typprüfung
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      # Der Build ist die eigentliche Regressionsprüfung: er scheitert bei fehlenden
+      # Assets, unauflösbaren Aliassen und Typfehlern.
+      - name: Build
+        run: npm run build

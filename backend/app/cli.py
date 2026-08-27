@@ -337,6 +337,23 @@ def backup_ausfuehren() -> None:
             )
 
 
+@anwendung.command("openapi")
+def openapi_exportieren(
+    ziel: str = typer.Option(None, help="Abweichender Zielpfad (Standard: backend/openapi.json)"),
+) -> None:
+    """OpenAPI-Spezifikation nach backend/openapi.json schreiben.
+
+    Danach im Frontend 'npm run api' ausführen, damit die TypeScript-Typen dazu passen.
+    """
+    from pathlib import Path
+
+    from app.werkzeuge.openapi_export import schreiben
+
+    pfad = schreiben(Path(ziel) if ziel else None)
+    typer.echo(f"Geschrieben: {pfad}")
+    typer.echo("Nächster Schritt: im Ordner frontend 'npm run api' ausführen.")
+
+
 @anwendung.command("berechtigungen-doku")
 def berechtigungen_doku() -> None:
     """docs/BERECHTIGUNGEN.md aus dem Berechtigungskatalog neu erzeugen."""

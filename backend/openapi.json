@@ -1,0 +1,643 @@
+{
+  "components": {
+    "schemas": {
+      "Abmeldung": {
+        "properties": {
+          "abgemeldet": {
+            "default": true,
+            "title": "Abgemeldet",
+            "type": "boolean"
+          }
+        },
+        "title": "Abmeldung",
+        "type": "object"
+      },
+      "AngemeldeterNutzer": {
+        "description": "Was die Oberfläche über den angemeldeten Nutzer wissen muss.",
+        "properties": {
+          "csrf_token": {
+            "title": "Csrf Token",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "muss_passwort_wechseln": {
+            "title": "Muss Passwort Wechseln",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "rechte": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Rechte",
+            "type": "object"
+          },
+          "rollen": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rollen",
+            "type": "array"
+          },
+          "sitzung_laeuft_ab": {
+            "format": "date-time",
+            "title": "Sitzung Laeuft Ab",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "rollen",
+          "rechte",
+          "muss_passwort_wechseln",
+          "csrf_token",
+          "sitzung_laeuft_ab"
+        ],
+        "title": "AngemeldeterNutzer",
+        "type": "object"
+      },
+      "AnmeldeDaten": {
+        "description": "Anmeldedaten.\n\nDie Kennung wird bewusst nur oberflächlich geprüft (enthält ein @, hat Vor- und Nachteil) und\nnicht gegen die vollständigen Regeln für E-Mail-Adressen. Eine strenge Prüfung bräuchte ein\nweiteres Paket und würde in Grenzfällen gültige Firmenadressen abweisen; ob die Kennung\nstimmt, entscheidet ohnehin der Abgleich mit der Nutzertabelle.",
+        "properties": {
+          "angemeldet_bleiben": {
+            "default": false,
+            "title": "Angemeldet Bleiben",
+            "type": "boolean"
+          },
+          "email": {
+            "maxLength": 200,
+            "minLength": 3,
+            "title": "Email",
+            "type": "string"
+          },
+          "passwort": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Passwort",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "passwort"
+        ],
+        "title": "AnmeldeDaten",
+        "type": "object"
+      },
+      "Gesundheit": {
+        "properties": {
+          "datenbank": {
+            "title": "Datenbank",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "version",
+          "datenbank"
+        ],
+        "title": "Gesundheit",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "JobStartErgebnis": {
+        "properties": {
+          "gestartet": {
+            "title": "Gestartet",
+            "type": "boolean"
+          },
+          "job": {
+            "title": "Job",
+            "type": "string"
+          },
+          "meldung": {
+            "title": "Meldung",
+            "type": "string"
+          }
+        },
+        "required": [
+          "gestartet",
+          "job",
+          "meldung"
+        ],
+        "title": "JobStartErgebnis",
+        "type": "object"
+      },
+      "JobStatus": {
+        "properties": {
+          "ab_phase": {
+            "title": "Ab Phase",
+            "type": "integer"
+          },
+          "alter_stunden": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alter Stunden"
+          },
+          "beschreibung": {
+            "title": "Beschreibung",
+            "type": "string"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "dauer_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dauer Ms"
+          },
+          "eingerichtet": {
+            "title": "Eingerichtet",
+            "type": "boolean"
+          },
+          "letzter_erfolg": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Letzter Erfolg"
+          },
+          "letzter_lauf": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Letzter Lauf"
+          },
+          "meldung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meldung"
+          },
+          "schluessel": {
+            "title": "Schluessel",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schluessel",
+          "bezeichnung",
+          "beschreibung",
+          "status",
+          "text",
+          "eingerichtet",
+          "ab_phase"
+        ],
+        "title": "JobStatus",
+        "type": "object"
+      },
+      "PasswortDaten": {
+        "properties": {
+          "altes_passwort": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Altes Passwort",
+            "type": "string"
+          },
+          "neues_passwort": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Neues Passwort",
+            "type": "string"
+          }
+        },
+        "required": [
+          "altes_passwort",
+          "neues_passwort"
+        ],
+        "title": "PasswortDaten",
+        "type": "object"
+      },
+      "Systemstatus": {
+        "description": "Der „Datenstand\"-Block der Startseite.",
+        "properties": {
+          "gesamtstatus": {
+            "title": "Gesamtstatus",
+            "type": "string"
+          },
+          "hinweise": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hinweise",
+            "type": "array"
+          },
+          "jobs": {
+            "items": {
+              "$ref": "#/components/schemas/JobStatus"
+            },
+            "title": "Jobs",
+            "type": "array"
+          },
+          "naechster_lauf": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Naechster Lauf"
+          },
+          "zeitplan_laeuft": {
+            "title": "Zeitplan Laeuft",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "gesamtstatus",
+          "jobs",
+          "hinweise",
+          "zeitplan_laeuft"
+        ],
+        "title": "Systemstatus",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "\nProjekt- und Finanz-Cockpit der ip³ Energietechnik GmbH.\n\nAlle Pfade liegen unter `/api`. Beträge sind ganze Cent, Zeitpunkte in UTC.\nFehlerantworten haben die Form `{code, meldung, naechster_schritt}`.\n",
+    "title": "ip³ Leitstand",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/auth/abmelden": {
+      "post": {
+        "description": "Abmelden.\n\nOhne Berechtigungsprüfung und ohne CSRF-Token: Abmelden ist immer erlaubt und darf auch mit\neiner bereits ungültigen Sitzung nicht fehlschlagen – sonst bleibt ein Cookie im Browser, das\nniemand mehr loswird.",
+        "operationId": "abmelden",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Abmeldung"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Aktuelle Sitzung beenden",
+        "tags": [
+          "Anmeldung"
+        ]
+      }
+    },
+    "/api/auth/anmelden": {
+      "post": {
+        "operationId": "anmelden",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnmeldeDaten"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AngemeldeterNutzer"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "E-Mail oder Passwort stimmt nicht"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "429": {
+            "description": "Kennung ist nach mehreren Fehlversuchen zeitweise gesperrt"
+          }
+        },
+        "summary": "Mit E-Mail und Passwort anmelden",
+        "tags": [
+          "Anmeldung"
+        ]
+      }
+    },
+    "/api/auth/csrf": {
+      "get": {
+        "description": "Token nachladen, falls die Oberfläche es verloren hat (nach einem Neuladen der Seite).",
+        "operationId": "csrf_token_abrufen",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Csrf Token Abrufen",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          }
+        },
+        "summary": "Sicherheitsschlüssel der Sitzung abrufen",
+        "tags": [
+          "Anmeldung"
+        ]
+      }
+    },
+    "/api/auth/ich": {
+      "get": {
+        "description": "Der erste Aufruf der Oberfläche nach dem Laden.\n\nAbsichtlich ohne Passwortwechselpflicht: die Oberfläche muss erfahren, dass ein Wechsel\naussteht, um zur Passwortmaske führen zu können.",
+        "operationId": "angemeldeten_nutzer_abrufen",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AngemeldeterNutzer"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet oder Sitzung abgelaufen"
+          }
+        },
+        "summary": "Angemeldeten Nutzer samt Berechtigungen abrufen",
+        "tags": [
+          "Anmeldung"
+        ]
+      }
+    },
+    "/api/auth/passwort-aendern": {
+      "post": {
+        "description": "Passwort ändern.\n\nBeendet alle anderen Sitzungen des Nutzers: wer das alte Passwort kannte, soll nicht über eine\noffene Sitzung weiterarbeiten können. Die aufrufende Sitzung bleibt bestehen.",
+        "operationId": "passwort_aendern",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswortDaten"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AngemeldeterNutzer"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Das alte Passwort stimmt nicht"
+          },
+          "422": {
+            "description": "Das neue Passwort erfüllt die Anforderungen nicht"
+          }
+        },
+        "summary": "Eigenes Passwort ändern",
+        "tags": [
+          "Anmeldung"
+        ]
+      }
+    },
+    "/api/gesundheit": {
+      "get": {
+        "operationId": "gesundheit_abrufen",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Gesundheit"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Antwortet, solange die Anwendung läuft",
+        "tags": [
+          "System"
+        ]
+      }
+    },
+    "/api/systemstatus": {
+      "get": {
+        "operationId": "systemstatus_abrufen",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Systemstatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung systemstatus.lesen fehlt"
+          }
+        },
+        "summary": "Datenstand und Hintergrundläufe abrufen",
+        "tags": [
+          "System"
+        ]
+      }
+    },
+    "/api/systemstatus/jobs/{job}/starten": {
+      "post": {
+        "description": "Einen Lauf sofort auslösen – für die Prüfung nach der Einrichtung und nach einer Störung.",
+        "operationId": "job_starten",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job",
+            "required": true,
+            "schema": {
+              "title": "Job",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStartErgebnis"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung admin.jobs fehlt"
+          },
+          "404": {
+            "description": "Unbekannter Job"
+          },
+          "409": {
+            "description": "Der Job ist in dieser Phase noch nicht eingerichtet"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Hintergrundlauf von Hand starten",
+        "tags": [
+          "System"
+        ]
+      }
+    }
+  }
+}
