@@ -351,6 +351,57 @@ class TestNeuesProjekt:
         )
 
 
+class TestAuftragswertAusProjektsummen:
+    """PLAN §9: Zeilen ohne Rechnungsart sind **Projektsummen** – ihr Betrag ist der Auftragswert.
+
+    Ohne diese Übernahme bliebe der Auftragsbestand (PLAN §7 Phase 2) der so entstandenen
+    Projekte unsichtbar: im echten Bestand sind das 8 Projekte mit 1.792.000,00 €, darunter
+    Nachtmann mit 550.000 € und zwei Volksfestplätze mit je 218.000 €.
+    """
+
+    @pytest.fixture
+    def bericht(self, analyse, firma_id):
+        _alles_zuordnen(analyse)
+        return _uebernehmen(analyse, firma_id)
+
+    def _projekt_zu(self, kundenname: str) -> Projekt | None:
+        with lese_sitzung() as sitzung:
+            kunde = sitzung.scalar(select(Kunde).where(Kunde.name == kundenname))
+            if kunde is None:
+                return None
+            return sitzung.scalar(
+                select(Projekt).where(
+                    Projekt.kunde_id == kunde.id,
+                    Projekt.quelle_migration.contains("kein Eintrag in der Teamliste"),
+                )
+            )
+
+    def test_projektsumme_wird_auftragswert(self, bericht):
+        projekt = self._projekt_zu("Speicherprojekt Irlbacher")
+        assert projekt is not None
+        assert projekt.ab_wert_netto == 160000_00
+        assert "Auftragswert aus der Projektsumme" in projekt.quelle_migration
+
+    def test_zeile_mit_rechnungsart_bekommt_keinen_auftragswert(self, bericht):
+        """„Nachbauer, Weiden - 1. Abschlag PV" ist ein Abschlag, nicht die Auftragssumme.
+
+        Der Betrag als Auftragswert wäre eine Falschangabe – und der Auftragsbestand rechnet
+        damit. Im echten Bestand ist das „Forster ENMAG Weiden - Schlussrechnung - PV".
+        """
+        projekt = self._projekt_zu("Nachbauer")
+        assert projekt is not None
+        assert projekt.ab_wert_netto is None
+        assert "Auftragswert" not in projekt.quelle_migration
+
+    def test_teamlisten_projekte_behalten_ihren_wert(self, bericht, analyse):
+        """Die Korrektur gilt nur für Projekte, die aus der Auftragsliste entstehen."""
+        with lese_sitzung() as sitzung:
+            aigner = sitzung.scalar(select(Kunde).where(Kunde.name == "Aigner"))
+            projekt = sitzung.scalar(select(Projekt).where(Projekt.kunde_id == aigner.id))
+        zeile = next(z for z in analyse.projekte.zeilen if z.kundenteil.startswith("Aigner"))
+        assert projekt.ab_wert_netto == zeile.ab_wert_cent
+
+
 class TestZweiKundentexteEinProjekt:
     """Zwei Zeilengruppen der Auftragsliste, ein Projekt – der Fall aus der Abnahme.
 

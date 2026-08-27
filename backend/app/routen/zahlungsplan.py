@@ -30,6 +30,10 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app import audit
+
+# Die Regel, welche Nachträge zum Soll zählen, steht im Auswertungsdienst: Zahlungsplanmaske,
+# Umsatzseite und später das Firmen-Cockpit müssen dieselbe verwenden (PLAN §6.12).
+from app.dienste.auswertung import NACHTRAG_ZAEHLT
 from app.dienste.konflikt import geaenderte_felder, konflikt_uebersetzen, stand_pruefen
 from app.fehler import Konflikt, NichtGefunden
 from app.modelle import Nachtrag, Projekt, Zahlungsplanposition
@@ -48,9 +52,6 @@ SCHREIBEN = {
     409: {"description": "Position gesperrt oder zwischenzeitlich geändert"},
 }
 
-# Nachträge, die den Soll-Wert des Zahlungsplans erhöhen (PLAN §6.12). 'angeboten' zählt nicht:
-# ein Angebot ist kein Auftrag. 'berechnet' zählt mit, denn was berechnet ist, war beauftragt.
-NACHTRAG_ZAEHLT = ("beauftragt", "berechnet")
 NACHTRAG_STATUS = ("angeboten", "beauftragt", "berechnet")
 
 

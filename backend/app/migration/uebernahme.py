@@ -529,25 +529,51 @@ def _projekt_fuer(lauf: _Lauf, zuordnung: Zuordnung) -> Projekt | None:
     return None
 
 
+def _auftragswert_aus_projektsummen(lauf: _Lauf, zuordnung: Zuordnung) -> int | None:
+    """Auftragswert eines nur in der Auftragsliste geführten Projekts – wenn er dort steht.
+
+    PLAN §9 nennt Zeilen ohne Rechnungsart-Suffix ausdrücklich **Projektsummen**
+    (`Speicherprojekt Hausner, Püllersreuth 160.000`). Deren Betrag *ist* der Auftragswert; ihn
+    zu übernehmen ist keine Annahme, sondern das Lesen der Quelle.
+
+    Trägt eine der Zeilen eine Rechnungsart, bleibt das Feld leer. `Forster ENMAG Weiden -
+    Schlussrechnung - PV` mit 6.837,71 € ist der **Rest** eines größeren Auftrags; als
+    Auftragswert wäre der Betrag eine Falschangabe – und der Auftragsbestand (PLAN §7 Phase 2)
+    rechnet damit.
+
+    Ohne diesen Wert bliebe der Bestand der 8 so entstandenen Projekte unsichtbar: allein
+    Nachtmann, Landgraf und die beiden Volksfestplätze sind 1,44 Mio. €.
+    """
+    zeilen = [lauf.auftragszeilen_je_nummer[n] for n in zuordnung.auftrags_zeilen]
+    if any(z.rechnungsart.erkannt for z in zeilen):
+        return None
+    return sum(z.betrag_cent for z in zeilen)
+
+
 def _projekt_aus_auftragsliste(lauf: _Lauf, zuordnung: Zuordnung) -> Projekt:
     """Legt ein Projekt für einen Kunden an, den nur die Auftragsliste kennt.
 
     16 Kunden der Auftragsliste haben kein Gegenstück in der Teamliste – meist Projekte, die
     dort nie eingetragen wurden. Sie bekommen ein Projekt ohne Anlagendaten: die Beträge sind da,
-    alles Weitere trägt die Projektmaske nach.
+    alles Weitere trägt die Projektmaske nach. Den Auftragswert übernimmt
+    :func:`_auftragswert_aus_projektsummen`, soweit die Quelle ihn hergibt.
     """
     erste = lauf.auftragszeilen_je_nummer[zuordnung.auftrags_zeilen[0]]
     kunde = _kunde_holen(lauf, erste.kunde, erste.ort)
+    ab_wert = _auftragswert_aus_projektsummen(lauf, zuordnung)
     projekt = Projekt(
         projekt_nr=naechste_projektnummer(lauf.sitzung, lauf.firma_id),
         firma_id=lauf.firma_id,
         typ="projekt",
         kunde_id=kunde.id,
         standort=erste.ort,
+        ab_wert_netto=ab_wert,
         status="beauftragt",
         quelle_migration=(
             f"{lauf.herkunft}; {lauf.analyse.auftraege.datei.name} Zeile {erste.zeile} "
-            "(kein Eintrag in der Teamliste)"
+            "(kein Eintrag in der Teamliste"
+            + ("; Auftragswert aus der Projektsumme" if ab_wert is not None else "")
+            + ")"
         ),
     )
     lauf.sitzung.add(projekt)

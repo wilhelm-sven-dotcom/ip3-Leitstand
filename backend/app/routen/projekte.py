@@ -294,8 +294,9 @@ def _als_antwort(db: Session, projekt: Projekt, darf_werte: bool) -> ProjektAntw
     if darf_werte:
         # Die Sperrgründe und die Deckungsrechnung stehen in app/routen/zahlungsplan.py – dort
         # gehören sie fachlich hin, und so gibt es sie nur einmal.
-        from app.routen.zahlungsplan import NACHTRAG_ZAEHLT, deckung_berechnen
+        from app.dienste.auswertung import NACHTRAG_ZAEHLT
         from app.routen.zahlungsplan import _sperrgrund as sperrgrund
+        from app.routen.zahlungsplan import deckung_berechnen
 
         antwort.ab_wert_netto = projekt.ab_wert_netto
         antwort.zahlungsplan = [
