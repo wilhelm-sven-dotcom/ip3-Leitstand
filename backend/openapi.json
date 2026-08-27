@@ -4006,6 +4006,17 @@
             ],
             "title": "Quelle Migration"
           },
+          "rechnung_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rechnung Id"
+          },
           "sperrgrund": {
             "anyOf": [
               {
@@ -4381,6 +4392,17 @@
               }
             ],
             "title": "Quelle Migration"
+          },
+          "rechnung_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rechnung Id"
           },
           "sperrgrund": {
             "anyOf": [

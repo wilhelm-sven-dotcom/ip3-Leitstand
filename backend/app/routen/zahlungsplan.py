@@ -91,6 +91,8 @@ class PositionAntwort(BaseModel):
     trigger_status: str | None = None
     migriert_gestellt: bool | None = None
     berechnet: bool
+    # Der Beleg, der die Position berechnet – damit die Maske direkt dorthin verweisen kann.
+    rechnung_id: int | None = None
     quelle_migration: str | None = None
     stand: datetime
     # Warum die Position nicht bearbeitbar ist – leer, wenn sie es ist.
@@ -211,6 +213,7 @@ def _als_antwort(position: Zahlungsplanposition) -> PositionAntwort:
         plan_monat=position.plan_monat,
         trigger_status=position.trigger_status,
         migriert_gestellt=position.migriert_gestellt,
+        rechnung_id=position.rechnung_id,
         berechnet=position.rechnung_id is not None,
         quelle_migration=position.quelle_migration,
         stand=position.updated_at,

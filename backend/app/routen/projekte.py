@@ -105,6 +105,8 @@ class ZahlungsplanZeile(BaseModel):
     trigger_status: str | None = None
     migriert_gestellt: bool | None = None
     berechnet: bool
+    # Der Beleg, der die Position berechnet – damit die Maske direkt dorthin verweisen kann.
+    rechnung_id: int | None = None
     quelle_migration: str | None = None
     stand: datetime
     # Warum die Position nicht bearbeitbar ist – leer, wenn sie es ist. Die Maske zeichnet sie
@@ -311,6 +313,7 @@ def _als_antwort(db: Session, projekt: Projekt, darf_werte: bool) -> ProjektAntw
                 trigger_status=p.trigger_status,
                 migriert_gestellt=p.migriert_gestellt,
                 berechnet=p.rechnung_id is not None,
+                rechnung_id=p.rechnung_id,
                 quelle_migration=p.quelle_migration,
                 stand=p.updated_at,
                 sperrgrund=sperrgrund(p),

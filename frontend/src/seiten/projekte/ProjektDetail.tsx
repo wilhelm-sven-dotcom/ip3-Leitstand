@@ -318,6 +318,7 @@ export function ProjektDetail() {
             nachtraegeSumme={p.nachtraege_summe}
             deckungDifferenz={p.deckung_differenz}
             darfSchreiben={darf("zahlungsplan.schreiben")}
+            darfFakturieren={darf("rechnungen.erstellen")}
           />
         )
       ) : null}

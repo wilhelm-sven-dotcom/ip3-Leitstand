@@ -2068,6 +2068,8 @@ export interface components {
             pos_nr: number;
             /** Quelle Migration */
             quelle_migration?: string | null;
+            /** Rechnung Id */
+            rechnung_id?: number | null;
             /** Sperrgrund */
             sperrgrund?: string | null;
             /**
@@ -2195,6 +2197,8 @@ export interface components {
             projekt_id: number;
             /** Quelle Migration */
             quelle_migration?: string | null;
+            /** Rechnung Id */
+            rechnung_id?: number | null;
             /** Sperrgrund */
             sperrgrund?: string | null;
             /**

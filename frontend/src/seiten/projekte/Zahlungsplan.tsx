@@ -16,7 +16,8 @@
  */
 
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ConfirmDialog } from "@/komponenten/ConfirmDialog";
 import { DataTable } from "@/komponenten/DataTable";
 import type { Spalte } from "@/komponenten/DataTable";
@@ -32,9 +33,12 @@ import type { ApiFehler } from "@/api/client";
 import {
   anteil,
   centAusText,
+  datum as datumText,
   euro,
   monat as monatText,
 } from "@/format/formate";
+import { ART_KURZ as BELEG_ART_TEXT } from "@/seiten/rechnungen/begriffe";
+import type { Belegart } from "@/seiten/rechnungen/begriffe";
 import { MEILENSTEIN_TYPEN, meilensteinText } from "./begriffe";
 
 /**
@@ -78,6 +82,7 @@ export type Position = {
   trigger_status?: string | null;
   migriert_gestellt?: boolean | null;
   berechnet: boolean;
+  rechnung_id?: number | null;
   quelle_migration?: string | null;
   stand: string;
   sperrgrund?: string | null;
@@ -102,6 +107,10 @@ type Props = {
   nachtraegeSumme?: number | null;
   deckungDifferenz?: number | null;
   darfSchreiben: boolean;
+  /** Ob Belege erzeugt werden dürfen (`rechnungen.erstellen`, PLAN §4). */
+  darfFakturieren?: boolean;
+  /** Positionen mit Altabschlägen sperren die Schlussrechnung (Entscheidung 16). */
+  hatAltabschlaege?: boolean;
 };
 
 function centAlsText(cent: number | null | undefined): string {
@@ -154,8 +163,10 @@ export function Zahlungsplan({
   nachtraegeSumme,
   deckungDifferenz,
   darfSchreiben,
+  darfFakturieren = false,
 }: Props) {
   const abfragen = useQueryClient();
+  const navigate = useNavigate();
   const [offenePosition, setOffenePosition] = useState<Position | null>(null);
   const [positionEntwurf, setPositionEntwurf] =
     useState<PositionEntwurf | null>(null);
@@ -168,6 +179,7 @@ export function Zahlungsplan({
   function neuLaden() {
     void abfragen.invalidateQueries({ queryKey: ["projekt", projektNr] });
     void abfragen.invalidateQueries({ queryKey: ["projekte"] });
+    void abfragen.invalidateQueries({ queryKey: ["rechnungen"] });
   }
 
   function panelSchliessen() {
@@ -305,6 +317,68 @@ export function Zahlungsplan({
     onError: (f) => setFehler(fehlerAuslesen(f)),
   });
 
+  /**
+   * Abschlagsrechnung aus einer Position erzeugen und gleich öffnen.
+   *
+   * Der Beleg entsteht als **Entwurf** – die Nummer kommt erst mit dem Festschreiben (PLAN §6.4).
+   * Deshalb ist der Knopf ungefährlich und braucht keine Rückfrage.
+   */
+  const abschlagStellen = useMutation({
+    mutationFn: async (positionId: number) => {
+      setFehler(null);
+      const { data, error } = await api.POST(
+        "/api/rechnungen/aus-zahlungsplan/{position_id}",
+        { params: { path: { position_id: positionId } }, body: {} },
+      );
+      if (error) throw error;
+      return data as { id: number };
+    },
+    onSuccess: (beleg) => {
+      neuLaden();
+      navigate(`/fakturierung/${beleg.id}`);
+    },
+    onError: (f) => setFehler(fehlerAuslesen(f)),
+  });
+
+  const schlussrechnungErzeugen = useMutation({
+    mutationFn: async () => {
+      setFehler(null);
+      const { data, error } = await api.POST(
+        "/api/rechnungen/schlussrechnung/{projekt_nr}",
+        { params: { path: { projekt_nr: projektNr } }, body: {} },
+      );
+      if (error) throw error;
+      return data as { id: number };
+    },
+    onSuccess: (beleg) => {
+      neuLaden();
+      navigate(`/fakturierung/${beleg.id}`);
+    },
+    // Bei einem Altprojekt kommt hier die Begründung aus Entscheidung 16 samt nächstem Schritt.
+    onError: (f) => setFehler(fehlerAuslesen(f)),
+  });
+
+  /**
+   * Belege des Projekts.
+   *
+   * Am Projekt und nicht nur unter „Fakturierung": Wer den Zahlungsplan ansieht, will wissen,
+   * was daraus schon gestellt ist – und ein Storno ist von hier aus zu finden, ohne die
+   * Belegnummer zu kennen.
+   */
+  const belege = useQuery({
+    queryKey: ["rechnungen", { projekt: projektNr }],
+    enabled: darfFakturieren,
+    queryFn: async () => {
+      const { data, error } = await api.GET("/api/rechnungen", {
+        params: {
+          query: { projekt_nr: projektNr, art: "alle", status: "alle" },
+        },
+      });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const summe = positionen.reduce((s, p) => s + p.betrag_netto, 0);
   const bezugswert = sollNetto ?? abWertNetto ?? 0;
 
@@ -367,6 +441,44 @@ export function Zahlungsplan({
           <StatusBadge zustand="geplant" />
         ),
     },
+    {
+      // Der Weg von der geplanten Zahlung zur Rechnung – der Kern von PLAN §10. Bei einer
+      // berechneten Position führt die Spalte zum Beleg, bei einer offenen erzeugt sie ihn.
+      kopf: "Rechnung",
+      breite: "11rem",
+      zelle: (p) =>
+        p.rechnung_id ? (
+          <Link
+            to={`/fakturierung/${p.rechnung_id}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            Beleg ansehen
+          </Link>
+        ) : p.migriert_gestellt ? (
+          <span className="projekte__leer" title={p.sperrgrund ?? undefined}>
+            vor der Einführung gestellt
+          </span>
+        ) : /* `berechnet` ohne bekannte Beleg-ID: dann steht kein Knopf da. Sonst führte ein
+              Klick in einen Konflikt, weil die Position serverseitig gesperrt ist. */
+        p.berechnet ? (
+          <span className="projekte__leer" title={p.sperrgrund ?? undefined}>
+            berechnet
+          </span>
+        ) : darfFakturieren ? (
+          <Knopf
+            klein
+            onClick={(e) => {
+              e.stopPropagation();
+              abschlagStellen.mutate(p.id);
+            }}
+            disabled={abschlagStellen.isPending}
+          >
+            Abschlag stellen
+          </Knopf>
+        ) : (
+          <span className="projekte__leer">–</span>
+        ),
+    },
   ];
 
   const nachtragSpalten: Spalte<NachtragZeile>[] = [
@@ -409,20 +521,32 @@ export function Zahlungsplan({
       ) : null}
 
       <div className="abschnittskopf">
-        <h2 className="abschnittstitel">Zahlungsplan</h2>
-        {darfSchreiben ? (
-          <Knopf
-            art="sekundaer"
-            klein
-            onClick={() => {
-              setOffenePosition(null);
-              setPositionEntwurf(LEERE_POSITION);
-              setFehler(null);
-            }}
-          >
-            Position hinzufügen
-          </Knopf>
-        ) : null}
+        <h2 className="abschnittstitel">Zahlungsplan &amp; Rechnungen</h2>
+        <div className="knopfzeile">
+          {darfFakturieren ? (
+            <Knopf
+              art="sekundaer"
+              klein
+              onClick={() => schlussrechnungErzeugen.mutate()}
+              disabled={schlussrechnungErzeugen.isPending}
+            >
+              Schlussrechnung erzeugen
+            </Knopf>
+          ) : null}
+          {darfSchreiben ? (
+            <Knopf
+              art="sekundaer"
+              klein
+              onClick={() => {
+                setOffenePosition(null);
+                setPositionEntwurf(LEERE_POSITION);
+                setFehler(null);
+              }}
+            >
+              Position hinzufügen
+            </Knopf>
+          ) : null}
+        </div>
       </div>
 
       <DataTable
@@ -495,6 +619,61 @@ export function Zahlungsplan({
         </p>
       ) : null}
 
+      {darfFakturieren ? (
+        <>
+          <div className="abschnittskopf">
+            <h2 className="abschnittstitel">Belege zu diesem Projekt</h2>
+          </div>
+          <DataTable
+            spalten={[
+              {
+                kopf: "Belegnummer",
+                hervorgehoben: true,
+                zelle: (b) => (
+                  <Link to={`/fakturierung/${b.id}`}>
+                    {b.rechnung_nr ?? "Entwurf"}
+                  </Link>
+                ),
+              },
+              {
+                kopf: "Art",
+                zelle: (b) => BELEG_ART_TEXT[b.art as Belegart] ?? b.art,
+              },
+              { kopf: "Datum", zahl: true, zelle: (b) => datumText(b.datum) },
+              {
+                kopf: "Zahlbetrag (€)",
+                zahl: true,
+                zelle: (b) => euro(b.zahlbetrag, false),
+              },
+              {
+                kopf: "Status",
+                zelle: (b) => (
+                  <StatusBadge
+                    zustand={
+                      b.status === "festgeschrieben"
+                        ? "festgeschrieben"
+                        : b.status === "storniert"
+                          ? "storniert"
+                          : "entwurf"
+                    }
+                  />
+                ),
+              },
+            ]}
+            zeilen={belege.data?.zeilen ?? []}
+            schluessel={(b) => b.id}
+            beschriftung="Belege des Projekts"
+            leer={
+              <EmptyState
+                titel="Noch kein Beleg"
+                text="Über „Abschlag stellen“ an einer Position oder über „Schlussrechnung erzeugen“ entsteht ein Entwurf. Eine Nummer bekommt er erst beim Festschreiben."
+                ohneZeichen
+              />
+            }
+          />
+        </>
+      ) : null}
+
       <div className="abschnittskopf">
         <h2 className="abschnittstitel">Nachträge</h2>
         {darfSchreiben ? (
@@ -542,13 +721,6 @@ export function Zahlungsplan({
             ohneZeichen
           />
         }
-      />
-
-      <h2 className="abschnittstitel">Belege</h2>
-      <EmptyState
-        titel="Rechnungen ab Phase 3"
-        text="Belege werden im Leitstand ab Phase 3 erstellt und festgeschrieben. Positionen, die vorher abgerechnet wurden, sind oben als „Gestellt“ gekennzeichnet."
-        ohneZeichen
       />
 
       {/* --- Panel: Position bearbeiten, anlegen oder als gesperrt erklären --- */}
