@@ -13,10 +13,11 @@ from fastapi import FastAPI
 
 from app import __version__
 from app.fehler import handler_registrieren
+from app.jobs import scheduler
 from app.konfiguration import Einstellungen, einstellungen, pruefe_betriebsbereit
 from app.protokoll import einrichten as protokoll_einrichten
 from app.protokoll import logger
-from app.routen import auth, gesundheit
+from app.routen import auth, gesundheit, systemstatus
 
 log = logger(__name__)
 
@@ -35,12 +36,23 @@ async def _lebenszyklus(app: FastAPI) -> AsyncIterator[None]:
     for hinweis in pruefe_betriebsbereit(werte):
         # Kein Abbruch: der Leitstand läuft, der Hinweis erscheint zusätzlich im Systemstatus.
         log.warning("Konfigurationshinweis: %s", hinweis)
+
+    if app.state.zeitplan_starten:
+        scheduler.starten(werte)
     yield
+    scheduler.beenden()
     log.info("ip³ Leitstand wird beendet")
 
 
-def anwendung_erzeugen(werte: Einstellungen | None = None) -> FastAPI:
-    """Anwendung zusammensetzen."""
+def anwendung_erzeugen(
+    werte: Einstellungen | None = None, *, zeitplan_starten: bool | None = None
+) -> FastAPI:
+    """Anwendung zusammensetzen.
+
+    ``zeitplan_starten`` steuert die Hintergrundläufe. Ohne Angabe laufen sie überall außer in der
+    Umgebung ``test``: dort würde jeder Test einen Zeitplan starten, und eine Testsicherung könnte
+    in einem echten Backup-Ordner landen.
+    """
     konfiguration = werte or einstellungen()
     protokoll_einrichten(
         konfiguration.pfade.logs,
@@ -61,9 +73,13 @@ def anwendung_erzeugen(werte: Einstellungen | None = None) -> FastAPI:
         openapi_url="/api/openapi.json",
     )
     app.state.einstellungen = konfiguration
+    app.state.zeitplan_starten = (
+        zeitplan_starten if zeitplan_starten is not None else konfiguration.app.umgebung != "test"
+    )
 
     handler_registrieren(app)
     app.include_router(gesundheit.router)
     app.include_router(auth.router)
+    app.include_router(systemstatus.router)
 
     return app

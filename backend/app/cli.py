@@ -288,6 +288,55 @@ def nutzer_liste() -> None:
             typer.echo(f"{eintrag.email:35s} {eintrag.name:25s} {zustand:12s} {rollen}{hinweis}")
 
 
+@anwendung.command("backup")
+def backup_ausfuehren() -> None:
+    """Datensicherung sofort ausführen.
+
+    Nach der Einrichtung einmal von Hand ausführen und die Datei im Zielordner nachsehen –
+    sonst weiß niemand, ob der nächtliche Lauf funktioniert (RUNBOOK, Abschnitt Backup).
+    """
+    from app.jobs.backup import sicherung_durchfuehren
+    from app.jobs.lauf import protokollierter_lauf
+
+    try:
+        werte = einstellungen()
+    except KonfigurationsFehler as fehler:
+        _fehler_ausgeben(fehler)
+        raise typer.Exit(code=2) from fehler
+
+    if werte.pfade.backup is None:
+        typer.secho(
+            "Es ist kein Backup-Ziel eingerichtet.\n"
+            "Nächster Schritt: in config.toml unter [pfade] den Eintrag backup auf den "
+            "OneDrive-Ordner 04_Backup setzen.",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=2)
+
+    with protokollierter_lauf("backup", "manuell") as ergebnis:
+        bericht = sicherung_durchfuehren(werte)
+        groesse_mb = round(bericht.groesse_bytes / 1_048_576, 1)
+        ergebnis.meldung = f"Sicherung {bericht.datei.name} geschrieben ({groesse_mb} MB)"
+        ergebnis.kennzahlen = {"datei": bericht.datei.name, "groesse_mb": groesse_mb}
+
+        typer.echo(f"Sicherung:   {bericht.datei}")
+        typer.echo(f"Größe:       {groesse_mb} MB")
+        typer.echo(
+            "Integrität:  "
+            + ("in Ordnung" if bericht.integritaet_ok else "FEHLERHAFT – bitte prüfen!")
+        )
+        if bericht.geloeschte_generationen:
+            typer.echo(f"Aufgeräumt:  {bericht.geloeschte_generationen} alte Generation(en)")
+        if not bericht.integritaet_ok:
+            typer.secho(
+                "Die Sicherung wurde geschrieben, ist aber nicht in Ordnung. "
+                "Nächster Schritt: 'ip3-leitstand pruefen' auf der laufenden Datenbank.",
+                fg=typer.colors.RED,
+                err=True,
+            )
+
+
 @anwendung.command("berechtigungen-doku")
 def berechtigungen_doku() -> None:
     """docs/BERECHTIGUNGEN.md aus dem Berechtigungskatalog neu erzeugen."""
