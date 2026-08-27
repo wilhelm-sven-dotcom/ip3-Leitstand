@@ -220,6 +220,131 @@ def seed_ausfuehren(
         )
 
 
+@anwendung.command("nutzer-anlegen")
+def nutzer_anlegen(
+    email: str = typer.Argument(..., help="E-Mail-Adresse, die zugleich die Anmeldekennung ist"),
+    name: str = typer.Argument(..., help="Vor- und Nachname"),
+    rolle: str = typer.Option(..., help="Rolle: admin, buchhaltung oder team"),
+    passwort: str = typer.Option(None, help="Startpasswort; ohne Angabe wird eines erzeugt"),
+) -> None:
+    """Ein Nutzerkonto anlegen.
+
+    Bis es eine Nutzerverwaltung in der Oberfläche gibt (spätere Phase), ist das der Weg, um
+    Konten für die Geschäftsführung, die Buchhaltung und das Team einzurichten. Das Startpasswort
+    muss bei der ersten Anmeldung gewechselt werden.
+    """
+    from sqlalchemy import select
+
+    from app.datenbank import schreib_sitzung
+    from app.modelle import Rolle, User
+    from app.sicherheit import passwort as pw
+
+    try:
+        werte = einstellungen()
+    except KonfigurationsFehler as fehler:
+        _fehler_ausgeben(fehler)
+        raise typer.Exit(code=2) from fehler
+
+    kennung = email.strip().lower()
+    klartext = passwort or pw.zufallspasswort()
+
+    try:
+        pw.pruefe_laenge(klartext, werte.anmeldung.passwort_mindestlaenge)
+    except pw.PasswortFehler as fehler:
+        typer.secho(
+            f"\n{fehler.meldung}\nNächster Schritt: {fehler.naechster_schritt}\n",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=1) from fehler
+
+    with schreib_sitzung() as sitzung:
+        if sitzung.scalar(select(User).where(User.email == kennung)) is not None:
+            typer.secho(
+                f"Es gibt bereits einen Nutzer mit der E-Mail {kennung}.\n"
+                "Nächster Schritt: Um das Passwort zu ersetzen, 'ip3-leitstand passwort-setzen' "
+                "verwenden.",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(code=1)
+
+        rollen_eintrag = sitzung.scalar(select(Rolle).where(Rolle.name == rolle))
+        if rollen_eintrag is None:
+            vorhandene = ", ".join(r.name for r in sitzung.scalars(select(Rolle)).all()) or "keine"
+            typer.secho(
+                f"Die Rolle '{rolle}' gibt es nicht. Vorhanden sind: {vorhandene}.\n"
+                "Nächster Schritt: Schreibweise prüfen. Fehlen die Rollen ganz, zuerst "
+                "'ip3-leitstand seed' ausführen.",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(code=1)
+
+        neuer = User(
+            name=name.strip(),
+            email=kennung,
+            pw_hash=pw.hashen(klartext),
+            aktiv=True,
+            # Das Passwort ist über die Kommandozeile gelaufen und stand auf dem Bildschirm.
+            muss_passwort_wechseln=True,
+            created_by="kommandozeile",
+        )
+        neuer.rollen.append(rollen_eintrag)
+        sitzung.add(neuer)
+
+    typer.echo(f"Nutzer angelegt: {name} <{kennung}>, Rolle {rolle}")
+    typer.echo(f"Startpasswort: {klartext}")
+    typer.secho(
+        "Muss bei der ersten Anmeldung gewechselt werden.",
+        fg=typer.colors.YELLOW,
+    )
+
+
+@anwendung.command("nutzer-deaktivieren")
+def nutzer_deaktivieren(
+    email: str = typer.Argument(..., help="E-Mail des Nutzers"),
+    wieder_aktivieren: bool = typer.Option(
+        False, "--aktivieren", help="Statt zu deaktivieren wieder freigeben"
+    ),
+) -> None:
+    """Ein Konto sperren oder wieder freigeben.
+
+    Nutzer werden nie gelöscht (PLAN §5): das Änderungsprotokoll verweist auf sie. Ein
+    deaktiviertes Konto verliert seine offenen Sitzungen sofort.
+    """
+    from sqlalchemy import select
+
+    from app.datenbank import schreib_sitzung
+    from app.modelle import User
+    from app.sicherheit.sitzungen import alle_beenden
+
+    try:
+        einstellungen()
+    except KonfigurationsFehler as fehler:
+        _fehler_ausgeben(fehler)
+        raise typer.Exit(code=2) from fehler
+
+    with schreib_sitzung() as sitzung:
+        nutzer = sitzung.scalar(select(User).where(User.email == email.strip().lower()))
+        if nutzer is None:
+            typer.secho(
+                f"Es gibt keinen Nutzer mit der E-Mail {email}.\n"
+                "Nächster Schritt: Vorhandene Nutzer zeigt 'ip3-leitstand nutzer-liste'.",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(code=1)
+        nutzer.aktiv = wieder_aktivieren
+        name = nutzer.name
+        beendet = 0 if wieder_aktivieren else alle_beenden(sitzung, nutzer.id)
+
+    if wieder_aktivieren:
+        typer.echo(f"{name} ist wieder freigegeben.")
+    else:
+        typer.echo(f"{name} ist deaktiviert. {beendet} offene Sitzung(en) beendet.")
+
+
 @anwendung.command("passwort-setzen")
 def passwort_setzen(
     email: str = typer.Argument(..., help="E-Mail des Nutzers"),

@@ -60,6 +60,11 @@ wendet sich an die Geschäftsführung.
 
 Der Berechtigungskatalog steht in [docs/BERECHTIGUNGEN.md](docs/BERECHTIGUNGEN.md).
 
+**Für die Geschäftsführung:** Konten werden bis auf Weiteres am Host über die Kommandozeile
+angelegt und gesperrt – eine Nutzerverwaltung in der Oberfläche kommt später. Die Befehle
+stehen im [RUNBOOK](RUNBOOK.md), Abschnitte 2 und 8. Ein ausgeschiedener Mitarbeiter wird
+deaktiviert, nicht gelöscht: seine Einträge im Änderungsprotokoll müssen zuordenbar bleiben.
+
 ## Wenn etwas nicht funktioniert
 
 Der Leitstand sagt bei jedem Fehler, was passiert ist und was zu tun ist. Bei einem

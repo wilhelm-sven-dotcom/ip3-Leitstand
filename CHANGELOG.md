@@ -72,7 +72,10 @@ zurückspielbar. Projekt-, Fakturierungs- und Auswertungsfunktionen folgen mit d
   `/api`-Pfade bleiben JSON, die `index.html` wird nie zwischengespeichert. Fehlt der Build,
   startet die Anwendung trotzdem und protokolliert einen Hinweis.
 * **Kommandozeile** für alles am Host: `server`, `schema`, `seed`, `backup`, `pruefen`,
-  `passwort-setzen`, `nutzer-liste`, `openapi`, `berechtigungen-doku`.
+  `nutzer-anlegen`, `nutzer-deaktivieren`, `nutzer-liste`, `passwort-setzen`, `openapi`,
+  `berechtigungen-doku`. Konten legt bis auf Weiteres die Kommandozeile an – ohne sie wären die
+  drei Rollen aus PLAN §4 nicht vergebbar, und der Leitstand hätte genau einen Nutzer. Das fiel
+  erst bei der Abnahme auf.
 * **Deploy-Unterlagen**: Caddyfile mit interner Zertifizierungsstelle, systemd-Unit,
   NSSM-Anleitung für Windows samt dem Hinweis, dass ein Dienst unter `LocalSystem` das OneDrive
   des angemeldeten Nutzers nicht erreicht.
@@ -91,7 +94,8 @@ zurückspielbar. Projekt-, Fakturierungs- und Auswertungsfunktionen folgen mit d
 
 ### Bemerkenswerte Funde beim Bau
 
-Vier Fehler, die ohne die zugehörigen Tests unbemerkt geblieben wären:
+Vier Fehler, die ohne die zugehörigen Tests unbemerkt geblieben wären, und eine Lücke, die erst
+die Abnahme zeigte:
 
 * Alembic ruft `fileConfig()` auf, was standardmäßig **alle bestehenden Logger deaktiviert**.
   Nach einer Migration aus dem laufenden Programm protokollierte die Anwendung nichts mehr –
@@ -103,6 +107,10 @@ Vier Fehler, die ohne die zugehörigen Tests unbemerkt geblieben wären:
   eine Instanz mit abweichender Konfiguration hätte gegen falsche Werte gearbeitet.
 * Die Integritätsprüfung einer Sicherung brach bei einer stark beschädigten Datei mit einer
   Ausnahme ab, statt „nicht in Ordnung" zu melden.
+* Bei der Abnahme zeigte sich, dass es **keinen Weg gab, einen zweiten Nutzer anzulegen**. Der
+  Seed erzeugt einen Administrator, alles Weitere sollte die Nutzerverwaltung übernehmen – die
+  erst später kommt. Damit wären die drei Rollen aus PLAN §4 in Phase 0 nicht vergebbar
+  gewesen. Nachgezogen als `nutzer-anlegen` und `nutzer-deaktivieren`.
 
 ### Offen
 
@@ -110,4 +118,4 @@ Fehlende Zulieferungen und Rückfragen stehen in `docs/OFFENE-PUNKTE.md`. Für d
 gebraucht werden zuerst: Firmenstammdaten für den Rechnungskopf, Backup-Zielpfad, Host und
 Dienstkonto. Für Phase 1 die zwei Excel-Bestandsdateien.
 
-Tests: 371 im Backend, 52 im Frontend.
+Tests: 393 im Backend, 52 im Frontend.

@@ -106,7 +106,8 @@ je Phase geprobt; das Ergebnis der Probe wird hier mit Datum vermerkt.
 
 | Datum | Art | Ergebnis | Durchgeführt von |
 |---|---|---|---|
-| _wird bei der ersten Probe gefüllt_ | | | |
+| 27.08.2026 | Rückspielung nach RUNBOOK Abschnitt 7, auf einer Prüfinstanz mit Demodaten | Erfolgreich. Integritätsprüfung ohne Befund, Schemastand passend, Anmeldung mit dem Passwortstand von vor der Sicherung möglich. Ein nach der Sicherung angelegtes Konto war erwartungsgemäß nicht mehr vorhanden; die beiseitegelegte Datenbank blieb erhalten. | Phase-0-Abnahme (Entwicklung) |
+| _nächste Probe nach der Installation auf dem Bürorechner_ | | | |
 
 ## 8. Aufbewahrung
 

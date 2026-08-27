@@ -58,6 +58,15 @@ Kurzfassung:
    Ohne diesen Schritt zeigt der Browser eine Warnung, und Nutzer lernen, Warnungen
    wegzuklicken.
 8. Anmelden, Passwort wechseln, Datenstand auf der Startseite prüfen.
+8a. Konten für die übrigen Nutzer anlegen – solange es keine Nutzerverwaltung in der Oberfläche
+   gibt, läuft das über die Kommandozeile:
+   ```
+   uv run ip3-leitstand nutzer-anlegen michael@ip3-energie.de "Michael Bäumler" --rolle admin
+   uv run ip3-leitstand nutzer-anlegen buchhaltung@ip3-energie.de "Vorname Name" --rolle buchhaltung
+   uv run ip3-leitstand nutzer-anlegen monteur@ip3-energie.de "Vorname Name" --rolle team
+   ```
+   Jedes ausgegebene Startpasswort einmal weitergeben; es muss bei der ersten Anmeldung
+   gewechselt werden. Vorhandene Konten zeigt `ip3-leitstand nutzer-liste`.
 9. `ip3-leitstand backup` **als Dienstkonto** ausführen und nachsehen, ob die Datei im
    Zielordner ankommt.
 
@@ -224,6 +233,7 @@ Die beiseitegelegte Datei erst löschen, wenn der Leitstand einige Tage einwandf
 | Datenstand zeigt „noch nie gelaufen" | Der Zeitplan läuft nicht: Backup-Ziel gesetzt? Dienst neu gestartet? Einmal von Hand auslösen und die Meldung lesen. |
 | Sicherung schlägt jede Nacht fehl | Meist Rechte: das Dienstkonto erreicht den OneDrive-Ordner nicht (siehe `deploy/windows/NSSM-Einrichtung.md`, Hinweis am Anfang). |
 | Nutzer ist ausgesperrt | Nach fünf Fehlversuchen 15 Minuten Wartezeit; die Sperre läuft von selbst ab. Passwort vergessen: `uv run ip3-leitstand passwort-setzen <e-mail>` – der Nutzer muss es bei der nächsten Anmeldung wechseln. |
+| Mitarbeiter scheidet aus | `uv run ip3-leitstand nutzer-deaktivieren <e-mail>` – offene Sitzungen enden sofort. Das Konto bleibt bestehen, weil das Änderungsprotokoll darauf verweist (PLAN §5). Rückgängig mit `--aktivieren`. |
 | Mehrere Sicherungen je Nacht | Der Dienst läuft mit mehreren Arbeitsprozessen. Der Leitstand ist für genau einen gedacht; Startparameter prüfen. |
 
 ## 9. Abnahmeliste
