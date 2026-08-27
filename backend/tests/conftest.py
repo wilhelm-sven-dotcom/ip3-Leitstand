@@ -83,6 +83,29 @@ def test_einstellungen(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 
 
 @pytest.fixture
+def vollstaendige_firma(test_einstellungen):
+    """Firmenstammdaten, mit denen sich ein Beleg festschreiben lässt.
+
+    Die Grundausstattung lässt sie bewusst leer – ``test_systemstatus.py`` prüft, dass der
+    Leitstand fehlende Angaben meldet. Für die Fakturierung braucht es sie aber vollständig:
+    § 14 UStG verlangt sie auf jeder Rechnung, und die Festschreibung weist einen Beleg ohne sie
+    ab. Die Werte entsprechen der bestehenden Rechnungsvorlage.
+    """
+    firma = test_einstellungen.firma
+    firma.strasse = "Brandweg 1"
+    firma.plz = "92637"
+    firma.ort = "Theisseil"
+    firma.ust_id = "DE346672260"
+    firma.hrb = "HRB 5725 Amtsgericht Weiden"
+    firma.geschaeftsfuehrer = "Sven Wilhelm, Michael Bäumler"
+    firma.telefon = "+49 961 40191 360"
+    firma.bank.institut = "VR Bank Nordoberpfalz eG"
+    firma.bank.iban = "DE76753900000000556424"
+    firma.bank.bic = "GENODEF1WEV"
+    return test_einstellungen
+
+
+@pytest.fixture
 def schema_vorlage(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Einmal je Testlauf migrierte Datenbank, die von den Tests kopiert wird."""
     return _vorlage_erzeugen(tmp_path_factory)

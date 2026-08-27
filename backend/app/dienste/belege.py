@@ -206,10 +206,14 @@ def fehlende_pflichtangaben(
         fehlt.append("Name des Empfängers")
     if not snapshot.get("strasse") or not snapshot.get("ort"):
         fehlt.append("Anschrift des Empfängers")
-    if not beleg.leistungszeitraum or not beleg.leistungszeitraum.strip():
-        fehlt.append("Leistungszeitraum")
     if not positionen:
         fehlt.append("mindestens eine Position")
+
+    # Der Leistungszeitraum ist Pflicht auf einer Rechnung (§ 14 Abs. 4 Nr. 6 UStG, PLAN §10) –
+    # nicht auf einer Auftragsbestätigung. Die AB bestätigt einen Auftrag, sie rechnet nichts ab;
+    # sie hier zu blockieren, weil ein Leistungszeitraum fehlt, wäre eine erfundene Anforderung.
+    if beleg.art != "ab" and not (beleg.leistungszeitraum or "").strip():
+        fehlt.append("Leistungszeitraum")
 
     # 13b ist nur bei hinterlegter USt-ID des Kunden zulässig (PLAN §6.2): ohne sie ist der
     # Leistungsempfänger nicht als Unternehmer belegt, und der Beleg wäre falsch.
