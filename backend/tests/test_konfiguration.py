@@ -183,7 +183,7 @@ def test_steuernummer_oder_ust_id_genuegt():
 def test_vollstaendige_firmenstammdaten_ohne_hinweis():
     werte = Einstellungen(
         app={"umgebung": "test"},
-        pfade={"backup": "/tmp/backup"},
+        pfade={"backup": "/tmp/backup", "rechnungen": "/tmp/01_Rechnungen"},
         firma={
             "strasse": "Industriestraße 1",
             "plz": "92637",

@@ -147,7 +147,7 @@ class TestAlleJobsSindSichtbar:
         assert "ab Phase 4" in datev["text"]
 
     def test_spaetere_jobs_faerben_den_gesamtstatus_nicht_rot(
-        self, client: TestClient, admin, test_einstellungen
+        self, client: TestClient, admin, test_einstellungen, tmp_path
     ):
         """Sonst stünde die Startseite dauerhaft auf Alarm, bis Phase 6 fertig ist."""
         test_einstellungen.firma.strasse = "Industriestraße 1"
@@ -157,6 +157,7 @@ class TestAlleJobsSindSichtbar:
         test_einstellungen.firma.hrb = "HRB 12345"
         test_einstellungen.firma.geschaeftsfuehrer = "Sven Wilhelm"
         test_einstellungen.firma.bank.iban = "DE02120300000000202051"
+        test_einstellungen.pfade.rechnungen = tmp_path / "01_Rechnungen"
         _lauf_anlegen("backup", "erfolg", vor_stunden=2)
 
         anmelden(client, "chef@ip3-energie.de")

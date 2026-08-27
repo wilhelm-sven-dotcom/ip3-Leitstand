@@ -35,9 +35,26 @@ class Rechnungsablage:
         self.ordner = Path(ordner)
 
     def rendern(self, beleg: Rechnung) -> Belegdateien:
-        from app.belege.pdf import dateiname, pdf_erzeugen
+        """PDF erzeugen, für B2B-Belege als PDF/A-3 mit eingebetteter E-Rechnung (PLAN §6.3).
 
-        return Belegdateien(pdf_name=dateiname(beleg), pdf_bytes=pdf_erzeugen(beleg))
+        Das XML wird zusätzlich als eigene Datei abgelegt (PLAN §7). Doppelt, aber mit Absicht:
+        eingebettet braucht es der Empfänger, einzeln braucht es der Steuerberater, der die Datei
+        aus dem Ordner zieht, ohne das PDF zu öffnen.
+        """
+        from app.belege.pdf import dateiname, pdf_erzeugen
+        from app.belege.zugferd import ANHANGSNAME, braucht_erechnung, xml_erzeugen
+
+        pdf_name = dateiname(beleg)
+        if not braucht_erechnung(beleg):
+            return Belegdateien(pdf_name=pdf_name, pdf_bytes=pdf_erzeugen(beleg))
+
+        xml = xml_erzeugen(beleg)
+        return Belegdateien(
+            pdf_name=pdf_name,
+            pdf_bytes=pdf_erzeugen(beleg, xml=xml, xml_name=ANHANGSNAME),
+            xml_name=pdf_name.removesuffix(".pdf") + ".xml",
+            xml_bytes=xml,
+        )
 
     def pfade(self, dateien: Belegdateien) -> Ablagepfade:
         return Ablagepfade(

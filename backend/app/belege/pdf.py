@@ -392,21 +392,47 @@ def seitentexte(beleg: Rechnung, firma: FirmaEinstellungen | None = None) -> lis
     return [" ".join(sammeln(seite._page_box)) for seite in dokument.pages]
 
 
-def eingebettete_schriften(pdf: bytes) -> set[str]:
-    """Namen der im PDF eingebetteten Schriften – für die Prüfung des Corporate Designs.
+def _pdf_klartext(pdf: bytes) -> bytes:
+    """PDF samt entpackter Objektströme – nur zum Prüfen, nicht für den Betrieb.
 
-    WeasyPrint legt die Fontobjekte in komprimierten Objektströmen ab, deshalb werden sie hier
-    entpackt. Nur zum Prüfen gedacht, nicht für den Betrieb.
+    WeasyPrint legt Fontbeschreibungen, Anhangsverweise und Metadaten in komprimierten
+    Objektströmen ab. Eine Suche in den Rohbytes findet sie deshalb nicht und würde einen Test
+    vortäuschen, der nichts prüft.
     """
     import re
     import zlib
 
-    namen: set[bytes] = set(re.findall(rb"/BaseFont\s*/([A-Za-z0-9+\-]+)", pdf))
+    teile = [pdf]
     for strom in re.findall(rb"stream\r?\n(.*?)endstream", pdf, re.S):
         try:
-            entpackt = zlib.decompress(strom)
+            teile.append(zlib.decompress(strom))
         except zlib.error:
             continue
-        namen |= set(re.findall(rb"/BaseFont\s*/([A-Za-z0-9+\-]+)", entpackt))
+    return b"\n".join(teile)
+
+
+def eingebettete_schriften(pdf: bytes) -> set[str]:
+    """Namen der im PDF eingebetteten Schriften – für die Prüfung des Corporate Designs."""
+    import re
+
+    namen = set(re.findall(rb"/BaseFont\s*/([A-Za-z0-9+\-]+)", _pdf_klartext(pdf)))
     # Der Präfix vor dem Plus ist die Kennung der Teilmenge und je Lauf verschieden.
     return {name.decode().split("+")[-1] for name in namen}
+
+
+def eingebettete_dateien(pdf: bytes) -> set[str]:
+    """Namen der im PDF eingebetteten Dateien – für die Prüfung der E-Rechnung."""
+    import re
+
+    namen = re.findall(rb"/Type\s*/Filespec/F\s*\(([^)]+)\)", _pdf_klartext(pdf))
+    return {name.decode() for name in namen}
+
+
+def ist_pdf_a3(pdf: bytes) -> bool:
+    """Ob das PDF sich als PDF/A-3 ausweist und einen Anhang mit Beziehung trägt.
+
+    Beides gehört zusammen: die Kennung allein macht kein Factur-X, und ein Anhang ohne
+    ``AFRelationship`` gilt einem Prüfprogramm nicht als Rechnungsdatensatz.
+    """
+    klartext = _pdf_klartext(pdf)
+    return b"pdfaid" in klartext and b"/AFRelationship" in klartext

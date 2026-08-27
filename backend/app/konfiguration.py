@@ -449,13 +449,20 @@ def pruefe_betriebsbereit(werte: Einstellungen) -> list[str]:
             "Kein Backup-Ziel gesetzt: In config.toml unter [pfade] backup den "
             "OneDrive-Ordner 04_Backup eintragen. Ohne Ziel läuft keine Sicherung."
         )
+    if not werte.pfade.rechnungen:
+        hinweise.append(
+            "Kein Rechnungsordner gesetzt: In config.toml unter [pfade] rechnungen den "
+            "OneDrive-Ordner 01_Rechnungen eintragen. Belege lassen sich sonst festschreiben, "
+            "aber nicht ablegen – das PDF fehlt dann und muss nachgeholt werden."
+        )
     fehlende_firmenangaben = werte.firma.unvollstaendige_pflichtangaben()
     if fehlende_firmenangaben:
         hinweise.append(
             "Firmenstammdaten unvollständig ("
             + ", ".join(fehlende_firmenangaben)
-            + "). Für Rechnungen ab Phase 3 sind diese Angaben Pflicht (§ 14 UStG); "
-            "in config.toml unter [firma] ergänzen."
+            + "). Für Rechnungen sind diese Angaben Pflicht (§ 14 UStG); "
+            "in config.toml unter [firma] ergänzen. Ohne sie weist die Festschreibung "
+            "einen Beleg ab."
         )
     return hinweise
 
