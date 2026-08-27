@@ -4,6 +4,32 @@
  */
 
 export interface paths {
+    "/api/ansprechpartner/{partner_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Ansprechpartner ändern */
+        put: operations["ansprechpartnerAendern"];
+        post?: never;
+        /**
+         * Ansprechpartner löschen
+         * @description Ansprechpartner löschen.
+         *
+         *     Die einzige Löschroute im Leitstand. Begründung: an einem Ansprechpartner hängt kein Beleg
+         *     und keine Buchung – er ist eine Kontaktnotiz. Kunden, Projekte und Belege werden dagegen nie
+         *     gelöscht, sondern wechseln den Status (CLAUDE.md Regel 5). Der Name bleibt im
+         *     Änderungsprotokoll, damit nachvollziehbar ist, wer wann entfernt wurde.
+         */
+        delete: operations["ansprechpartnerLoeschen"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/abmelden": {
         parameters: {
             query?: never;
@@ -122,6 +148,69 @@ export interface paths {
         get: operations["gesundheit_abrufen"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kunden": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Kunden suchen und blättern
+         * @description Kundenliste. Standardmäßig nur aktive – inaktive sind Altbestand und stören beim Suchen.
+         */
+        get: operations["kundenListe"];
+        put?: never;
+        /**
+         * Kunden anlegen
+         * @description Neuen Kunden anlegen. Die Kundennummer vergibt der Nummernkreis (PLAN §3).
+         */
+        post: operations["kundeAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kunden/{kunde_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kunden mit Ansprechpartnern lesen */
+        get: operations["kundeLesen"];
+        /**
+         * Kunden ändern
+         * @description Kunden ändern, mit Konfliktprüfung gegen den gelesenen Stand.
+         */
+        put: operations["kundeAendern"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kunden/{kunde_id}/ansprechpartner": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ansprechpartner eines Kunden */
+        get: operations["ansprechpartnerListe"];
+        put?: never;
+        /** Ansprechpartner anlegen */
+        post: operations["ansprechpartnerAnlegen"];
         delete?: never;
         options?: never;
         head?: never;
@@ -281,6 +370,57 @@ export interface components {
             /** Passwort */
             passwort: string;
         };
+        /** AnsprechpartnerAendern */
+        AnsprechpartnerAendern: {
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Funktion */
+            funktion?: ("technik" | "kaufmaennisch" | "sonstig") | null;
+            /** Name */
+            name: string;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Telefon */
+            telefon?: string | null;
+        };
+        /** AnsprechpartnerAntwort */
+        AnsprechpartnerAntwort: {
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Funktion */
+            funktion?: string | null;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Telefon */
+            telefon?: string | null;
+        };
+        /** AnsprechpartnerEingabe */
+        AnsprechpartnerEingabe: {
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Funktion */
+            funktion?: ("technik" | "kaufmaennisch" | "sonstig") | null;
+            /** Name */
+            name: string;
+            /** Telefon */
+            telefon?: string | null;
+        };
         /** BefundAntwort */
         BefundAntwort: {
             /** Datei */
@@ -345,6 +485,160 @@ export interface components {
             status: string;
             /** Text */
             text: string;
+        };
+        /**
+         * KundeAendern
+         * @description Wie :class:`KundeEingabe`, zusätzlich der gelesene Stand für die Konfliktprüfung.
+         */
+        KundeAendern: {
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Name */
+            name: string;
+            /** Ort */
+            ort?: string | null;
+            /** Plz */
+            plz?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /**
+             * Status
+             * @default aktiv
+             * @enum {string}
+             */
+            status: "aktiv" | "inaktiv";
+            /** Strasse */
+            strasse?: string | null;
+            /** Telefon */
+            telefon?: string | null;
+            /**
+             * Typ
+             * @default b2c
+             * @enum {string}
+             */
+            typ: "b2b" | "b2c";
+            /** Ust Id */
+            ust_id?: string | null;
+            /** Zahlungsziel Tage */
+            zahlungsziel_tage?: number | null;
+            /** Zusatz */
+            zusatz?: string | null;
+        };
+        /** KundeAntwort */
+        KundeAntwort: {
+            /** Ansprechpartner */
+            ansprechpartner?: components["schemas"]["AnsprechpartnerAntwort"][];
+            /**
+             * Anzahl Projekte
+             * @default 0
+             */
+            anzahl_projekte: number;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Id */
+            id: number;
+            /** Kunden Nr */
+            kunden_nr: number;
+            /** Name */
+            name: string;
+            /** Ort */
+            ort?: string | null;
+            /** Plz */
+            plz?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Status */
+            status: string;
+            /** Strasse */
+            strasse?: string | null;
+            /** Telefon */
+            telefon?: string | null;
+            /** Typ */
+            typ: string;
+            /** Ust Id */
+            ust_id?: string | null;
+            /** Zahlungsziel Tage */
+            zahlungsziel_tage?: number | null;
+            /** Zusatz */
+            zusatz?: string | null;
+        };
+        /** KundeEingabe */
+        KundeEingabe: {
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Name */
+            name: string;
+            /** Ort */
+            ort?: string | null;
+            /** Plz */
+            plz?: string | null;
+            /**
+             * Status
+             * @default aktiv
+             * @enum {string}
+             */
+            status: "aktiv" | "inaktiv";
+            /** Strasse */
+            strasse?: string | null;
+            /** Telefon */
+            telefon?: string | null;
+            /**
+             * Typ
+             * @default b2c
+             * @enum {string}
+             */
+            typ: "b2b" | "b2c";
+            /** Ust Id */
+            ust_id?: string | null;
+            /** Zahlungsziel Tage */
+            zahlungsziel_tage?: number | null;
+            /** Zusatz */
+            zusatz?: string | null;
+        };
+        /**
+         * KundeZeile
+         * @description Kunde in der Liste – nur, was in der Tabelle steht.
+         */
+        KundeZeile: {
+            /** Anzahl Projekte */
+            anzahl_projekte: number;
+            /** Id */
+            id: number;
+            /** Kunden Nr */
+            kunden_nr: number;
+            /** Name */
+            name: string;
+            /** Ort */
+            ort?: string | null;
+            /** Status */
+            status: string;
+            /** Typ */
+            typ: string;
+            /** Zusatz */
+            zusatz?: string | null;
+        };
+        /** KundenSeite */
+        KundenSeite: {
+            /** Anzahl */
+            anzahl: number;
+            /** Eintraege */
+            eintraege: components["schemas"]["KundeZeile"][];
+            /** Gesamt */
+            gesamt: number;
+            /** Versatz */
+            versatz: number;
         };
         /** PasswortDaten */
         PasswortDaten: {
@@ -524,6 +818,126 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    ansprechpartnerAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnsprechpartnerAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnsprechpartnerAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kunden.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datensatz nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ansprechpartnerLoeschen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kunden.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datensatz nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     abmelden: {
         parameters: {
             query?: never;
@@ -708,6 +1122,346 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Gesundheit"];
+                };
+            };
+        };
+    };
+    kundenListe: {
+        parameters: {
+            query?: {
+                /** @description Name, Ort oder Kundennummer; Umlaute beliebig */
+                suche?: string;
+                status?: "aktiv" | "inaktiv" | "alle";
+                versatz?: number;
+                anzahl?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KundenSeite"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kunden.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kundeAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KundeEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KundeAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kunden.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datensatz nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kundeLesen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kunde_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KundeAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kunden.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Kunde nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kundeAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kunde_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KundeAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KundeAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kunden.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datensatz nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ansprechpartnerListe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kunde_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnsprechpartnerAntwort"][];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kunden.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Kunde nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ansprechpartnerAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kunde_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnsprechpartnerEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnsprechpartnerAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kunden.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datensatz nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

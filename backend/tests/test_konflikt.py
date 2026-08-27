@@ -6,7 +6,7 @@ speichern. Ohne Prüfung gewinnt der Zweite und die Änderung des Ersten ist weg
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import UTC, timedelta
 from pathlib import Path
 
 import pytest
@@ -76,12 +76,34 @@ class TestStandPruefen:
             kunde = sitzung.get(Kunde, kunde_id)
             stand_pruefen(kunde, None, "Der Kunde")
 
-    def test_bruchteile_von_sekunden_sind_unerheblich(self, db, kunde_id):
-        """Der Zeitstempel geht als Text durch die Schnittstelle und verliert dabei Genauigkeit."""
+    def test_bruchteile_von_sekunden_zaehlen(self, db, kunde_id):
+        """Auf ganze Sekunden gekürzt wäre der Schutz wirkungslos.
+
+        Zwei Speicherungen innerhalb derselben Sekunde sind keine Seltenheit: wer in einer Maske
+        zweimal kurz hintereinander speichert, erzeugt genau das. Würde die Prüfung dort nichts
+        finden, überschriebe der zweite Stand den ersten stillschweigend – der Fehler, den sie
+        verhindern soll.
+        """
         with Session(db) as sitzung:
             kunde = sitzung.get(Kunde, kunde_id)
             gerundet = kunde.updated_at.replace(microsecond=0)
-            stand_pruefen(kunde, gerundet, "Der Kunde")
+            if kunde.updated_at.microsecond == 0:  # pragma: no cover – kommt praktisch nie vor
+                pytest.skip("Zeitstempel hat zufällig keine Mikrosekunden")
+            with pytest.raises(Konflikt):
+                stand_pruefen(kunde, gerundet, "Der Kunde")
+
+    def test_mikrosekunden_ueberleben_die_schnittstelle(self):
+        """Grundlage für den genauen Vergleich: der Zeitstempel verliert unterwegs nichts."""
+        from datetime import datetime
+
+        from pydantic import BaseModel
+
+        class Modell(BaseModel):
+            stand: datetime
+
+        original = datetime(2026, 8, 27, 14, 40, 52, 620868, tzinfo=UTC)
+        zurueck = Modell.model_validate_json(Modell(stand=original).model_dump_json())
+        assert zurueck.stand == original
 
 
 class TestKonfliktBeimSpeichern:

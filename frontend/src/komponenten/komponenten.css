@@ -760,3 +760,82 @@
   font-size: var(--text-s);
   color: var(--text-sekundaer);
 }
+
+/* ---------------------------------------------------------------- Seitenwechsel ------------- */
+
+.seitenwechsel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--abstand-4);
+  flex-wrap: wrap;
+  padding: var(--abstand-3) var(--abstand-1);
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.seitenwechsel__zaehlung {
+  font-variant-numeric: tabular-nums;
+}
+
+.seitenwechsel__knoepfe {
+  display: flex;
+  align-items: center;
+  gap: var(--abstand-3);
+}
+
+.seitenwechsel__seite {
+  font-variant-numeric: tabular-nums;
+  min-width: 11ch;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- Formular ------------------ */
+
+.formular {
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-4);
+}
+
+.formular__felder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-3);
+}
+
+.formular__aktionen {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--abstand-2);
+}
+
+/* Zusätzliche Aktionen stehen links und schieben Speichern nach rechts – sie sind seltener und
+   sollen nicht neben dem Hauptknopf um Aufmerksamkeit ringen. */
+.formular__weitere {
+  margin-right: auto;
+  display: flex;
+  gap: var(--abstand-2);
+}
+
+.formular__sperre {
+  padding: var(--abstand-3);
+  border: 1px solid var(--linie);
+  border-left: 3px solid var(--akzent-rot);
+  border-radius: var(--radius-m);
+  background: var(--flaeche-info);
+  font-size: var(--text-s);
+  color: var(--text);
+}
+
+/* Geöffnete Zeile: der linke Balken in ip³ Blau bleibt sichtbar, auch wenn das Seitenpanel den
+   rechten Teil der Tabelle verdeckt. Kein Farbwechsel der ganzen Zeile – der würde mit den
+   Zebrastreifen ringen. */
+.tabelle tbody tr.tabelle__zeile--aktiv > td:first-child {
+  box-shadow: inset 3px 0 0 var(--ip3-blau);
+}
+
+.tabelle tbody tr.tabelle__zeile--aktiv > td {
+  background: var(--zeile-hover);
+}

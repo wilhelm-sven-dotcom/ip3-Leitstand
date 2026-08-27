@@ -16,6 +16,7 @@ import { PasswortAendern } from "@/seiten/PasswortAendern";
 import { NichtGefunden } from "@/seiten/Fehlerseite";
 import { KomponentenGalerie } from "@/seiten/KomponentenGalerie";
 import { MigrationZuordnung } from "@/seiten/migration/Zuordnung";
+import { Kunden } from "@/seiten/stammdaten/Kunden";
 import { useSitzung } from "@/sitzung/SitzungKontext";
 
 function Ladeflaeche() {
@@ -86,6 +87,15 @@ export function AppRouten() {
         element={
           <GeschuetzteRoute>
             <MigrationZuordnung />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/stammdaten"
+        element={
+          <GeschuetzteRoute>
+            <Kunden />
           </GeschuetzteRoute>
         }
       />

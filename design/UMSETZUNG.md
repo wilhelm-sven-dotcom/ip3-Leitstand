@@ -38,6 +38,14 @@ Mockups zum Ansehen einfach im Browser öffnen.
    zeigt den Hinweis, sich an die Geschäftsführung zu wenden.
 5. **Anmeldung per E-Mail-Adresse**, wie im Login-Mockup vorgesehen. Das Datenmodell in PLAN §5
    nennt nur `name`; die Tabelle `users` hat daher zusätzlich `email`.
+6. **Menüpunkt „Stammdaten".** Das Menü der Mockups hat keinen Punkt für Kunden, PLAN §7
+   verlangt für Phase 1 aber eine Maske für Kunden und Ansprechpartner. Der Punkt steht unter
+   „Projekte" und ist mit `kunden.lesen` sichtbar – die Rolle `team` sieht die Liste also, das
+   Formular bleibt dort aber gesperrt. Ohne eigenen Punkt wäre ein Kunde ohne Projekt gar nicht
+   erreichbar.
+7. **Zuordnungsmaske der Bestandsübernahme** unter „Importe & Daten". In den Mockups nicht
+   vorgesehen, von PLAN §7 und §9 ausdrücklich verlangt. Umgesetzt im Duktus der Projektliste:
+   Kennzahlenreihe, Tabelle, Fußzeile mit dem Fortschritt.
 
 ## Prüfliste vor dem Abschluss einer Frontend-Änderung
 

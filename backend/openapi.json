@@ -96,6 +96,212 @@
         "title": "AnmeldeDaten",
         "type": "object"
       },
+      "AnsprechpartnerAendern": {
+        "properties": {
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "funktion": {
+            "anyOf": [
+              {
+                "enum": [
+                  "technik",
+                  "kaufmaennisch",
+                  "sonstig"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Funktion"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "telefon": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefon"
+          }
+        },
+        "required": [
+          "name",
+          "stand"
+        ],
+        "title": "AnsprechpartnerAendern",
+        "type": "object"
+      },
+      "AnsprechpartnerAntwort": {
+        "properties": {
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "funktion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Funktion"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "telefon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefon"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "stand"
+        ],
+        "title": "AnsprechpartnerAntwort",
+        "type": "object"
+      },
+      "AnsprechpartnerEingabe": {
+        "properties": {
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "funktion": {
+            "anyOf": [
+              {
+                "enum": [
+                  "technik",
+                  "kaufmaennisch",
+                  "sonstig"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Funktion"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "telefon": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefon"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "AnsprechpartnerEingabe",
+        "type": "object"
+      },
       "BefundAntwort": {
         "properties": {
           "datei": {
@@ -291,6 +497,537 @@
           "ab_phase"
         ],
         "title": "JobStatus",
+        "type": "object"
+      },
+      "KundeAendern": {
+        "description": "Wie :class:`KundeEingabe`, zusätzlich der gelesene Stand für die Konfliktprüfung.",
+        "properties": {
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "ort": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ort"
+          },
+          "plz": {
+            "anyOf": [
+              {
+                "maxLength": 10,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plz"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "status": {
+            "default": "aktiv",
+            "enum": [
+              "aktiv",
+              "inaktiv"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "strasse": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strasse"
+          },
+          "telefon": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefon"
+          },
+          "typ": {
+            "default": "b2c",
+            "enum": [
+              "b2b",
+              "b2c"
+            ],
+            "title": "Typ",
+            "type": "string"
+          },
+          "ust_id": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ust Id"
+          },
+          "zahlungsziel_tage": {
+            "anyOf": [
+              {
+                "maximum": 365.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zahlungsziel Tage"
+          },
+          "zusatz": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zusatz"
+          }
+        },
+        "required": [
+          "name",
+          "stand"
+        ],
+        "title": "KundeAendern",
+        "type": "object"
+      },
+      "KundeAntwort": {
+        "properties": {
+          "ansprechpartner": {
+            "items": {
+              "$ref": "#/components/schemas/AnsprechpartnerAntwort"
+            },
+            "title": "Ansprechpartner",
+            "type": "array"
+          },
+          "anzahl_projekte": {
+            "default": 0,
+            "title": "Anzahl Projekte",
+            "type": "integer"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kunden_nr": {
+            "title": "Kunden Nr",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "ort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ort"
+          },
+          "plz": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plz"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "strasse": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strasse"
+          },
+          "telefon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefon"
+          },
+          "typ": {
+            "title": "Typ",
+            "type": "string"
+          },
+          "ust_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ust Id"
+          },
+          "zahlungsziel_tage": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zahlungsziel Tage"
+          },
+          "zusatz": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zusatz"
+          }
+        },
+        "required": [
+          "id",
+          "kunden_nr",
+          "name",
+          "typ",
+          "status",
+          "stand"
+        ],
+        "title": "KundeAntwort",
+        "type": "object"
+      },
+      "KundeEingabe": {
+        "properties": {
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "ort": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ort"
+          },
+          "plz": {
+            "anyOf": [
+              {
+                "maxLength": 10,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plz"
+          },
+          "status": {
+            "default": "aktiv",
+            "enum": [
+              "aktiv",
+              "inaktiv"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "strasse": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strasse"
+          },
+          "telefon": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefon"
+          },
+          "typ": {
+            "default": "b2c",
+            "enum": [
+              "b2b",
+              "b2c"
+            ],
+            "title": "Typ",
+            "type": "string"
+          },
+          "ust_id": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ust Id"
+          },
+          "zahlungsziel_tage": {
+            "anyOf": [
+              {
+                "maximum": 365.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zahlungsziel Tage"
+          },
+          "zusatz": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zusatz"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "KundeEingabe",
+        "type": "object"
+      },
+      "KundeZeile": {
+        "description": "Kunde in der Liste – nur, was in der Tabelle steht.",
+        "properties": {
+          "anzahl_projekte": {
+            "title": "Anzahl Projekte",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kunden_nr": {
+            "title": "Kunden Nr",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "ort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ort"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "typ": {
+            "title": "Typ",
+            "type": "string"
+          },
+          "zusatz": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zusatz"
+          }
+        },
+        "required": [
+          "id",
+          "kunden_nr",
+          "name",
+          "typ",
+          "status",
+          "anzahl_projekte"
+        ],
+        "title": "KundeZeile",
+        "type": "object"
+      },
+      "KundenSeite": {
+        "properties": {
+          "anzahl": {
+            "title": "Anzahl",
+            "type": "integer"
+          },
+          "eintraege": {
+            "items": {
+              "$ref": "#/components/schemas/KundeZeile"
+            },
+            "title": "Eintraege",
+            "type": "array"
+          },
+          "gesamt": {
+            "title": "Gesamt",
+            "type": "integer"
+          },
+          "versatz": {
+            "title": "Versatz",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "eintraege",
+          "gesamt",
+          "versatz",
+          "anzahl"
+        ],
+        "title": "KundenSeite",
         "type": "object"
       },
       "PasswortDaten": {
@@ -807,6 +1544,116 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/ansprechpartner/{partner_id}": {
+      "delete": {
+        "description": "Ansprechpartner löschen.\n\nDie einzige Löschroute im Leitstand. Begründung: an einem Ansprechpartner hängt kein Beleg\nund keine Buchung – er ist eine Kontaktnotiz. Kunden, Projekte und Belege werden dagegen nie\ngelöscht, sondern wechseln den Status (CLAUDE.md Regel 5). Der Name bleibt im\nÄnderungsprotokoll, damit nachvollziehbar ist, wer wann entfernt wurde.",
+        "operationId": "ansprechpartnerLoeschen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partner_id",
+            "required": true,
+            "schema": {
+              "title": "Partner Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kunden.schreiben fehlt"
+          },
+          "404": {
+            "description": "Datensatz nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ansprechpartner löschen",
+        "tags": [
+          "Stammdaten"
+        ]
+      },
+      "put": {
+        "operationId": "ansprechpartnerAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partner_id",
+            "required": true,
+            "schema": {
+              "title": "Partner Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnsprechpartnerAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnsprechpartnerAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kunden.schreiben fehlt"
+          },
+          "404": {
+            "description": "Datensatz nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ansprechpartner ändern",
+        "tags": [
+          "Stammdaten"
+        ]
+      }
+    },
     "/api/auth/abmelden": {
       "post": {
         "description": "Abmelden.\n\nOhne Berechtigungsprüfung und ohne CSRF-Token: Abmelden ist immer erlaubt und darf auch mit\neiner bereits ungültigen Sitzung nicht fehlschlagen – sonst bleibt ein Cookie im Browser, das\nniemand mehr loswird.",
@@ -989,6 +1836,379 @@
         "summary": "Antwortet, solange die Anwendung läuft",
         "tags": [
           "System"
+        ]
+      }
+    },
+    "/api/kunden": {
+      "get": {
+        "description": "Kundenliste. Standardmäßig nur aktive – inaktive sind Altbestand und stören beim Suchen.",
+        "operationId": "kundenListe",
+        "parameters": [
+          {
+            "description": "Name, Ort oder Kundennummer; Umlaute beliebig",
+            "in": "query",
+            "name": "suche",
+            "required": false,
+            "schema": {
+              "default": "",
+              "description": "Name, Ort oder Kundennummer; Umlaute beliebig",
+              "title": "Suche",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "default": "aktiv",
+              "enum": [
+                "aktiv",
+                "inaktiv",
+                "alle"
+              ],
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "versatz",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Versatz",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anzahl",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Anzahl",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KundenSeite"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kunden.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Kunden suchen und blättern",
+        "tags": [
+          "Stammdaten"
+        ]
+      },
+      "post": {
+        "description": "Neuen Kunden anlegen. Die Kundennummer vergibt der Nummernkreis (PLAN §3).",
+        "operationId": "kundeAnlegen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KundeEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KundeAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kunden.schreiben fehlt"
+          },
+          "404": {
+            "description": "Datensatz nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Kunden anlegen",
+        "tags": [
+          "Stammdaten"
+        ]
+      }
+    },
+    "/api/kunden/{kunde_id}": {
+      "get": {
+        "operationId": "kundeLesen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "kunde_id",
+            "required": true,
+            "schema": {
+              "title": "Kunde Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KundeAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kunden.lesen fehlt"
+          },
+          "404": {
+            "description": "Kunde nicht gefunden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Kunden mit Ansprechpartnern lesen",
+        "tags": [
+          "Stammdaten"
+        ]
+      },
+      "put": {
+        "description": "Kunden ändern, mit Konfliktprüfung gegen den gelesenen Stand.",
+        "operationId": "kundeAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "kunde_id",
+            "required": true,
+            "schema": {
+              "title": "Kunde Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KundeAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KundeAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kunden.schreiben fehlt"
+          },
+          "404": {
+            "description": "Datensatz nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Kunden ändern",
+        "tags": [
+          "Stammdaten"
+        ]
+      }
+    },
+    "/api/kunden/{kunde_id}/ansprechpartner": {
+      "get": {
+        "operationId": "ansprechpartnerListe",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "kunde_id",
+            "required": true,
+            "schema": {
+              "title": "Kunde Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AnsprechpartnerAntwort"
+                  },
+                  "title": "Response Ansprechpartnerliste",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kunden.lesen fehlt"
+          },
+          "404": {
+            "description": "Kunde nicht gefunden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ansprechpartner eines Kunden",
+        "tags": [
+          "Stammdaten"
+        ]
+      },
+      "post": {
+        "operationId": "ansprechpartnerAnlegen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "kunde_id",
+            "required": true,
+            "schema": {
+              "title": "Kunde Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnsprechpartnerEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnsprechpartnerAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kunden.schreiben fehlt"
+          },
+          "404": {
+            "description": "Datensatz nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ansprechpartner anlegen",
+        "tags": [
+          "Stammdaten"
         ]
       }
     },

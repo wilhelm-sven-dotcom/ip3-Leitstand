@@ -58,11 +58,13 @@ def stand_pruefen(
     """
     if gelesener_stand is None:
         return
-    # Auf die Sekunde genau vergleichen: die Zeitstempel gehen als ISO-Text durch die
-    # Schnittstelle, und dabei können Bruchteile von Sekunden verloren gehen.
-    aktuell = datensatz.updated_at.replace(microsecond=0)
-    gelesen = gelesener_stand.replace(microsecond=0)
-    if aktuell != gelesen:
+    # Voll genau vergleichen, einschließlich Mikrosekunden. Vorher wurde auf ganze Sekunden
+    # gekürzt – aus der Sorge, der Zeitstempel könne als ISO-Text Genauigkeit verlieren. Das
+    # tut er nicht (Test `test_mikrosekunden_ueberleben_die_schnittstelle`), und die Kürzung
+    # hat den Schutz ausgehöhlt: zwei Speicherungen innerhalb derselben Sekunde galten als
+    # derselbe Stand, der zweite überschrieb den ersten stillschweigend. Genau das soll die
+    # Prüfung verhindern.
+    if datensatz.updated_at != gelesener_stand:
         raise konflikt_meldung(datensatz, bezeichnung)
 
 

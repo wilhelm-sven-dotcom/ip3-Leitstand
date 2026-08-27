@@ -35,6 +35,14 @@ export const MENUE: Menuepunkt[] = [
     recht: "projekte.lesen",
     abPhase: 1,
   },
+  // Abweichung von den Mockups: dort gibt es keinen Punkt für Kunden, PLAN §7 verlangt für
+  // Phase 1 aber eine Maske dafür. Siehe design/UMSETZUNG.md.
+  {
+    pfad: "/stammdaten",
+    beschriftung: "Stammdaten",
+    recht: "kunden.lesen",
+    abPhase: 1,
+  },
   {
     pfad: "/fakturierung",
     beschriftung: "Fakturierung",

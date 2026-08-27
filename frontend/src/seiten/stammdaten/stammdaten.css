@@ -1,0 +1,156 @@
+/* Stammdatenmasken (design/Projektliste.dc.html als Duktus für Liste und Filter). */
+
+.filterleiste {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--abstand-4);
+  flex-wrap: wrap;
+  margin: var(--abstand-5) 0 var(--abstand-4);
+}
+
+.filterleiste .formularzeile {
+  min-width: 280px;
+}
+
+/* Auswahlfeld mit Beschriftung darüber – wie FormRow, nur für <select>. */
+.auswahlzeile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-1);
+}
+
+.auswahlzeile__label {
+  font-size: var(--text-s);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.auswahlzeile__feld {
+  font-family: var(--font-ui);
+  font-size: var(--text-m);
+  padding: 7px 8px;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-m);
+  background: var(--weiss);
+  color: var(--text);
+  min-width: 160px;
+}
+
+.auswahlzeile__feld:focus-visible {
+  outline: none;
+  box-shadow: var(--fokus);
+}
+
+.auswahlzeile__hinweis {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  max-width: 44ch;
+}
+
+.kunden__name {
+  display: block;
+  font-weight: 600;
+}
+
+.kunden__zusatz {
+  display: block;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+/* Inaktive Kunden bleiben lesbar, werden aber nicht hervorgehoben – sie sind Altbestand,
+   keine Warnung. Deshalb grau und nicht Akzent-Rot. */
+.kunden__inaktiv {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-sekundaer);
+  border: 1px solid var(--linie-badge);
+  border-radius: var(--radius-s);
+  padding: 1px 6px;
+}
+
+/* Zwei Felder in einer Zeile, etwa PLZ und Ort. */
+.formular__zeile-paar {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: var(--abstand-3);
+}
+
+/* ---------------------------------------------------------------- Ansprechpartner ----------- */
+
+.partner {
+  margin-top: var(--abstand-6);
+  border-top: 1px solid var(--linie);
+  padding-top: var(--abstand-4);
+}
+
+.partner__kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--abstand-3);
+  margin-bottom: var(--abstand-3);
+}
+
+.partner__titel {
+  margin: 0;
+  font-size: var(--text-m);
+  font-weight: 700;
+  color: var(--ip3-blau);
+}
+
+.partner__leer,
+.dialogtext,
+.lademeldung {
+  font-size: var(--text-m);
+  color: var(--text-sekundaer);
+}
+
+.partner__liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.partner__eintrag {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--abstand-3);
+  padding: var(--abstand-3) 0;
+  border-bottom: 1px solid var(--linie);
+}
+
+.partner__eintrag--offen {
+  flex-direction: column;
+  align-items: stretch;
+  background: var(--flaeche-info);
+  padding: var(--abstand-3);
+  border-radius: var(--radius-m);
+  margin-bottom: var(--abstand-2);
+}
+
+.partner__name {
+  display: block;
+  font-size: var(--text-m);
+  font-weight: 600;
+}
+
+.partner__meta {
+  display: block;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.partner__felder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-3);
+}
+
+.partner__aktionen {
+  display: flex;
+  gap: var(--abstand-2);
+  justify-content: flex-end;
+}

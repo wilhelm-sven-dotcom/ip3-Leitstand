@@ -33,6 +33,13 @@ type Props<T> = {
   leer?: ReactNode
   /** Beschriftung für Bildschirmleser, wenn die Tabelle keine sichtbare Überschrift hat. */
   beschriftung?: string
+  /**
+   * Die gerade geöffnete Zeile – wird hervorgehoben.
+   *
+   * Nötig, sobald neben der Liste ein Seitenpanel steht: das Panel verdeckt einen Teil der
+   * Tabelle, und ohne Markierung weiß bei 475 Zeilen niemand mehr, welche gerade offen ist.
+   */
+  istAktiv?: (zeile: T) => boolean
 }
 
 export function DataTable<T>({
@@ -42,6 +49,7 @@ export function DataTable<T>({
   onZeileKlick,
   leer,
   beschriftung,
+  istAktiv,
 }: Props<T>) {
   if (zeilen.length === 0 && leer) {
     return <>{leer}</>
@@ -70,6 +78,8 @@ export function DataTable<T>({
             {zeilen.map((zeile) => (
               <tr
                 key={schluessel(zeile)}
+                className={istAktiv?.(zeile) ? 'tabelle__zeile--aktiv' : undefined}
+                aria-current={istAktiv?.(zeile) ? 'true' : undefined}
                 onClick={onZeileKlick ? () => onZeileKlick(zeile) : undefined}
                 style={onZeileKlick ? { cursor: 'pointer' } : undefined}
               >
