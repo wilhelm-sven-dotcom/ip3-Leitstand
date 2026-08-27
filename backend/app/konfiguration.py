@@ -65,9 +65,14 @@ class PfadEinstellungen(BaseModel):
     rechnungen: Path | None = None
     datev: Path | None = None
     kalkulation: Path | None = None
+    # Ordner mit den Excel-Bestandsdateien der Einmal-Migration (PLAN §9). Wird nur gelesen und
+    # darf nach der Übernahme leer bleiben.
+    migration: Path | None = None
     frontend: Path | None = None
 
-    @field_validator("backup", "rechnungen", "datev", "kalkulation", "frontend", mode="before")
+    @field_validator(
+        "backup", "rechnungen", "datev", "kalkulation", "migration", "frontend", mode="before"
+    )
     @classmethod
     def leer_als_none(cls, wert: Any) -> Any:
         # Ein leerer Eintrag in der TOML-Datei bedeutet „noch nicht festgelegt", nicht „Pfad ''".
@@ -93,6 +98,7 @@ class FirmaEinstellungen(BaseModel):
     hrb: str = ""
     geschaeftsfuehrer: str = ""
     telefon: str = ""
+    telefax: str = ""
     email: str = "info@ip3-energie.de"
     web: str = "www.ip3-energie.de"
     bank: BankEinstellungen = Field(default_factory=BankEinstellungen)

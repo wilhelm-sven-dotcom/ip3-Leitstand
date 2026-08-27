@@ -36,19 +36,36 @@ PROJEKT_STATUS = ("angebot", "beauftragt", "in_bau", "abgeschlossen", "storniert
 UST_KENNZEICHEN = ("19", "0", "13b", "gemischt")
 GEWERKE = ("pv", "speicher", "ls", "service", "nachtrag")
 
-# Die Typen der Meilensteine folgen der Teamliste (PLAN §9, Spalten T–AA und AM–AT). Sie liefern
-# die Auslöser für Abschlagsvorschläge, Fristen und die Anlagenregister-Automatik (PLAN §6.8, §6.9).
+# Die Typen der Meilensteine folgen der Teamliste (PLAN §9). Sie liefern die Auslöser für
+# Abschlagsvorschläge, Fristen und die Anlagenregister-Automatik (PLAN §6.8, §6.9).
+#
+# Der Statusblock (Spalten AM–AT) und der Terminblock (AC–AJ) sind getrennt aufgeführt, weil
+# ``UNIQUE(projekt_id, typ)`` gilt: die acht Terminspalten unter den Sammeltypen 'montage' und
+# 'lieferung' zusammenzufassen würde beim Import acht Werte auf zwei Zeilen zusammenfallen
+# lassen. 'montage', 'lieferung' und 'inbetriebnahme' bleiben als gröbere Typen für Projekte,
+# die von Hand gepflegt werden.
 MEILENSTEIN_TYPEN = (
+    # Statusblock der Teamliste, Spalten AM–AT
     "uebergabetermin",
     "freigabe_planung",
     "plan_erstellt",
     "anmeldung_nb",
     "mastr",
-    "lieferung",
-    "montage",
     "fertigmeldung",
     "zaehler",
     "abnahme",
+    # Terminblock der Teamliste, Spalten AC–AJ
+    "montage_uk",
+    "montage_elektro",
+    "zaehlerschrank",
+    "lieferung_uk",
+    "lieferung_wr_pv",
+    "lieferung_wr_speicher",
+    "lieferung_speicher",
+    "lieferung_wallbox",
+    # gröbere Typen ohne eigene Quellspalte
+    "montage",
+    "lieferung",
     "inbetriebnahme",
 )
 
@@ -75,6 +92,11 @@ class Projekt(OptimistischMixin, ZeitstempelMixin, Base):
     pv_kwp: Mapped[float | None] = mapped_column(Numeric(10, 3), nullable=True)
     wr_typ: Mapped[str | None] = mapped_column(Text, nullable=True)
     speicher_kwh: Mapped[float | None] = mapped_column(Numeric(10, 3), nullable=True)
+    # Die Teamliste führt in der Speicherspalte eine Produktbezeichnung ('2x BYD HVM 22.1'),
+    # keine reine Zahl. Die Kapazität wird daraus gelesen und steht in speicher_kwh; der Text
+    # bleibt hier erhalten, weil er das verbaute Gerät benennt und für Service und
+    # Gewährleistung gebraucht wird.
+    speicher_typ: Mapped[str | None] = mapped_column(Text, nullable=True)
     ladestation: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     auftrag_vom: Mapped[date | None] = mapped_column(Date, nullable=True, index=True)
@@ -183,6 +205,12 @@ class Meilenstein(OptimistischMixin, ZeitstempelMixin, Base):
 
     ``geplant_kw`` trägt die Kalenderwoche aus der Teamliste, ``erledigt_am`` das tatsächliche
     Datum. Je Projekt gibt es jeden Typ genau einmal (UNIQUE, PLAN §5).
+
+    ``erledigt`` und ``erledigt_am`` sind getrennt, weil die Teamliste nur Kreuze kennt: ein
+    ``x`` sagt, dass der Schritt erledigt ist, aber nicht wann. Ein erfundenes Datum wäre eine
+    Falschangabe, und ``erledigt_am IS NULL`` als „nicht erledigt" zu lesen würde die
+    migrierten Kreuze verschlucken – bei der Abnahme allein über 450 Projekte. Darum:
+    ``erledigt`` NULL heißt unbekannt, ``False`` ausdrücklich offen, ``True`` erledigt.
     """
 
     __tablename__ = "meilensteine"
@@ -196,16 +224,19 @@ class Meilenstein(OptimistischMixin, ZeitstempelMixin, Base):
         ForeignKey("projekte.id", ondelete="CASCADE"), nullable=False, index=True
     )
     typ: Mapped[str] = mapped_column(Kurztext, nullable=False)
-    # Kalenderwoche als Text, weil die Altdaten Formen wie '34' und 'KW 34/25' enthalten.
+    # Kalenderwoche als Text, weil die Altdaten Formen wie '34' und '28/22' enthalten.
     geplant_kw: Mapped[str | None] = mapped_column(Kurztext, nullable=True)
+    erledigt: Mapped[bool | None] = mapped_column(Boolean, nullable=True, index=True)
     erledigt_am: Mapped[date | None] = mapped_column(Date, nullable=True, index=True)
     bemerkung: Mapped[str | None] = mapped_column(Langtext, nullable=True)
 
     projekt: Mapped[Projekt] = relationship(back_populates="meilensteine")
 
-    @property
-    def erledigt(self) -> bool:
-        return self.erledigt_am is not None
+    def als_erledigt_vermerken(self, am: date | None = None) -> None:
+        """Setzt den Schritt auf erledigt und, falls bekannt, das Datum dazu."""
+        self.erledigt = True
+        if am is not None:
+            self.erledigt_am = am
 
     def __repr__(self) -> str:
         return f"<Meilenstein {self.typ} Projekt {self.projekt_id}>"

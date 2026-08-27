@@ -341,6 +341,145 @@ class TestPruefbedingungen:
                 sitzung.flush()
 
 
+class TestMigrationsfelder:
+    """Die drei Felder aus Revision 0003, die die Bestandsdateien erzwingen (PLAN §9).
+
+    Alle drei sind keine Vorratshaltung, sondern Antworten auf konkrete Eigenheiten der
+    Quelldateien. Die Tests halten fest, warum sie nötig sind.
+    """
+
+    def _projekt(self, sitzung, kunden_nr: int, projekt_nr: int):
+        from app.modelle import Projekt
+
+        firma = Firma(kuerzel="ip3", firmierung="ip³ Energietechnik GmbH")
+        kunde = Kunde(kunden_nr=kunden_nr, name="Testkunde", typ="b2b")
+        sitzung.add_all([firma, kunde])
+        sitzung.flush()
+        projekt = Projekt(projekt_nr=projekt_nr, firma_id=firma.id, kunde_id=kunde.id)
+        sitzung.add(projekt)
+        sitzung.flush()
+        return projekt
+
+    def test_erledigt_kennt_drei_zustaende(self, db):
+        """Die Teamliste kreuzt ohne Datum – „erledigt" und „wann" sind zwei Aussagen.
+
+        Vor 0003 galt ``erledigt_am IS NULL`` als „nicht erledigt". Damit wären die Kreuze der
+        Migration verschluckt worden: über 450 Projekte tragen ein Abnahmekreuz ohne Datum.
+        """
+        from app.modelle import Meilenstein
+
+        with Session(db) as sitzung:
+            with schreib_transaktion(sitzung):
+                projekt = self._projekt(sitzung, 10101, 26101)
+                sitzung.add_all(
+                    [
+                        Meilenstein(projekt_id=projekt.id, typ="abnahme", erledigt=True),
+                        Meilenstein(projekt_id=projekt.id, typ="mastr", erledigt=False),
+                        Meilenstein(projekt_id=projekt.id, typ="zaehler"),
+                    ]
+                )
+            stand = {
+                m.typ: m.erledigt
+                for m in sitzung.query(Meilenstein).filter_by(projekt_id=projekt.id)
+            }
+            assert stand == {"abnahme": True, "mastr": False, "zaehler": None}
+            # Erledigt ohne bekanntes Datum ist der Regelfall der Migration.
+            abnahme = sitzung.query(Meilenstein).filter_by(typ="abnahme").one()
+            assert abnahme.erledigt is True
+            assert abnahme.erledigt_am is None
+
+    def test_als_erledigt_vermerken_setzt_datum_nur_wenn_bekannt(self, db):
+        from datetime import date
+
+        from app.modelle import Meilenstein
+
+        with Session(db) as sitzung:
+            with schreib_transaktion(sitzung):
+                projekt = self._projekt(sitzung, 10102, 26102)
+                ohne = Meilenstein(projekt_id=projekt.id, typ="abnahme")
+                mit = Meilenstein(projekt_id=projekt.id, typ="fertigmeldung")
+                sitzung.add_all([ohne, mit])
+                sitzung.flush()
+                ohne.als_erledigt_vermerken()
+                mit.als_erledigt_vermerken(date(2026, 3, 14))
+            assert (ohne.erledigt, ohne.erledigt_am) == (True, None)
+            assert (mit.erledigt, mit.erledigt_am) == (True, date(2026, 3, 14))
+
+    def test_terminspalten_haben_eigene_typen(self, db):
+        """Acht Terminspalten der Teamliste müssen als acht Zeilen ankommen.
+
+        Unter den Sammeltypen ``montage`` und ``lieferung`` würde ``UNIQUE(projekt_id, typ)``
+        sie auf zwei Zeilen zusammenfallen lassen – sechs Termine wären still verloren.
+        """
+        from app.modelle import Meilenstein
+
+        terminspalten = (
+            "montage_uk",
+            "montage_elektro",
+            "zaehlerschrank",
+            "lieferung_uk",
+            "lieferung_wr_pv",
+            "lieferung_wr_speicher",
+            "lieferung_speicher",
+            "lieferung_wallbox",
+        )
+        with Session(db) as sitzung:
+            with schreib_transaktion(sitzung):
+                projekt = self._projekt(sitzung, 10103, 26103)
+                for typ in terminspalten:
+                    sitzung.add(Meilenstein(projekt_id=projekt.id, typ=typ, geplant_kw="28/22"))
+            anzahl = sitzung.query(Meilenstein).filter_by(projekt_id=projekt.id).count()
+            assert anzahl == len(terminspalten)
+
+    def test_unbekannter_meilensteintyp_wird_abgewiesen(self, db):
+        from sqlalchemy.exc import IntegrityError
+
+        from app.modelle import Meilenstein
+
+        with Session(db) as sitzung:
+            with schreib_transaktion(sitzung):
+                projekt = self._projekt(sitzung, 10104, 26104)
+            with pytest.raises(IntegrityError), schreib_transaktion(sitzung):
+                sitzung.add(Meilenstein(projekt_id=projekt.id, typ="modul_reserviert"))
+                sitzung.flush()
+
+    def test_speicher_typ_haelt_die_produktbezeichnung(self, db):
+        """Die Speicherspalte der Teamliste ist Text, keine Zahl.
+
+        Aus '2x BYD HVM 22.1' wird die Kapazität gelesen; die Bezeichnung benennt das Gerät und
+        wird für Service und Gewährleistung gebraucht, darf also nicht wegfallen.
+        """
+        from app.modelle import Projekt
+
+        with Session(db) as sitzung:
+            with schreib_transaktion(sitzung):
+                projekt = self._projekt(sitzung, 10105, 26105)
+                projekt.speicher_typ = "2x BYD HVM 22.1"
+                projekt.speicher_kwh = 44.2
+            geladen = sitzung.get(Projekt, projekt.id)
+            assert geladen.speicher_typ == "2x BYD HVM 22.1"
+            assert float(geladen.speicher_kwh) == 44.2
+
+    def test_migration_und_modell_kennen_dieselben_typen(self):
+        """Die Typenliste steht in zwei Dateien – sie darf nicht auseinanderlaufen."""
+        import importlib.util
+        from pathlib import Path
+
+        from app.modelle.projekte import MEILENSTEIN_TYPEN
+
+        pfad = (
+            Path(__file__).resolve().parents[1]
+            / "alembic"
+            / "versions"
+            / "0003_migrationsfelder.py"
+        )
+        spezifikation = importlib.util.spec_from_file_location("migration_0003", pfad)
+        assert spezifikation is not None and spezifikation.loader is not None
+        modul = importlib.util.module_from_spec(spezifikation)
+        spezifikation.loader.exec_module(modul)
+        assert modul.TYPEN_NEU == MEILENSTEIN_TYPEN
+
+
 class TestBerechtigungsmodell:
     def test_scope_alle_gewinnt_gegen_eigene(self, db):
         """Mehrere Rollen: der weitere Scope setzt sich durch (PLAN §4)."""

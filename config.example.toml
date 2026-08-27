@@ -21,25 +21,33 @@ backup = 'C:\Users\<nutzer>\OneDrive - ip3\04_Backup'
 rechnungen = 'C:\Users\<nutzer>\OneDrive - ip3\01_Rechnungen'
 datev = 'C:\Users\<nutzer>\OneDrive - ip3\02_DATEV'
 kalkulation = 'C:\Users\<nutzer>\OneDrive - ip3\03_Kalkulation'
+# Ordner mit den beiden Excel-Bestandsdateien fuer die Einmal-Migration (PLAN §9). Wird nur
+# gelesen. Nach der Uebernahme werden die Dateien schreibgeschuetzt, das Werkzeug ist dann
+# fuehrend; der Eintrag darf danach leer bleiben.
+migration = 'D:\ip3-leitstand\migration-quellen'
 # Ausgelieferte Oberfläche; leer lassen, solange mit dem Vite-Entwicklungsserver gearbeitet wird.
 frontend = ""
 
 [firma]
-# Pflichtangaben für den Rechnungskopf nach § 14 UStG. Werte von Sven, siehe docs/OFFENE-PUNKTE.md.
+# Pflichtangaben für den Rechnungskopf nach § 14 UStG. Übernommen aus der bestehenden
+# Rechnungsvorlage; nur die Steuernummer fehlt noch (siehe docs/OFFENE-PUNKTE.md).
 kuerzel = "ip3"
 firmierung = "ip³ Energietechnik GmbH"
-strasse = "<Straße und Hausnummer>"
+strasse = "Brandweg 1"
 plz = "92637"
 ort = "Theisseil"
-ust_id = "<USt-IdNr., z. B. DE123456789>"
-st_nr = "<Steuernummer>"
-hrb = "<Handelsregister, z. B. HRB 12345 Amtsgericht Weiden>"
+ust_id = "DE346672260"
+st_nr = "<Steuernummer – fehlt noch>"
+hrb = "HRB 5725 Amtsgericht Weiden"
 geschaeftsfuehrer = "Sven Wilhelm, Michael Bäumler"
-telefon = "<Telefon>"
+telefon = "+49 961 40191 360"
+telefax = "+49 961 40191 369"
 email = "info@ip3-energie.de"
 web = "www.ip3-energie.de"
 
 [firma.bank]
+# Bankverbindung nur in der config.toml auf dem Host ausfüllen, nicht hier: die Beispieldatei
+# liegt im Repository.
 institut = "<Bank>"
 iban = "<IBAN>"
 bic = "<BIC>"

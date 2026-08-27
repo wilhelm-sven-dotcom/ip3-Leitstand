@@ -4,6 +4,11 @@
 !.env.example
 config.toml
 
+# Bestandsdateien der Migration. Enthalten echte Kundennamen, Orte und Auftragswerte und
+# gehoeren damit nicht in ein Git-Repository (PLAN §13.11, Art. 30 DSGVO). Die Testsuite
+# arbeitet mit anonymisierten Nachbauten, siehe backend/tests/bestandsdateien.py.
+migration-quellen/
+
 # Daten, Protokolle, Ausgaben
 daten/
 logs/

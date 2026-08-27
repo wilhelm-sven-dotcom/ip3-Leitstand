@@ -7,17 +7,36 @@ die drei Rollen aus PLAN §4 nicht vergebbar – der Leitstand hätte genau eine
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from sqlalchemy import select
 from typer.testing import CliRunner
 
 from app.cli import anwendung
 from app.datenbank import lese_sitzung, schreib_sitzung
-from app.modelle import Sitzung, User
+from app.modelle import ERWARTETE_TABELLEN, Sitzung, User
 from app.sicherheit import passwort as pw
 from app.zeit import jetzt_utc
 
 runner = CliRunner()
+
+
+def kopf_der_migrationskette() -> str:
+    """Neueste Alembic-Revision, aus den Migrationsskripten gelesen.
+
+    Absichtlich nicht als Zahl im Test festgeschrieben: sonst müsste jede neue Migration hier
+    nachgezogen werden, und der Test würde bei Vergessen fehlschlagen, ohne dass am Programm
+    etwas falsch ist. Geprüft wird die Aussage, die zählt – der ``pruefen``-Befehl nennt den
+    Stand, auf den die Migrationen die Datenbank gebracht haben.
+    """
+    from alembic.config import Config
+    from alembic.script import ScriptDirectory
+
+    wurzel = Path(__file__).resolve().parents[1]
+    konfiguration = Config(str(wurzel / "alembic.ini"))
+    konfiguration.set_main_option("script_location", str(wurzel / "alembic"))
+    return ScriptDirectory.from_config(konfiguration).get_current_head() or ""
 
 
 @pytest.fixture
@@ -348,8 +367,8 @@ class TestPruefen:
         ergebnis = cli.invoke(anwendung, ["pruefen"])
         assert ergebnis.exit_code == 0
         assert "Integrität: in Ordnung" in ergebnis.output
-        assert "Schemastand: 0002" in ergebnis.output
-        assert "Tabellen:  30" in ergebnis.output
+        assert f"Schemastand: {kopf_der_migrationskette()}" in ergebnis.output
+        assert f"Tabellen:  {len(ERWARTETE_TABELLEN)}" in ergebnis.output
 
     def test_pruefbefehl_bei_fehlender_datei(self, cli, test_einstellungen, tmp_path):
         test_einstellungen.pfade.datenbank = tmp_path / "gibt-es-nicht.sqlite3"
