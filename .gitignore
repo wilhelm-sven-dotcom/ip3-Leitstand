@@ -37,3 +37,7 @@ npm-debug.log*
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Vom Backend erzeugt, aber im Repo geführt: openapi.json ist Erzeugungsquelle für den
+# TypeScript-Client und zugleich der überprüfbare Stand der Schnittstelle.
+!backend/openapi.json

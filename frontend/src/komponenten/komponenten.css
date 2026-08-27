@@ -1,0 +1,624 @@
+/* Komponenten des Leitstands – umgesetzt nach design/Komponenten.dc.html.
+ *
+ * Die Mockups arbeiten mit Inline-Styles; hier stehen dieselben Werte als Klassen. Maße und
+ * Farben stimmen mit der Vorlage überein, Farben kommen ausschließlich aus den Tokens.
+ */
+
+/* ---------------------------------------------------------------- Seitentitel ------------- */
+
+.seitentitel {
+  font-size: var(--text-xxl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ip3-blau);
+  line-height: 1.15;
+  margin: 0;
+}
+
+/* Der Endpunkt immer in Akzent-Rot – die wiederkehrende Geste der Marke (PLAN §11). */
+.seitentitel__punkt {
+  color: var(--akzent-rot);
+}
+
+.seitentitel__meta {
+  font-size: 13px;
+  color: var(--text-sekundaer);
+  margin-top: var(--abstand-1);
+}
+
+/* ---------------------------------------------------------------- Statusbadges ------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: var(--radius-s);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+/* Genau diese acht Zustände, überall gleich (design/README.md). Kein Grün – auch nicht für
+   „bezahlt": das ist Navy. */
+.badge--entwurf {
+  border-color: var(--linie-badge);
+  color: var(--text-sekundaer);
+}
+.badge--geplant {
+  border-color: var(--ip3-blau);
+  color: var(--ip3-blau);
+}
+.badge--gestellt,
+.badge--festgeschrieben {
+  background: var(--ip3-blau);
+  color: var(--weiss);
+}
+.badge--bezahlt {
+  background: var(--ip3-navy);
+  color: var(--weiss);
+}
+.badge--ueberfaellig {
+  background: var(--akzent-rot);
+  color: var(--weiss);
+}
+.badge--frist {
+  border-color: var(--akzent-rot);
+  color: var(--akzent-rot);
+}
+.badge--storniert {
+  border-color: var(--linie-badge);
+  color: var(--text-sekundaer);
+  text-decoration: line-through;
+}
+
+/* ---------------------------------------------------------------- Schaltflächen ------------ */
+
+.knopf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--abstand-2);
+  height: 36px;
+  padding: 0 var(--abstand-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-m);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--dauer) var(--kurve);
+}
+
+.knopf--primaer {
+  background: var(--ip3-blau);
+  color: var(--weiss);
+}
+.knopf--primaer:hover:not(:disabled) {
+  background: var(--ip3-blau-hover);
+  color: var(--weiss);
+}
+
+.knopf--sekundaer {
+  background: var(--weiss);
+  border-color: var(--linie);
+  color: var(--text);
+}
+.knopf--sekundaer:hover:not(:disabled) {
+  background: var(--flaeche-info);
+}
+
+/* Akzent-Rot ausschließlich für die Festschreibung: der einzige unwiderrufliche Vorgang
+   im Leitstand (design/Komponenten.dc.html). */
+.knopf--festschreiben {
+  background: var(--akzent-rot);
+  color: var(--weiss);
+  font-weight: 700;
+}
+.knopf--festschreiben:hover:not(:disabled) {
+  background: var(--akzent-rot-hover);
+  color: var(--weiss);
+}
+
+.knopf:disabled {
+  background: var(--linie);
+  border-color: var(--linie);
+  color: var(--text-sekundaer);
+  cursor: not-allowed;
+}
+
+.knopf--klein {
+  height: 34px;
+  padding: 0 14px;
+  font-size: 12.5px;
+}
+
+/* ---------------------------------------------------------------- Karten ------------------- */
+
+.karte {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+}
+
+.karte__kopf {
+  padding: var(--abstand-5) var(--abstand-5) 0;
+}
+
+.karte__titel {
+  font-size: var(--text-l);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.karte__inhalt {
+  padding: var(--abstand-5);
+}
+
+/* ---------------------------------------------------------------- KPI-Kachel --------------- */
+
+.kpi {
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: var(--abstand-4) 20px;
+  background: var(--weiss);
+}
+
+.kpi__label {
+  font-size: 12px;
+  color: var(--text-sekundaer);
+}
+
+.kpi__wert {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--zahl-kpi);
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 6px;
+  line-height: 1.1;
+}
+
+.kpi__wert--negativ {
+  color: var(--akzent-rot);
+}
+
+.kpi__zusatz {
+  font-family: var(--font-zahl);
+  font-size: 12px;
+  color: var(--text-sekundaer);
+  margin-top: 3px;
+}
+
+.kpi__zusatz--positiv {
+  color: var(--ip3-blau);
+}
+
+.kpi__zusatz--negativ {
+  color: var(--akzent-rot);
+}
+
+/* ---------------------------------------------------------------- Datentabelle ------------- */
+
+.tabelle-huelle {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  overflow: hidden;
+}
+
+/* Breite Tabellen scrollen in ihrem eigenen Rahmen, nicht die ganze Seite. */
+.tabelle-scroll {
+  overflow-x: auto;
+}
+
+.tabelle {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabelle th {
+  background: var(--ip3-blau);
+  color: var(--weiss);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 14px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  /* Kopfzeile bleibt beim Scrollen stehen – in langen Projektlisten unentbehrlich. */
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.tabelle th.rechts,
+.tabelle td.rechts {
+  text-align: right;
+}
+
+.tabelle td {
+  font-size: 13.5px;
+  color: var(--text);
+  padding: 10px 14px;
+  border-bottom: 1px solid transparent;
+}
+
+/* Zebrastreifen und Zeilenhover nach Vorlage. */
+.tabelle tbody tr:nth-child(even) {
+  background: var(--flaeche-info);
+}
+
+.tabelle tbody tr:hover {
+  background: var(--zeile-hover);
+}
+
+.tabelle td.zahl,
+.tabelle td .zahl {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tabelle td.hervorgehoben {
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- Aktionskarte ------------- */
+
+.aktionskarte {
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: var(--abstand-4) 20px;
+  background: var(--weiss);
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 20px;
+  align-items: center;
+}
+
+.aktionskarte__kicker {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ip3-blau);
+  text-transform: uppercase;
+  margin-bottom: var(--abstand-1);
+}
+
+.aktionskarte__kicker--warnung {
+  color: var(--akzent-rot);
+}
+
+.aktionskarte__titel {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.aktionskarte__meta {
+  font-size: 12.5px;
+  color: var(--text-sekundaer);
+  margin-top: 2px;
+}
+
+.aktionskarte__betrag {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-l);
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.aktionskarte__betrag--negativ {
+  color: var(--akzent-rot);
+}
+
+/* Auf schmalen Fenstern untereinander statt gequetscht. */
+@media (max-width: 720px) {
+  .aktionskarte {
+    grid-template-columns: 1fr;
+    gap: var(--abstand-3);
+  }
+}
+
+/* ---------------------------------------------------------------- Formularzeile ------------ */
+
+.formularzeile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 340px;
+}
+
+.formularzeile--breit {
+  max-width: 100%;
+}
+
+.formularzeile__label {
+  font-size: var(--text-s);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.formularzeile__feld {
+  height: 38px;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-m);
+  background: var(--weiss);
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  color: var(--text);
+  padding: 0 12px;
+  transition: border-color var(--dauer) var(--kurve);
+}
+
+.formularzeile__feld:focus {
+  border-color: var(--ip3-blau);
+}
+
+/* Zahlenfelder tragen Space Grotesk und stehen rechtsbündig – wie in der Vorlage. */
+.formularzeile__feld--zahl {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.formularzeile__feld--fehler {
+  border-color: var(--akzent-rot);
+}
+
+.formularzeile__hinweis {
+  font-size: 12px;
+  color: var(--text-sekundaer);
+}
+
+.formularzeile__fehler {
+  font-size: 12px;
+  color: var(--akzent-rot);
+}
+
+/* ---------------------------------------------------------------- Leerzustand -------------- */
+
+.leerzustand {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: 40px var(--abstand-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.leerzustand__zeichen {
+  height: 150px;
+  /* Höchstens 0,12 – das Zeichen 3 bleibt leise (design/README.md). */
+  opacity: 0.1;
+  position: absolute;
+  right: -20px;
+  bottom: -30px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.leerzustand__titel {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  position: relative;
+}
+
+.leerzustand__text {
+  font-size: 13px;
+  color: var(--text-sekundaer);
+  margin-top: var(--abstand-1);
+  max-width: 46ch;
+  position: relative;
+}
+
+.leerzustand__aktion {
+  margin-top: var(--abstand-4);
+  position: relative;
+}
+
+/* ---------------------------------------------------------------- Dialog ------------------- */
+
+.dialog-grund {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--abstand-5);
+  z-index: 100;
+}
+
+.dialog {
+  width: 560px;
+  max-width: 100%;
+  max-height: calc(100vh - 2 * var(--abstand-5));
+  overflow-y: auto;
+  background: var(--weiss);
+  border-radius: var(--radius-xl);
+  /* Der einzige Ort mit Schatten – neben dem Seitenpanel (design/README.md). */
+  box-shadow: var(--schatten-overlay);
+}
+
+.dialog__kopf {
+  padding: 22px 26px 0;
+}
+
+.dialog__titel {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ip3-blau);
+  margin: 0;
+}
+
+.dialog__meta {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  margin-top: var(--abstand-1);
+}
+
+.dialog__inhalt {
+  padding: 18px 26px;
+}
+
+.dialog__fuss {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--abstand-3);
+  padding: 14px 26px;
+  border-top: 1px solid var(--linie);
+}
+
+/* Zusammenfassung im Dialog: die Zahlen, die bestätigt werden. */
+.zusammenfassung {
+  background: var(--flaeche-info);
+  border-radius: var(--radius-l);
+  padding: 14px var(--abstand-4);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.zusammenfassung__zeile {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--abstand-3);
+}
+
+.zusammenfassung__zeile--summe {
+  border-top: 1px solid var(--linie);
+  padding-top: var(--abstand-2);
+  font-weight: 700;
+}
+
+.zusammenfassung__label {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.zusammenfassung__zeile--summe .zusammenfassung__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.zusammenfassung__wert {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.zusammenfassung__zeile--summe .zusammenfassung__wert {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.bestaetigung {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: var(--text-s);
+  color: var(--text);
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.bestaetigung input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--ip3-blau);
+  margin: 1px 0 0;
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------- Monatsbalken ------------- */
+
+.monatsbalken {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 80px;
+}
+
+.monatsbalken__balken {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+}
+
+/* Ist gefüllt, Plan als Kontur – so ist ohne Legende erkennbar, was schon gestellt ist. */
+.monatsbalken__balken--ist {
+  background: var(--ip3-blau);
+}
+
+.monatsbalken__balken--plan {
+  border: 1.5px solid var(--chart-4);
+  border-bottom: none;
+}
+
+.monatsbalken__beschriftung {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--text-sekundaer);
+  font-family: var(--font-zahl);
+}
+
+.monatsbalken__beschriftung span {
+  flex: 1;
+  text-align: center;
+}
+
+.monatsbalken__beschriftung span.aktuell {
+  font-weight: 700;
+  color: var(--ip3-blau);
+}
+
+/* ---------------------------------------------------------------- Meldungen ---------------- */
+
+/* Fehler- und Hinweismeldungen mit dem nächsten Schritt (PLAN §14). */
+.meldung {
+  border: 1px solid var(--linie);
+  border-left-width: 3px;
+  border-radius: var(--radius-m);
+  padding: var(--abstand-3) var(--abstand-4);
+  background: var(--flaeche-info);
+  font-size: 13px;
+}
+
+.meldung--fehler {
+  border-left-color: var(--akzent-rot);
+}
+
+.meldung--hinweis {
+  border-left-color: var(--ip3-blau);
+}
+
+.meldung__text {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.meldung__schritt {
+  color: var(--text-sekundaer);
+  margin-top: var(--abstand-1);
+  font-weight: 400;
+}

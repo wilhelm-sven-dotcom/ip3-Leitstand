@@ -1,0 +1,92 @@
+/* Grundeinstellungen der Oberfläche. Alles aus den Tokens, nichts fest verdrahtet. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--flaeche-info);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--text-m);
+  line-height: 1.5;
+  /* Kantenglättung: die Schriften sind auf feine Strichstärken angelegt. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#wurzel {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--ip3-blau);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--ip3-navy);
+}
+
+::selection {
+  background: var(--ip3-blau);
+  color: var(--weiss);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--platzhalter);
+}
+
+/* Fokus nur bei Tastaturbedienung sichtbar – wer mit der Maus klickt, braucht keinen Rahmen,
+   wer mit Tab durch die Maske geht, sehr wohl. */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  box-shadow: var(--fokus);
+  border-radius: var(--radius-m);
+}
+
+/* Zahlen immer in Space Grotesk mit Tabellenziffern (PLAN §11). Als Klasse, damit sie an
+   jedem Element verwendbar ist, das eine Zahl trägt. */
+.zahl {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Negative Beträge in Akzent-Rot, positive im normalen Textton – kein Grün (PLAN §11). */
+.negativ {
+  color: var(--akzent-rot);
+}
+
+/* Nur für Bildschirmleser: Beschriftungen, die sichtbar aus dem Zusammenhang hervorgehen. */
+.nur-vorlesen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Bewegung nur als Rückmeldung auf eine Nutzeraktion (design/README.md). Wer im
+   Betriebssystem weniger Bewegung eingestellt hat, bekommt keine. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

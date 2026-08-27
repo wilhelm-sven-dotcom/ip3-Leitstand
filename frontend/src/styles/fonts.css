@@ -1,0 +1,78 @@
+/* Markenschriften, selbst ausgeliefert aus assets/cd/fonts/ (PLAN §11).
+ *
+ * Nicht über Google Fonts wie in den Mockups: die Anwendung läuft im Firmennetz, ohne
+ * verlässlichen Internetzugang, und soll keine externen Abrufe auslösen. Die TTFs liegen
+ * unter der SIL Open Font License im Repo, die Lizenztexte daneben.
+ *
+ * Libre Franklin liegt in 400, 600, 700 und 800 vor. Das Designsystem nennt für einzelne
+ * Elemente Gewicht 500; dafür wird hier ausdrücklich 600 gesetzt. Ohne diese Zuordnung würde
+ * der Browser ein 500 aus dem 400er-Schnitt synthetisieren, und die Zahlenkolonnen wirken
+ * uneinheitlich.
+ */
+
+@font-face {
+  font-family: 'Libre Franklin';
+  src: url('@cd/fonts/LibreFranklin-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Libre Franklin';
+  src: url('@cd/fonts/LibreFranklin-SemiBold.ttf') format('truetype');
+  /* 500 und 600 auf denselben Schnitt: siehe Kopfkommentar. */
+  font-weight: 500 600;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Libre Franklin';
+  src: url('@cd/fonts/LibreFranklin-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Libre Franklin';
+  src: url('@cd/fonts/LibreFranklin-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: block;
+}
+
+/* Space Grotesk trägt alle Zahlen. Nur Medium und Bold – mehr braucht das Designsystem nicht. */
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('@cd/fonts/SpaceGrotesk-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('@cd/fonts/SpaceGrotesk-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+
+/* Archivo als Ersatzschrift, wenn Libre Franklin nicht greift (PLAN §11). */
+@font-face {
+  font-family: 'Archivo';
+  src: url('@cd/fonts/Archivo-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('@cd/fonts/Archivo-SemiBold.ttf') format('truetype');
+  font-weight: 600 800;
+  font-style: normal;
+  font-display: swap;
+}
