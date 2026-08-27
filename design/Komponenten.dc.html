@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>html,body{margin:0;padding:0;background:#F5F6F9}a{color:#2F2482;text-decoration:none}a:hover{color:#0C1A3D}::selection{background:#2F2482;color:#fff}input::placeholder{color:#9598A3}</style>
+</helmet>
+<div style="min-height:100vh;background:#F5F6F9;font-family:'Libre Franklin',Arial,sans-serif;padding:48px 56px 64px">
+  <div style="max-width:1240px;margin:0 auto">
+    <img src="brand/ip3-energietechnik-farbig.svg" alt="ip³ Energietechnik GmbH" style="width:180px;display:block">
+    <div style="font-size:32px;font-weight:800;letter-spacing:-0.02em;color:#2F2482;margin-top:22px">Komponenten des ip³-Cockpits<span style="color:#C83C30">.</span></div>
+    <div style="font-size:13.5px;color:#666666;margin-top:6px;max-width:720px;line-height:1.55">Rezepte für die Umsetzung in React. Farben und Maße aus <span style="font-family:'Space Grotesk',sans-serif">ip3-tokens.css</span>, Regeln in <span style="font-family:'Space Grotesk',sans-serif">design-notes.md</span>. Libre Franklin für UI, Space Grotesk mit Tabellenziffern für alle Zahlen.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px 32px;margin-top:40px;align-items:start">
+
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1A1A1A">Seitentitel mit rotem Punkt</div>
+        <div style="font-size:12px;color:#666666;margin-top:2px">Libre Franklin ExtraBold 28 px, −0.02em, ip³ Blau. Der Endpunkt immer in Akzent-Rot.</div>
+        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:8px;padding:24px;margin-top:10px">
+          <div style="font-size:28px;font-weight:800;letter-spacing:-0.02em;color:#2F2482;line-height:1.15">Projekte<span style="color:#C83C30">.</span></div>
+          <div style="font-size:13px;color:#666666;margin-top:4px">23 Projekte im Jahr 2026 · Auftragsvolumen 7,94&nbsp;Mio.&nbsp;€</div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1A1A1A">Statusbadge-Set</div>
+        <div style="font-size:12px;color:#666666;margin-top:2px">Genau diese acht Zustände, überall identisch. Versalien 10,5 px/600, Radius 4. Kein Grün.</div>
+        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:8px;padding:24px;margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <span style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;border:1px solid #C9CCD6;color:#666666">Entwurf</span>
+          <span style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;border:1px solid #2F2482;color:#2F2482">Geplant</span>
+          <span style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;background:#2F2482;color:#fff">Gestellt</span>
+          <span style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;background:#2F2482;color:#fff">Festgeschrieben</span>
+          <span style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;background:#0C1A3D;color:#fff">Bezahlt</span>
+          <span style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;background:#C83C30;color:#fff">Überfällig</span>
+          <span style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;border:1px solid #C83C30;color:#C83C30">Frist bald fällig</span>
+          <span style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;border:1px solid #C9CCD6;color:#666666;text-decoration:line-through">Storniert</span>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1A1A1A">Schaltflächen</div>
+        <div style="font-size:12px;color:#666666;margin-top:2px">Primär Blau, sekundär weiß mit Linie. Akzent-Rot nur für Festschreiben. Höhe 34–36 px, Radius 6.</div>
+        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:8px;padding:24px;margin-top:10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+          <a href="#" style="display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:6px;background:#2F2482;color:#fff;font-size:13px;font-weight:600;transition:background 180ms" style-hover="background:#261E6E;color:#fff">Abschlag stellen</a>
+          <a href="#" style="display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:6px;background:#fff;border:1px solid #E0E0E0;color:#1A1A1A;font-size:13px;font-weight:600;transition:background 180ms" style-hover="background:#F5F6F9;color:#1A1A1A">Abbrechen</a>
+          <a href="#" style="display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:6px;background:#C83C30;color:#fff;font-size:13px;font-weight:700;transition:background 180ms" style-hover="background:#B0342A;color:#fff">Jetzt festschreiben</a>
+          <span style="display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:6px;background:#E0E0E0;color:#666666;font-size:13px;font-weight:600;cursor:not-allowed">Deaktiviert</span>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1A1A1A">KPI-Kachel</div>
+        <div style="font-size:12px;color:#666666;margin-top:2px">Label 12 px grau, Wert Space Grotesk 700/26 px tabellarisch. Negative Werte in Akzent-Rot.</div>
+        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:8px;padding:24px;margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="border:1px solid #E0E0E0;border-radius:8px;padding:16px 20px"><div style="font-size:12px;color:#666666">Umsatz</div><div style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:26px;font-weight:700;color:#1A1A1A;margin-top:6px">612.400&nbsp;€</div><div style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#2F2482;margin-top:3px">+7,2&nbsp;% ggü. Juli</div></div>
+          <div style="border:1px solid #E0E0E0;border-radius:8px;padding:16px 20px"><div style="font-size:12px;color:#666666">Unterdeckung</div><div style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:26px;font-weight:700;color:#C83C30;margin-top:6px">−12.400&nbsp;€</div><div style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#666666;margin-top:3px">Fixkosten nicht gedeckt</div></div>
+        </div>
+      </div>
+
+      <div style="grid-column:1 / -1">
+        <div style="font-size:14px;font-weight:700;color:#1A1A1A">Datentabelle</div>
+        <div style="font-size:12px;color:#666666;margin-top:2px">Kopf ip³ Blau mit weißer Schrift, fixiert. Zebrastreifen #F5F6F9. Zahlen rechtsbündig, Einheit im Spaltenkopf. Zeilenhover #EDEFF5.</div>
+        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:8px;overflow:hidden;margin-top:10px">
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr>
+              <th style="background:#2F2482;color:#fff;font-size:12px;font-weight:600;text-align:left;padding:10px 14px;letter-spacing:0.02em">Nr.</th>
+              <th style="background:#2F2482;color:#fff;font-size:12px;font-weight:600;text-align:left;padding:10px 14px;letter-spacing:0.02em">Projekt</th>
+              <th style="background:#2F2482;color:#fff;font-size:12px;font-weight:600;text-align:right;padding:10px 14px;letter-spacing:0.02em">Leistung (kWp)</th>
+              <th style="background:#2F2482;color:#fff;font-size:12px;font-weight:600;text-align:right;padding:10px 14px;letter-spacing:0.02em">Betrag netto (€)</th>
+              <th style="background:#2F2482;color:#fff;font-size:12px;font-weight:600;text-align:left;padding:10px 14px;letter-spacing:0.02em">Status</th>
+            </tr></thead>
+            <tbody>
+              <tr style-hover="background:#EDEFF5">
+                <td style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;color:#1A1A1A;padding:10px 14px">26014</td>
+                <td style="font-size:13.5px;font-weight:600;color:#1A1A1A;padding:10px 14px">Maschinenbau Köstler GmbH</td>
+                <td style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;color:#1A1A1A;padding:10px 14px;text-align:right">499,2</td>
+                <td style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;color:#1A1A1A;padding:10px 14px;text-align:right">612.500,00</td>
+                <td style="padding:10px 14px"><span style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;background:#2F2482;color:#fff">Gestellt</span></td>
+              </tr>
+              <tr style="background:#F5F6F9" style-hover="background:#EDEFF5">
+                <td style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;color:#1A1A1A;padding:10px 14px">26007</td>
+                <td style="font-size:13.5px;font-weight:600;color:#1A1A1A;padding:10px 14px">Solarpark Pirk Süd</td>
+                <td style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;color:#1A1A1A;padding:10px 14px;text-align:right">5.695,0</td>
+                <td style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;color:#1A1A1A;padding:10px 14px;text-align:right">3.240.000,00</td>
+                <td style="padding:10px 14px"><span style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;border:1px solid #C83C30;color:#C83C30">Frist bald fällig</span></td>
+              </tr>
+              <tr style-hover="background:#EDEFF5">
+                <td style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;color:#1A1A1A;padding:10px 14px">25041</td>
+                <td style="font-size:13.5px;font-weight:600;color:#1A1A1A;padding:10px 14px">Autohaus Winkler, Halle 2</td>
+                <td style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;color:#1A1A1A;padding:10px 14px;text-align:right">63,4</td>
+                <td style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;color:#C83C30;padding:10px 14px;text-align:right">−14.320,00</td>
+                <td style="padding:10px 14px"><span style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;background:#C83C30;color:#fff">Überfällig</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1A1A1A">Aktionskarte</div>
+        <div style="font-size:12px;color:#666666;margin-top:2px">Kicker (Kategorie) · Titel · Meta links, Betrag und genau eine Aktion rechts.</div>
+        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:8px;padding:24px;margin-top:10px">
+          <div style="border:1px solid #E0E0E0;border-radius:8px;padding:16px 20px;display:grid;grid-template-columns:1fr auto auto;gap:20px;align-items:center">
+            <div><div style="font-size:10.5px;font-weight:700;letter-spacing:0.06em;color:#2F2482;text-transform:uppercase;margin-bottom:4px">Rechnungsvorschlag</div><div style="font-size:14.5px;font-weight:600;color:#1A1A1A">26014 · Maschinenbau Köstler GmbH</div><div style="font-size:12.5px;color:#666666;margin-top:2px">Inbetriebnahme erreicht — Abschlag 4 kann gestellt werden</div></div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:16px;font-weight:700;color:#1A1A1A">91.875,00&nbsp;€</div>
+            <a href="#" style="display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:6px;background:#2F2482;color:#fff;font-size:13px;font-weight:600;transition:background 180ms" style-hover="background:#261E6E;color:#fff">Abschlag stellen</a>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1A1A1A">Monatsbalken-Diagramm</div>
+        <div style="font-size:12px;color:#666666;margin-top:2px">Ist gefüllt in ip³ Blau, Plan als Kontur (#8D8AB8). Keine Achsen-Deko, Werte im Tooltip.</div>
+        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:8px;padding:24px;margin-top:10px">
+          <div style="display:flex;align-items:flex-end;gap:6px;height:80px">
+            <div title="Mai · 598 T€" style="flex:1;height:73px;background:#2F2482;border-radius:2px 2px 0 0"></div>
+            <div title="Juni · 634 T€" style="flex:1;height:77px;background:#2F2482;border-radius:2px 2px 0 0"></div>
+            <div title="Juli · 571 T€" style="flex:1;height:70px;background:#2F2482;border-radius:2px 2px 0 0"></div>
+            <div title="August · 612 T€" style="flex:1;height:75px;background:#2F2482;border-radius:2px 2px 0 0"></div>
+            <div title="September · Plan 640 T€" style="flex:1;height:78px;border:1.5px solid #8D8AB8;border-bottom:none;border-radius:2px 2px 0 0;box-sizing:border-box"></div>
+            <div title="Oktober · Plan 655 T€" style="flex:1;height:80px;border:1.5px solid #8D8AB8;border-bottom:none;border-radius:2px 2px 0 0;box-sizing:border-box"></div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:6px;font-size:10px;color:#666666;font-family:'Space Grotesk',sans-serif"><span style="flex:1;text-align:center">Mai</span><span style="flex:1;text-align:center">Jun</span><span style="flex:1;text-align:center">Jul</span><span style="flex:1;text-align:center;font-weight:700;color:#2F2482">Aug</span><span style="flex:1;text-align:center">Sep</span><span style="flex:1;text-align:center">Okt</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1A1A1A">Formularzeile</div>
+        <div style="font-size:12px;color:#666666;margin-top:2px">Label über dem Feld, Hinweis oder Fehler darunter. Inline-Validierung bei Verlassen des Felds.</div>
+        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:8px;padding:24px;margin-top:10px;display:flex;flex-direction:column;gap:18px">
+          <label style="display:flex;flex-direction:column;gap:6px;max-width:340px">
+            <span style="font-size:12.5px;font-weight:600;color:#1A1A1A">Betrag netto (€)</span>
+            <input value="91.875,00" style="height:38px;border:1px solid #E0E0E0;border-radius:6px;background:#fff;font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:13.5px;color:#1A1A1A;padding:0 12px;outline:none;text-align:right;transition:border-color 180ms" style-focus="border-color:#2F2482">
+            <span style="font-size:12px;color:#666666">15,0&nbsp;% vom Auftragswert</span>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px;max-width:340px">
+            <span style="font-size:12.5px;font-weight:600;color:#1A1A1A">Fällig am</span>
+            <input value="31.02.2026" style="height:38px;border:1px solid #C83C30;border-radius:6px;background:#fff;font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:13.5px;color:#1A1A1A;padding:0 12px;outline:none">
+            <span style="font-size:12px;color:#C83C30">Das Datum gibt es nicht. Format TT.MM.JJJJ.</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1A1A1A">Leerzustand</div>
+        <div style="font-size:12px;color:#666666;margin-top:2px">Erklärt den nächsten Schritt, begleitet vom dezenten Zeichen 3. Nie auf gefüllten Datenseiten.</div>
+        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:8px;padding:40px 24px;margin-top:10px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden">
+          <img src="brand/zeichen-3-kontur-rot.png" alt="" style="height:150px;opacity:0.1;position:absolute;right:-20px;bottom:-30px;pointer-events:none">
+          <div style="font-size:15px;font-weight:700;color:#1A1A1A">Noch kein Zahlungsplan.</div>
+          <div style="font-size:13px;color:#666666;margin-top:4px">Lege den ersten Abschlag an — Vorschlag: 30&nbsp;% bei Auftrag.</div>
+          <a href="#" style="display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:6px;background:#2F2482;color:#fff;font-size:13px;font-weight:600;margin-top:16px;transition:background 180ms" style-hover="background:#261E6E;color:#fff">Ersten Abschlag anlegen</a>
+        </div>
+      </div>
+
+      <div style="grid-column:1 / -1">
+        <div style="font-size:14px;font-weight:700;color:#1A1A1A">Bestätigungsdialog (Festschreiben)</div>
+        <div style="font-size:12px;color:#666666;margin-top:2px">Vollständige Zusammenfassung, Pflicht-Checkbox, Bestätigen in Akzent-Rot. Overlay rgba(12,26,61,0.45). Der einzige Ort mit rotem Primärbutton.</div>
+        <div style="background:#0C1A3D;border-radius:8px;padding:40px;margin-top:10px;display:flex;justify-content:center">
+          <div style="width:560px;max-width:100%;background:#fff;border-radius:12px;box-shadow:0 24px 64px rgba(12,26,61,0.35);overflow:hidden">
+            <div style="padding:22px 26px 0">
+              <div style="font-size:20px;font-weight:800;letter-spacing:-0.01em;color:#2F2482">Abschlagsrechnung festschreiben<span style="color:#C83C30">.</span></div>
+              <div style="font-size:12.5px;color:#666666;margin-top:4px">Projekt 26014 · Abschlag 4 „Inbetriebnahme"</div>
+            </div>
+            <div style="padding:18px 26px">
+              <div style="background:#F5F6F9;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:7px">
+                <div style="display:flex;justify-content:space-between;gap:12px"><span style="font-size:12.5px;color:#666666">Betrag netto</span><span style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;color:#1A1A1A">91.875,00&nbsp;€</span></div>
+                <div style="display:flex;justify-content:space-between;gap:12px"><span style="font-size:12.5px;color:#666666">Umsatzsteuer 19&nbsp;%</span><span style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;color:#1A1A1A">17.456,25&nbsp;€</span></div>
+                <div style="display:flex;justify-content:space-between;gap:12px;border-top:1px solid #E0E0E0;padding-top:8px"><span style="font-size:13px;font-weight:700;color:#1A1A1A">Brutto</span><span style="font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:15px;font-weight:700;color:#1A1A1A">109.331,25&nbsp;€</span></div>
+              </div>
+              <label style="display:flex;align-items:flex-start;gap:10px;margin-top:14px;font-size:12.5px;color:#1A1A1A;line-height:1.45">
+                <input type="checkbox" style="width:15px;height:15px;accent-color:#2F2482;margin:1px 0 0">
+                Ich habe die Zusammenfassung geprüft und will die Rechnung festschreiben.
+              </label>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;padding:14px 26px;border-top:1px solid #E0E0E0">
+              <span style="display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:6px;background:#fff;border:1px solid #E0E0E0;color:#1A1A1A;font-size:12.5px;font-weight:600">Abbrechen</span>
+              <span style="display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:6px;background:#C83C30;color:#fff;font-size:12.5px;font-weight:700">Jetzt festschreiben</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div style="border-top:1px solid #E0E0E0;margin-top:48px;padding-top:16px;display:flex;justify-content:space-between;gap:16px;font-size:11.5px;color:#666666">
+      <span>ip³ Energietechnik GmbH · internes Designsystem ip³-Cockpit · Stand 27.08.2026</span>
+      <span>Screens: <a href="Login.dc.html">Login</a> · <a href="Start.dc.html">Start</a> · <a href="Projektliste.dc.html">Projektliste</a> · <a href="Projektdetail.dc.html">Projektdetail</a> · <a href="Festschreiben.dc.html">Festschreiben</a> · <a href="Firmen-Cockpit.dc.html">Firmen-Cockpit</a></span>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,85 @@
+## Beispielkonfiguration des ip³ Leitstands
+## Kopie als config.toml daneben legen und ausfüllen. Die config.toml gehört nicht ins Repo.
+## Geheimnisse (Sitzungsschlüssel, API-Zugänge) stehen nicht hier, sondern in der .env.
+## Windows-Pfade mit einfachen Anführungszeichen schreiben, dann sind Backslashes unproblematisch.
+
+[app]
+umgebung = "entwicklung"       # entwicklung | test | produktion
+adresse = "127.0.0.1"          # hinter Caddy nur lokal lauschen
+port = 8000
+# Basisadresse, unter der die Nutzer den Leitstand aufrufen. Wird für die Prüfung der
+# Anfrageherkunft (CSRF) gebraucht; bei mehreren Adressen alle aufführen.
+erlaubte_herkunft = ["https://leitstand.ip3.local"]
+
+[pfade]
+# Die Datenbank liegt lokal auf dem Host. Niemals in OneDrive oder auf einem Netzlaufwerk:
+# SQLite und Ordnersynchronisation zerstören sich gegenseitig. Die Anwendung verweigert
+# den Start, wenn der Pfad nach einem Sync-Ordner aussieht.
+datenbank = 'D:\ip3-leitstand\daten\leitstand.sqlite3'
+logs = 'D:\ip3-leitstand\logs'
+backup = 'C:\Users\<nutzer>\OneDrive - ip3\04_Backup'
+rechnungen = 'C:\Users\<nutzer>\OneDrive - ip3\01_Rechnungen'
+datev = 'C:\Users\<nutzer>\OneDrive - ip3\02_DATEV'
+kalkulation = 'C:\Users\<nutzer>\OneDrive - ip3\03_Kalkulation'
+# Ausgelieferte Oberfläche; leer lassen, solange mit dem Vite-Entwicklungsserver gearbeitet wird.
+frontend = ""
+
+[firma]
+# Pflichtangaben für den Rechnungskopf nach § 14 UStG. Werte von Sven, siehe docs/OFFENE-PUNKTE.md.
+kuerzel = "ip3"
+firmierung = "ip³ Energietechnik GmbH"
+strasse = "<Straße und Hausnummer>"
+plz = "92637"
+ort = "Theisseil"
+ust_id = "<USt-IdNr., z. B. DE123456789>"
+st_nr = "<Steuernummer>"
+hrb = "<Handelsregister, z. B. HRB 12345 Amtsgericht Weiden>"
+geschaeftsfuehrer = "Sven Wilhelm, Michael Bäumler"
+telefon = "<Telefon>"
+email = "info@ip3-energie.de"
+web = "www.ip3-energie.de"
+
+[firma.bank]
+institut = "<Bank>"
+iban = "<IBAN>"
+bic = "<BIC>"
+
+[sitzung]
+# Siehe docs/OFFENE-PUNKTE.md Nr. 3.
+dauer_stunden = 12
+dauer_angemeldet_bleiben_tage = 30
+leerlauf_stunden = 8
+# In der Entwicklung ohne TLS auf false; im Betrieb hinter Caddy immer true.
+cookie_secure = false
+
+[anmeldung]
+# Siehe docs/OFFENE-PUNKTE.md Nr. 4.
+max_fehlversuche = 5
+sperre_minuten = 15
+passwort_mindestlaenge = 12
+
+[fakturierung]
+# Vorbelegung, bis Sven entschieden hat (docs/OFFENE-PUNKTE.md).
+zahlungsziel_tage = 14
+skonto_toleranz_prozent = 3.0
+# Kleinbetragsrechnungen unter diesem Bruttobetrag (in Cent) bleiben ohne E-Rechnung.
+kleinbetrag_grenze_cent = 25000
+
+[stundensaetze]
+# Verrechnungssätze in Cent je Stunde für die kalkulatorische Eigenleistung (Phase 4).
+monteur = 6500
+obermonteur = 7500
+elektriker = 7800
+planung = 8500
+
+[jobs]
+# Nächtliche Läufe in Ortszeit (Europe/Berlin).
+backup_uhrzeit = "01:30"
+backup_generationen = 30
+# Ab wie vielen Stunden ohne erfolgreichen Lauf der Systemstatus warnt.
+backup_max_alter_stunden = 26
+
+[protokoll]
+stufe = "INFO"                 # DEBUG | INFO | WARNING | ERROR
+datei_max_mb = 10
+generationen = 10

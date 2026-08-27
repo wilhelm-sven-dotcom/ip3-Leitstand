@@ -1,0 +1,21 @@
+# Zeilenenden im Repo immer LF, damit Windows- und Linux-Arbeitsplätze gleich arbeiten
+* text=auto eol=lf
+
+# Skripte, die auf dem Windows-Host laufen, brauchen CRLF
+*.ps1  text eol=crlf
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# Binärdateien
+*.ttf  binary
+*.png  binary
+*.pdf  binary
+*.xlsx binary
+*.ico  binary
+
+# Lockfiles nicht als Konflikt-Kandidaten von Hand bearbeiten
+uv.lock           -diff linguist-generated
+package-lock.json -diff linguist-generated
+
+# Generierter API-Client
+frontend/src/api/schema.d.ts linguist-generated

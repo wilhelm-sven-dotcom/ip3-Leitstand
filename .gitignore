@@ -1,0 +1,39 @@
+# Konfiguration mit Zugangsdaten – nur config.example.toml und .env.example gehören ins Repo
+.env
+.env.*
+!.env.example
+config.toml
+
+# Daten, Protokolle, Ausgaben
+daten/
+logs/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+
+# Werkzeuge und Betriebssystem
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
