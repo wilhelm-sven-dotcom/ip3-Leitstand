@@ -474,6 +474,52 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/umsatz/auftragsbestand": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Offener Auftragsbestand gesamt und je Projekt
+         * @description Auftragswert plus beauftragte Nachträge minus dem, was schon abgerechnet ist.
+         *
+         *     Nur laufende Projekte (``beauftragt``, ``in_bau``) – ein Angebot ist kein Auftrag, ein
+         *     abgeschlossenes Projekt kein Bestand. Einen Statusfilter gibt es hier deshalb nicht.
+         */
+        get: operations["umsatzAuftragsbestand"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/umsatz/monate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Umsatz je Monat als Ist und Plan
+         * @description Jahresverlauf mit zwölf Monaten – auch die leeren.
+         *
+         *     Ein Jahr ohne Positionen ist kein Fehler, sondern eine Auskunft: zwölf Nullen und die
+         *     unterminierten Positionen, die an keinem Jahr hängen.
+         */
+        get: operations["umsatzMonate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/zahlungsplan/{position_id}": {
         parameters: {
             query?: never;
@@ -633,6 +679,23 @@ export interface components {
             name: string;
             /** Telefon */
             telefon?: string | null;
+        };
+        /** AuftragsbestandAntwort */
+        AuftragsbestandAntwort: {
+            /** Bestand Netto */
+            bestand_netto: number;
+            /** Nicht Verplant Netto */
+            nicht_verplant_netto: number;
+            /** Ohne Auftragswert */
+            ohne_auftragswert?: components["schemas"]["ProjektbestandAntwort"][];
+            /** Projekte */
+            projekte?: components["schemas"]["ProjektbestandAntwort"][];
+            /** Projektleiter */
+            projektleiter?: string[];
+            /** Zahlungsplan Offen Netto */
+            zahlungsplan_offen_netto: number;
+            /** Zu Pruefen */
+            zu_pruefen?: components["schemas"]["ProjektbestandAntwort"][];
         };
         /** BefundAntwort */
         BefundAntwort: {
@@ -897,6 +960,39 @@ export interface components {
              * @enum {string}
              */
             typ: "uebergabetermin" | "freigabe_planung" | "plan_erstellt" | "anmeldung_nb" | "mastr" | "fertigmeldung" | "zaehler" | "abnahme" | "montage_uk" | "montage_elektro" | "zaehlerschrank" | "lieferung_uk" | "lieferung_wr_pv" | "lieferung_wr_speicher" | "lieferung_speicher" | "lieferung_wallbox" | "montage" | "lieferung" | "inbetriebnahme";
+        };
+        /** MonatAntwort */
+        MonatAntwort: {
+            /** Ist Anzahl */
+            ist_anzahl: number;
+            /** Ist Netto */
+            ist_netto: number;
+            /** Monat */
+            monat: string;
+            /** Plan Anzahl */
+            plan_anzahl: number;
+            /** Plan Netto */
+            plan_netto: number;
+            /** Summe Netto */
+            summe_netto: number;
+        };
+        /** MonateAntwort */
+        MonateAntwort: {
+            /** Hinweise */
+            hinweise?: string[];
+            /** Ist Netto */
+            ist_netto: number;
+            /** Jahr */
+            jahr: number;
+            /** Jahre */
+            jahre?: number[];
+            /** Monate */
+            monate: components["schemas"]["MonatAntwort"][];
+            /** Plan Netto */
+            plan_netto: number;
+            /** Projektleiter */
+            projektleiter?: string[];
+            unterminiert: components["schemas"]["UnterminiertAntwort"];
         };
         /** NachtragAendern */
         NachtragAendern: {
@@ -1295,6 +1391,31 @@ export interface components {
             /** Status */
             status: string;
         };
+        /** ProjektbestandAntwort */
+        ProjektbestandAntwort: {
+            /** Ab Wert Netto */
+            ab_wert_netto?: number | null;
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /** Fakturiert Netto */
+            fakturiert_netto: number;
+            /** Kunde */
+            kunde: string;
+            /** Nachtraege Netto */
+            nachtraege_netto: number;
+            /** Pl Name */
+            pl_name?: string | null;
+            /** Projekt Nr */
+            projekt_nr: number;
+            /** Rest Netto */
+            rest_netto?: number | null;
+            /** Soll Netto */
+            soll_netto?: number | null;
+            /** Status */
+            status: string;
+            /** Zahlungsplan Offen Netto */
+            zahlungsplan_offen_netto: number;
+        };
         /** ProjekteSeite */
         ProjekteSeite: {
             /** Anzahl */
@@ -1437,6 +1558,24 @@ export interface components {
             zahlungsplan_gestellt: number;
             /** Zahlungsplan Summe Netto */
             zahlungsplan_summe_netto: number;
+        };
+        /**
+         * UnterminiertAntwort
+         * @description Positionen ohne Planmonat – auch gestellte (PLAN §7 Phase 2).
+         */
+        UnterminiertAntwort: {
+            /** Anzahl */
+            anzahl: number;
+            /** Ist Anzahl */
+            ist_anzahl: number;
+            /** Ist Netto */
+            ist_netto: number;
+            /** Plan Anzahl */
+            plan_anzahl: number;
+            /** Plan Netto */
+            plan_netto: number;
+            /** Summe Netto */
+            summe_netto: number;
         };
         /** ValidationError */
         ValidationError: {
@@ -3016,6 +3155,101 @@ export interface operations {
             };
             /** @description Der Job ist in dieser Phase noch nicht eingerichtet */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    umsatzAuftragsbestand: {
+        parameters: {
+            query?: {
+                projektleiter?: string;
+                anlagenart?: "alle" | "aufdach" | "aufdach_speicher" | "freiflaeche" | "speicher" | "ladestation" | "sonstig";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuftragsbestandAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung umsatz.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    umsatzMonate: {
+        parameters: {
+            query?: {
+                /** @description Standard: laufendes Jahr */
+                jahr?: number | null;
+                projektleiter?: string;
+                anlagenart?: "alle" | "aufdach" | "aufdach_speicher" | "freiflaeche" | "speicher" | "ladestation" | "sonstig";
+                status?: "alle" | "angebot" | "beauftragt" | "in_bau" | "abgeschlossen" | "storniert";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonateAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung umsatz.lesen fehlt */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

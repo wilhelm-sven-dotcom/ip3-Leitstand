@@ -14,9 +14,18 @@ export type Monatswert = {
   monat: string
   /** Fertig formatierte Beschriftung, z. B. „Aug". */
   beschriftung: string
-  /** Wert in Cent. */
+  /** Wert in Cent. Ohne `planBetrag` ist das der ganze Balken. */
   betrag: number
-  /** Plan (Kontur) statt Ist (gefüllt). */
+  /**
+   * Plananteil in Cent, als Kontur **über** dem Ist gezeichnet.
+   *
+   * Ein Monat kann beides tragen: im Bestand ist der Mai 2026 zu 289.398,34 € gestellt und hat
+   * daneben offene Positionen. Zwei Balken nebeneinander wären 24 Säulen für zwölf Monate;
+   * gestapelt bleibt die Bildsprache aus `design/Komponenten.dc.html` – Ist gefüllt, Plan Kontur –
+   * und die Gesamthöhe zeigt, was der Monat insgesamt bringt.
+   */
+  planBetrag?: number
+  /** Plan (Kontur) statt Ist (gefüllt) – für Monate, die nur Plan sind. */
   plan?: boolean
   /** Laufender Monat – wird in der Beschriftung hervorgehoben. */
   aktuell?: boolean
@@ -32,19 +41,44 @@ type Props = {
 export function MonthBars({ werte, hoehe = 80 }: Props) {
   if (werte.length === 0) return null
 
-  const groesster = Math.max(...werte.map((w) => Math.abs(w.betrag)), 1)
+  const gesamt = (wert: Monatswert) => Math.abs(wert.betrag) + Math.abs(wert.planBetrag ?? 0)
+  const groesster = Math.max(...werte.map(gesamt), 1)
+  const anteil = (betrag: number) => (Math.abs(betrag) / groesster) * hoehe
 
   return (
     <div>
       <div className="monatsbalken" style={{ height: hoehe }}>
-        {werte.map((wert) => (
-          <div
-            key={wert.monat}
-            className={`monatsbalken__balken monatsbalken__balken--${wert.plan ? 'plan' : 'ist'}`}
-            style={{ height: Math.max(2, (Math.abs(wert.betrag) / groesster) * hoehe) }}
-            title={wert.titel ?? `${wert.beschriftung}`}
-          />
-        ))}
+        {werte.map((wert) =>
+          wert.planBetrag === undefined ? (
+            <div
+              key={wert.monat}
+              className={`monatsbalken__balken monatsbalken__balken--${wert.plan ? 'plan' : 'ist'}`}
+              style={{ height: Math.max(2, anteil(wert.betrag)) }}
+              title={wert.titel ?? `${wert.beschriftung}`}
+            />
+          ) : (
+            // Gestapelt: Plan als Kontur oben, Ist gefüllt unten. Leere Anteile bekommen keine
+            // Mindesthöhe – ein 2-px-Strich für 0,00 € wäre eine Behauptung.
+            <div
+              key={wert.monat}
+              className="monatsbalken__saeule"
+              title={wert.titel ?? `${wert.beschriftung}`}
+            >
+              {wert.planBetrag ? (
+                <div
+                  className="monatsbalken__balken monatsbalken__balken--plan"
+                  style={{ height: Math.max(2, anteil(wert.planBetrag)) }}
+                />
+              ) : null}
+              {wert.betrag ? (
+                <div
+                  className="monatsbalken__balken monatsbalken__balken--ist"
+                  style={{ height: Math.max(2, anteil(wert.betrag)) }}
+                />
+              ) : null}
+            </div>
+          ),
+        )}
       </div>
       <div className="monatsbalken__beschriftung">
         {werte.map((wert) => (

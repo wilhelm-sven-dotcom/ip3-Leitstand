@@ -656,6 +656,24 @@
   border-bottom: none;
 }
 
+/* Gestapelte Säule: Plan als Kontur oben, Ist gefüllt unten, beides in einer Spalte. */
+.monatsbalken__saeule {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-self: stretch;
+}
+
+.monatsbalken__saeule .monatsbalken__balken {
+  flex: none;
+  border-radius: 0;
+}
+
+.monatsbalken__saeule .monatsbalken__balken:first-child {
+  border-radius: 2px 2px 0 0;
+}
+
 .monatsbalken__beschriftung {
   display: flex;
   gap: 6px;

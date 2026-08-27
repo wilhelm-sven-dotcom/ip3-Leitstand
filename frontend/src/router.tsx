@@ -21,6 +21,7 @@ import { Projekte } from "@/seiten/projekte/Projekte";
 import { ProjektDetail } from "@/seiten/projekte/ProjektDetail";
 import { ProjektNeu } from "@/seiten/projekte/ProjektNeu";
 import { Projektleiter } from "@/seiten/projekte/Projektleiter";
+import { Umsatz } from "@/seiten/umsatz/Umsatz";
 import { useSitzung } from "@/sitzung/SitzungKontext";
 
 function Ladeflaeche() {
@@ -120,6 +121,15 @@ export function AppRouten() {
         element={
           <GeschuetzteRoute>
             <ProjektDetail />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/umsatz"
+        element={
+          <GeschuetzteRoute>
+            <Umsatz />
           </GeschuetzteRoute>
         }
       />

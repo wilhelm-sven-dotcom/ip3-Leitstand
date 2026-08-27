@@ -1,0 +1,49 @@
+/* Umsatz und Forecast (kein Mockup – Duktus von Projektliste und Firmen-Cockpit). */
+
+.kpi-reihe {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--abstand-4);
+  margin: var(--abstand-5) 0 var(--abstand-4);
+}
+
+.verlauf {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: var(--abstand-5) var(--abstand-5) var(--abstand-4);
+  margin-bottom: var(--abstand-4);
+}
+
+.verlauf__legende {
+  display: flex;
+  align-items: center;
+  gap: var(--abstand-2);
+  margin: var(--abstand-4) 0 0;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+/* Kleine Marken statt einer Legende mit Kästchen: Ist gefüllt, Plan als Kontur – dieselbe
+   Unterscheidung wie in den Balken selbst. */
+.verlauf__marke {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.verlauf__marke--ist {
+  background: var(--ip3-blau);
+}
+
+.verlauf__marke--plan {
+  border: 1.5px solid var(--chart-4);
+  margin-left: var(--abstand-3);
+}
+
+/* Was im Verlauf fehlt, steht daneben – nicht in einer Fußnote, die niemand liest. */
+.verlauf__ausserhalb {
+  margin-left: auto;
+  color: var(--akzent-rot);
+}
