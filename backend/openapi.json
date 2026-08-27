@@ -96,6 +96,44 @@
         "title": "AnmeldeDaten",
         "type": "object"
       },
+      "BefundAntwort": {
+        "properties": {
+          "datei": {
+            "title": "Datei",
+            "type": "string"
+          },
+          "meldung": {
+            "title": "Meldung",
+            "type": "string"
+          },
+          "schwere": {
+            "title": "Schwere",
+            "type": "string"
+          },
+          "spalte": {
+            "title": "Spalte",
+            "type": "string"
+          },
+          "wert": {
+            "title": "Wert",
+            "type": "string"
+          },
+          "zeile": {
+            "title": "Zeile",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "datei",
+          "zeile",
+          "spalte",
+          "wert",
+          "meldung",
+          "schwere"
+        ],
+        "title": "BefundAntwort",
+        "type": "object"
+      },
       "Gesundheit": {
         "properties": {
           "datenbank": {
@@ -277,6 +315,163 @@
         "title": "PasswortDaten",
         "type": "object"
       },
+      "ProjektKandidat": {
+        "description": "Ein Projekt der Teamliste, wie es in der Maske zur Auswahl steht.",
+        "properties": {
+          "ab_wert_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ab Wert Netto"
+          },
+          "auftrag_vom": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auftrag Vom"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "ort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ort"
+          },
+          "pl_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl Name"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "zeile": {
+            "title": "Zeile",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "zeile",
+          "kunde"
+        ],
+        "title": "ProjektKandidat",
+        "type": "object"
+      },
+      "StandAntwort": {
+        "description": "Ob und wann übernommen wurde.",
+        "properties": {
+          "beendet": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Beendet"
+          },
+          "dateien": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dateien"
+          },
+          "ergebnis": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ergebnis"
+          },
+          "gestartet": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gestartet"
+          },
+          "importlauf_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importlauf Id"
+          },
+          "migriert": {
+            "title": "Migriert",
+            "type": "boolean"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "required": [
+          "migriert"
+        ],
+        "title": "StandAntwort",
+        "type": "object"
+      },
       "Systemstatus": {
         "description": "Der „Datenstand\"-Block der Startseite.",
         "properties": {
@@ -323,6 +518,125 @@
         "title": "Systemstatus",
         "type": "object"
       },
+      "UebernahmeAnfrage": {
+        "properties": {
+          "entscheidungen": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Entscheidungen",
+            "type": "object"
+          },
+          "kennung": {
+            "title": "Kennung",
+            "type": "string"
+          },
+          "offene_zulassen": {
+            "default": false,
+            "title": "Offene Zulassen",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kennung"
+        ],
+        "title": "UebernahmeAnfrage",
+        "type": "object"
+      },
+      "UebernahmeAntwort": {
+        "properties": {
+          "ab_luecken": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Ab Luecken",
+            "type": "array"
+          },
+          "gewerk_abgeleitet": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Gewerk Abgeleitet",
+            "type": "array"
+          },
+          "importlauf_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importlauf Id"
+          },
+          "kunden": {
+            "title": "Kunden",
+            "type": "integer"
+          },
+          "meilensteine": {
+            "title": "Meilensteine",
+            "type": "integer"
+          },
+          "meldung": {
+            "title": "Meldung",
+            "type": "string"
+          },
+          "nicht_uebernommen": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Nicht Uebernommen",
+            "type": "array"
+          },
+          "projekte": {
+            "title": "Projekte",
+            "type": "integer"
+          },
+          "projekte_ohne_auftragsjahr": {
+            "title": "Projekte Ohne Auftragsjahr",
+            "type": "integer"
+          },
+          "zahlungsplan": {
+            "title": "Zahlungsplan",
+            "type": "integer"
+          },
+          "zahlungsplan_gestellt": {
+            "title": "Zahlungsplan Gestellt",
+            "type": "integer"
+          },
+          "zahlungsplan_summe_netto": {
+            "title": "Zahlungsplan Summe Netto",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "importlauf_id",
+          "kunden",
+          "projekte",
+          "zahlungsplan",
+          "zahlungsplan_gestellt",
+          "zahlungsplan_summe_netto",
+          "meilensteine",
+          "projekte_ohne_auftragsjahr",
+          "ab_luecken",
+          "gewerk_abgeleitet",
+          "nicht_uebernommen",
+          "meldung"
+        ],
+        "title": "UebernahmeAntwort",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -361,6 +675,127 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "VorschauAntwort": {
+        "properties": {
+          "befunde": {
+            "items": {
+              "$ref": "#/components/schemas/BefundAntwort"
+            },
+            "title": "Befunde",
+            "type": "array"
+          },
+          "kandidaten": {
+            "items": {
+              "$ref": "#/components/schemas/ProjektKandidat"
+            },
+            "title": "Kandidaten",
+            "type": "array"
+          },
+          "kennung": {
+            "title": "Kennung",
+            "type": "string"
+          },
+          "kontrollsummen": {
+            "additionalProperties": true,
+            "title": "Kontrollsummen",
+            "type": "object"
+          },
+          "zuordnungen": {
+            "items": {
+              "$ref": "#/components/schemas/ZuordnungAntwort"
+            },
+            "title": "Zuordnungen",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kennung",
+          "kontrollsummen",
+          "zuordnungen",
+          "kandidaten",
+          "befunde"
+        ],
+        "title": "VorschauAntwort",
+        "type": "object"
+      },
+      "Vorschlag": {
+        "properties": {
+          "guete": {
+            "title": "Guete",
+            "type": "number"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "projekt_zeile": {
+            "title": "Projekt Zeile",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "projekt_zeile",
+          "kunde",
+          "guete"
+        ],
+        "title": "Vorschlag",
+        "type": "object"
+      },
+      "ZuordnungAntwort": {
+        "description": "Ein Kunde der Auftragsliste mit dem Projekt, zu dem seine Zeilen gehören.",
+        "properties": {
+          "art": {
+            "title": "Art",
+            "type": "string"
+          },
+          "betrag_netto": {
+            "title": "Betrag Netto",
+            "type": "integer"
+          },
+          "kundenteil": {
+            "title": "Kundenteil",
+            "type": "string"
+          },
+          "offen": {
+            "title": "Offen",
+            "type": "boolean"
+          },
+          "projekt_zeile": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Zeile"
+          },
+          "vorschlaege": {
+            "items": {
+              "$ref": "#/components/schemas/Vorschlag"
+            },
+            "title": "Vorschlaege",
+            "type": "array"
+          },
+          "zeilen": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Zeilen",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kundenteil",
+          "zeilen",
+          "betrag_netto",
+          "art",
+          "offen"
+        ],
+        "title": "ZuordnungAntwort",
         "type": "object"
       }
     }
@@ -554,6 +989,115 @@
         "summary": "Antwortet, solange die Anwendung läuft",
         "tags": [
           "System"
+        ]
+      }
+    },
+    "/api/migration/stand": {
+      "get": {
+        "operationId": "migrationStand",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          }
+        },
+        "summary": "Ob die Bestandsdaten schon übernommen wurden",
+        "tags": [
+          "Migration"
+        ]
+      }
+    },
+    "/api/migration/uebernehmen": {
+      "post": {
+        "description": "Wendet die Entscheidungen der Maske an und schreibt in einer Transaktion.",
+        "operationId": "migrationUebernehmen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UebernahmeAnfrage"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UebernahmeAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "Schon übernommen, Dateien geändert oder Zuordnungen offen"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Bestandsdaten übernehmen",
+        "tags": [
+          "Migration"
+        ]
+      }
+    },
+    "/api/migration/vorschau": {
+      "get": {
+        "description": "Liest beide Dateien und schlägt die Zuordnung vor. Schreibt nichts.",
+        "operationId": "migrationVorschau",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VorschauAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "Kein Migrationsordner eingerichtet oder Blatt fehlt"
+          }
+        },
+        "summary": "Bestandsdateien lesen und Zuordnung vorschlagen",
+        "tags": [
+          "Migration"
         ]
       }
     },

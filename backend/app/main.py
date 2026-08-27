@@ -18,7 +18,7 @@ from app.jobs import scheduler
 from app.konfiguration import Einstellungen, einstellungen, pruefe_betriebsbereit
 from app.protokoll import einrichten as protokoll_einrichten
 from app.protokoll import logger
-from app.routen import auth, gesundheit, systemstatus
+from app.routen import auth, gesundheit, migration, systemstatus
 
 log = logger(__name__)
 
@@ -82,6 +82,7 @@ def anwendung_erzeugen(
     app.include_router(gesundheit.router)
     app.include_router(auth.router)
     app.include_router(systemstatus.router)
+    app.include_router(migration.router)
 
     # Zuletzt: der Rückfall auf index.html würde sonst die API-Pfade verschlucken
     # (siehe app/auslieferung.py).

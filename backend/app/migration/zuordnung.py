@@ -19,6 +19,7 @@ from enum import StrEnum
 
 from rapidfuzz import fuzz
 
+from app.fehler import FachFehler
 from app.migration.quellen import AuftragsZeile, ProjektZeile
 from app.migration.vokabular import vergleichsform
 
@@ -262,9 +263,22 @@ def bestaetigen(vorschau: Zuordnungsvorschau, entscheidungen: dict[str, int | No
             zuordnung.projekt_zeile = projekt_zeile
 
 
-class UnbekannterKunde(Exception):
-    """Eine Entscheidung nennt einen Kunden, den die Vorschau nicht kennt."""
+class UnbekannterKunde(FachFehler):
+    """Eine Entscheidung nennt einen Kunden, den die Vorschau nicht kennt.
+
+    Ein Fachfehler und keine gewöhnliche Ausnahme: sonst käme bei einem Tippfehler in der Maske
+    oder einer veralteten Vorschau ein Stacktrace zurück statt einer Meldung, mit der jemand
+    etwas anfangen kann (CLAUDE.md Regel 8).
+    """
+
+    code = "migration_kunde_unbekannt"
+    status_code = 409
 
     def __init__(self, kunden: list[str]) -> None:
-        super().__init__(", ".join(kunden))
+        aufzaehlung = ", ".join(f"'{k}'" for k in kunden)
+        super().__init__(
+            f"In der Auftragsliste gibt es keinen Kunden {aufzaehlung}.",
+            "Die Vorschau ist vermutlich veraltet. Bitte neu laden und die Zuordnungen "
+            "erneut prüfen.",
+        )
         self.kunden = kunden

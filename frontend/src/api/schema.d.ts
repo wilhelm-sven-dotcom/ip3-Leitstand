@@ -128,6 +128,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/migration/stand": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ob die Bestandsdaten schon übernommen wurden */
+        get: operations["migrationStand"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/migration/uebernehmen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bestandsdaten übernehmen
+         * @description Wendet die Entscheidungen der Maske an und schreibt in einer Transaktion.
+         */
+        post: operations["migrationUebernehmen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/migration/vorschau": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Bestandsdateien lesen und Zuordnung vorschlagen
+         * @description Liest beide Dateien und schlägt die Zuordnung vor. Schreibt nichts.
+         */
+        get: operations["migrationVorschau"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/systemstatus": {
         parameters: {
             query?: never;
@@ -224,6 +281,21 @@ export interface components {
             /** Passwort */
             passwort: string;
         };
+        /** BefundAntwort */
+        BefundAntwort: {
+            /** Datei */
+            datei: string;
+            /** Meldung */
+            meldung: string;
+            /** Schwere */
+            schwere: string;
+            /** Spalte */
+            spalte: string;
+            /** Wert */
+            wert: string;
+            /** Zeile */
+            zeile: number;
+        };
         /** Gesundheit */
         Gesundheit: {
             /** Datenbank */
@@ -282,6 +354,48 @@ export interface components {
             neues_passwort: string;
         };
         /**
+         * ProjektKandidat
+         * @description Ein Projekt der Teamliste, wie es in der Maske zur Auswahl steht.
+         */
+        ProjektKandidat: {
+            /** Ab Wert Netto */
+            ab_wert_netto?: number | null;
+            /** Auftrag Vom */
+            auftrag_vom?: string | null;
+            /** Kunde */
+            kunde: string;
+            /** Ort */
+            ort?: string | null;
+            /** Pl Name */
+            pl_name?: string | null;
+            /** Pv Kwp */
+            pv_kwp?: string | null;
+            /** Zeile */
+            zeile: number;
+        };
+        /**
+         * StandAntwort
+         * @description Ob und wann übernommen wurde.
+         */
+        StandAntwort: {
+            /** Beendet */
+            beendet?: string | null;
+            /** Dateien */
+            dateien?: string | null;
+            /** Ergebnis */
+            ergebnis?: {
+                [key: string]: unknown;
+            } | null;
+            /** Gestartet */
+            gestartet?: string | null;
+            /** Importlauf Id */
+            importlauf_id?: number | null;
+            /** Migriert */
+            migriert: boolean;
+            /** Status */
+            status?: string | null;
+        };
+        /**
          * Systemstatus
          * @description Der „Datenstand"-Block der Startseite.
          */
@@ -297,6 +411,53 @@ export interface components {
             /** Zeitplan Laeuft */
             zeitplan_laeuft: boolean;
         };
+        /** UebernahmeAnfrage */
+        UebernahmeAnfrage: {
+            /** Entscheidungen */
+            entscheidungen?: {
+                [key: string]: number | null;
+            };
+            /** Kennung */
+            kennung: string;
+            /**
+             * Offene Zulassen
+             * @default false
+             */
+            offene_zulassen: boolean;
+        };
+        /** UebernahmeAntwort */
+        UebernahmeAntwort: {
+            /** Ab Luecken */
+            ab_luecken: {
+                [key: string]: unknown;
+            }[];
+            /** Gewerk Abgeleitet */
+            gewerk_abgeleitet: {
+                [key: string]: unknown;
+            }[];
+            /** Importlauf Id */
+            importlauf_id: number | null;
+            /** Kunden */
+            kunden: number;
+            /** Meilensteine */
+            meilensteine: number;
+            /** Meldung */
+            meldung: string;
+            /** Nicht Uebernommen */
+            nicht_uebernommen: {
+                [key: string]: unknown;
+            }[];
+            /** Projekte */
+            projekte: number;
+            /** Projekte Ohne Auftragsjahr */
+            projekte_ohne_auftragsjahr: number;
+            /** Zahlungsplan */
+            zahlungsplan: number;
+            /** Zahlungsplan Gestellt */
+            zahlungsplan_gestellt: number;
+            /** Zahlungsplan Summe Netto */
+            zahlungsplan_summe_netto: number;
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -309,6 +470,50 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** VorschauAntwort */
+        VorschauAntwort: {
+            /** Befunde */
+            befunde: components["schemas"]["BefundAntwort"][];
+            /** Kandidaten */
+            kandidaten: components["schemas"]["ProjektKandidat"][];
+            /** Kennung */
+            kennung: string;
+            /** Kontrollsummen */
+            kontrollsummen: {
+                [key: string]: unknown;
+            };
+            /** Zuordnungen */
+            zuordnungen: components["schemas"]["ZuordnungAntwort"][];
+        };
+        /** Vorschlag */
+        Vorschlag: {
+            /** Guete */
+            guete: number;
+            /** Kunde */
+            kunde: string;
+            /** Projekt Zeile */
+            projekt_zeile: number;
+        };
+        /**
+         * ZuordnungAntwort
+         * @description Ein Kunde der Auftragsliste mit dem Projekt, zu dem seine Zeilen gehören.
+         */
+        ZuordnungAntwort: {
+            /** Art */
+            art: string;
+            /** Betrag Netto */
+            betrag_netto: number;
+            /** Kundenteil */
+            kundenteil: string;
+            /** Offen */
+            offen: boolean;
+            /** Projekt Zeile */
+            projekt_zeile?: number | null;
+            /** Vorschlaege */
+            vorschlaege?: components["schemas"]["Vorschlag"][];
+            /** Zeilen */
+            zeilen: number[];
         };
     };
     responses: never;
@@ -504,6 +709,135 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Gesundheit"];
                 };
+            };
+        };
+    };
+    migrationStand: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StandAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    migrationUebernehmen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UebernahmeAnfrage"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UebernahmeAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Schon übernommen, Dateien geändert oder Zuordnungen offen */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    migrationVorschau: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VorschauAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Kein Migrationsordner eingerichtet oder Blatt fehlt */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
