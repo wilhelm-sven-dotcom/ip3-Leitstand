@@ -130,15 +130,23 @@ def _gewerk(text: str) -> str | None:
 def kunde_und_ort(kundenteil: str) -> tuple[str, str | None]:
     """Zerlegt 'Wolfram, Meerbodenreuth' in Name und Ort.
 
-    Getrennt wird am **letzten** Komma: 'Kneidl Corinna und Bernd, Weiden' hat den Ort hinten,
-    und Namen mit Komma davor kommen vor. Ohne Komma gibt es keinen Ort – dann steht der ganze
-    Text im Namen, was bei Firmen wie 'Ärztehaus Weiden' richtig ist.
+    Getrennt wird am letzten Komma, das wie ein Ortstrenner aussieht: 'Kneidl Corinna und
+    Bernd, Weiden' hat den Ort hinten, und Namen mit Komma davor kommen vor. Ohne Komma gibt es
+    keinen Ort – bei Firmen wie 'Ärztehaus Weiden' ist das richtig.
+
+    Ein Komma **innerhalb einer Zahl** trennt nicht: 'Pöllath, Weiden 210,67 kWp' unterscheidet
+    zwei Projekte desselben Kunden über die Leistung. Am letzten Komma getrennt ergäbe das den
+    Ort '67 kWp' und den Namen 'Pöllath, Weiden 210' – beides falsch, und der Abgleich mit der
+    Teamliste würde daran scheitern.
     """
     text = re.sub(r"\s+", " ", kundenteil).strip()
-    if "," not in text:
-        return text, None
-    name, _, ort = text.rpartition(",")
-    name, ort = name.strip(), ort.strip()
-    if not name or not ort:
-        return text, None
-    return name, ort
+    for treffer in reversed(list(re.finditer(r",", text))):
+        stelle = treffer.start()
+        name, ort = text[:stelle].strip(), text[stelle + 1 :].strip()
+        if not name or not ort:
+            continue
+        # Dezimalkomma: Ziffer davor und dahinter.
+        if stelle > 0 and text[stelle - 1].isdigit() and ort[:1].isdigit():
+            continue
+        return name, ort
+    return text, None

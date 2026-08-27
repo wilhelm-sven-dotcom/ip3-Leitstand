@@ -126,6 +126,10 @@ def _auftragszeilen() -> list[tuple[str | None, object, int | None, bool]]:
         ("Lang, Waldsassen - 1. Abschlag PV", "?", 3, False),
         # Kunde ohne Ort (Firmenname).
         ("Ärztehaus Weiden - Schlussrechnung PV", 9500.00, 4, False),
+        # Der belegte Falschtreffer: in der Teamliste gibt es keinen 'Nachbauer', wohl aber
+        # einen 'Hubmaier' am selben Ort. Im echten Bestand war das 'Nachtmann, Weiden' gegen
+        # 'Hubmann, Weiden' – 550.000 € am falschen Projekt.
+        ("Nachbauer, Weiden - 1. Abschlag PV", 550000, 11, False),
     ]
 
 
@@ -286,6 +290,14 @@ def _projektzeilen() -> list[dict[str, object] | None]:
             SPALTE_AB_WERT: 190000,
             SPALTE_PL: "Stefan",
         },
+        # Namensvetter am selben Ort wie 'Nachbauer' – darf nicht zugeordnet werden.
+        {
+            SPALTE_KUNDE: "Hubmaier, Weiden",
+            SPALTE_PV_KWP: 40.0,
+            SPALTE_AUFTRAG_VOM: 46150,
+            SPALTE_AB_WERT: 60000,
+            SPALTE_PL: "Frank",
+        },
         # Kunde, den es in der Auftragsliste nicht gibt, mit ähnlichem Namen zu 'Lang'.
         {
             SPALTE_KUNDE: "Lang-Wittmann, Waldsassen",
@@ -316,4 +328,6 @@ def teamliste_soll() -> dict[str, object]:
         # Stefan, Günther, Frank, Benjamin, Sven/Stephan, Michl, Daniel.
         # '  Stefan ' fällt nach dem Trimmen mit 'Stefan' zusammen.
         "projektleiter": 7,
+        # Kunden, die nur in der Teamliste stehen: Hubmaier und Lang-Wittmann.
+        "nur_in_teamliste": 2,
     }
