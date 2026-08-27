@@ -250,6 +250,13 @@ class _Lauf:
     bericht: Uebernahmebericht
     kunden_je_form: dict[str, Kunde] = field(default_factory=dict)
     projekte_je_zeile: dict[int, Projekt] = field(default_factory=dict)
+    # Nächste freie Positionsnummer je Projekt. **Nicht je Zuordnung**: zwei Kundentexte der
+    # Auftragsliste können auf dasselbe Projekt zeigen – „Schuller, Theisseil" und
+    # „Schuller, Theisseil - Wallbox" sind derselbe Auftrag, und in der Zuordnungsmaske
+    # entscheidet ein Mensch genau so. Würde jede Zuordnung wieder bei 1 zählen, verletzte die
+    # zweite UNIQUE(projekt_id, pos_nr) – die Übernahme bräche mit einem Datenbankfehler ab,
+    # nachdem der Nutzer 24 Entscheidungen getroffen hat.
+    naechste_pos_nr: dict[int, int] = field(default_factory=dict)
 
     @property
     def auftragszeilen_je_nummer(self) -> dict[int, AuftragsZeile]:
@@ -485,13 +492,16 @@ def _zahlungsplan_anlegen(lauf: _Lauf) -> None:
             (zeilen_je_nummer[n] for n in zuordnung.auftrags_zeilen),
             key=_positionsreihenfolge,
         )
-        for laufend, auftragszeile in enumerate(positionen, start=1):
+        for auftragszeile in positionen:
+            laufend = lauf.naechste_pos_nr.get(projekt.id, 1)
+            lauf.naechste_pos_nr[projekt.id] = laufend + 1
             lauf.sitzung.add(
                 Zahlungsplanposition(
                     projekt_id=projekt.id,
                     # Fortlaufend je Projekt, nicht die Nummer aus dem Text: ein Projekt hat
                     # PV- und Speicherabschläge, beide beginnen bei 1 – als pos_nr wären sie
-                    # doppelt (UNIQUE projekt_id, pos_nr).
+                    # doppelt (UNIQUE projekt_id, pos_nr). Gezählt wird über den Lauf hinweg,
+                    # weil mehrere Kundentexte auf dasselbe Projekt zeigen können.
                     pos_nr=laufend,
                     bezeichnung=_bezeichnung(auftragszeile),
                     gewerk=_gewerk_bestimmen(lauf, auftragszeile, projekt, datei),

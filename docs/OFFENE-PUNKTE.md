@@ -53,6 +53,47 @@ vierte Abschlag. Der Import übernimmt den Text unverändert – eine erfundene 
 eine Behauptung über die Quelle – und **listet jeden solchen Fall im Importprotokoll**. Ab Phase 3
 steht dieser Text auf der Rechnung; er ist im Zahlungsplan des Projekts nachzuziehen.
 
+## Zuordnungen des Abnahmelaufs (27.08.2026) – zur Prüfung durch Sven
+
+Der Abnahmelauf hat alle 24 offenen Zuordnungen in der Maske entschieden. **Bei 15 Kunden stimmt
+die Summe der Auftragszeilen auf den Euro mit dem AB-Wert genau eines Projekts der Teamliste
+überein** – das war das Entscheidungskriterium, nicht die Namensähnlichkeit. Die übrigen 9 Kunden
+haben in der Teamliste kein Gegenstück und haben ein eigenes Projekt bekommen.
+
+Beim echten Lauf entscheidet Sven neu; diese Liste ist als Vorschlag gedacht.
+
+| Kunde der Auftragsliste | Entscheidung | Grund |
+|---|---|---|
+| Nachtmann, Weiden (550.000 €) | eigenes Projekt | kein Gegenstück; der frühere Fuzzy-Treffer „Hubmann, Weiden" wäre falsch gewesen |
+| J.K. Landgraf, Weiden (450.000 €) | eigenes Projekt | kein Gegenstück |
+| Volksfestplatz Weiden 1 und 2 (je 218.000 €) | je eigenes Projekt | kein Gegenstück |
+| Speicherprojekt Hausner, Püllersreuth (160.000 €) | eigenes Projekt | kein Gegenstück (PLAN §9 nennt den Fall) |
+| Edeka, Heimhausen (91.000 €) | eigenes Projekt | kein Gegenstück |
+| Ärztehaus Weiden (80.000 €) | eigenes Projekt | kein Gegenstück |
+| Breite Wiesen FF / Inbetriebnahme (25.000 €) | eigenes Projekt | kein Gegenstück |
+| Forster ENMAG Weiden (6.837,71 €) | eigenes Projekt | zwei Forster-Projekte, beide anderer Ort, kein passender Wert – hier ist eine Rückfrage sinnvoller als eine Zuordnung |
+| Pöllath, Weiden 210,67 kWp | Pöllath, **Erbendorf** (210,7 kWp) | Summe 179.000,00 € = AB-Wert; die Leistung im Kundentext ist der Unterscheider, der Ort in der Auftragsliste ist ungenau |
+| Pöllath, Weiden 29,58 kWp | Pöllath, Weiden (29,6 kWp) | Summe 33.000,00 € = AB-Wert |
+| HL-Immobilien Bürgerbräu, Weiden | HL-Immobilien, Weiden (Bürgerbräu) | Summe 162.966,01 € = AB-Wert |
+| Wolfrath Alex und Jenny, Vohenstrauß | Wolfrath, Vohenstrauß | Summe 21.593,94 € = AB-Wert |
+| Graser, Pressath Bahnhofstraße 7 | Graser, Pressath, Bahnhofstraße | Summe 20.278,22 € ≈ AB-Wert 20.278,00 € |
+| Lautenbacher, Neusorg | Lautenbacher, Neusorg (14,6 kWp, 2026) | PV + Speicher = 18.500,00 € = AB-Wert; es gibt drei Projekte dieses Kunden |
+| Hausner Peter, Windischeschenbach | Hausner Peter, … – Speicher privat | Summe 13.600,00 € = AB-Wert |
+| Ertl, Vohenstrauß | Ertl, Vohenstrauß (25.06.2026) | Summe 10.406,94 € ≈ AB-Wert 10.406,00 €; drei Projekte dieses Kunden |
+| Heider, Altenstadt | Heider, Altenstadt (04.05.2026) | Summe 4.990,36 € = AB-Wert |
+| Haas, Waldershof - Speicher | Haas, … – Batteriespeicher + Wechselrichter | Summe 3.500,00 € = AB-Wert |
+| Hößl, Grafenwöhr | Hößl, Grafenwöhr (24,6 kWp) | PV + Speicher = 30.291,98 € ≈ AB-Wert 30.291,00 €; die Wallbox kommt oben drauf |
+| Dippl, Grafenwöhr | Dippl, Grafenwöhr (14,1 kWp) | PV + Speicher = 21.835,73 € ≈ AB-Wert 21.835,00 € |
+| TSV Waldershof | TSV Waldershof e.V. (29,6 kWp) | Summe 29.064,65 € ≈ AB-Wert 29.064,00 € – **nicht** das Grünstromspeicher-Projekt (186.632 €) |
+| Schuller, Theisseil - Wallbox | Schuller, Theisseil | die Wallboxrechnung gehört zu diesem Auftrag |
+| Netto, Marktleugast | Netto-Markt, Marktleugast (99,2 kWp) | **hier ist eine Entscheidung nötig:** die 8 Zeilen dieses Kunden gehören zu **zwei** Projekten – PV 60.765,81 € und Speicher 133.662,50 €, beide als eigenes Projekt in der Teamliste. Die Auftragsliste unterscheidet sie im Kundentext nicht, deshalb landen alle 8 am PV-Projekt und dort steht eine Überdeckung von 133.663,31 €. |
+
+**Was daraus folgt:** die Auftragsliste trennt PV und Speicher nur in der Rechnungsart, nicht im
+Kunden. Wo ein Kunde für PV und Speicher zwei Projekte hat, landen beide Zahlungspläne am
+zugeordneten Projekt. Für Umsatz und Forecast je Monat ändert das nichts, für den Umsatz je
+Projekt schon. Die betroffenen Fälle stehen nach dem Lauf unter „Projekte mit unvollständigem
+Zahlungsplan" und lassen sich in der Zahlungsplanmaske umhängen.
+
 ## Zulieferungen, ohne die spätere Phasen nicht starten können
 
 | Phase | Was fehlt | Wofür |

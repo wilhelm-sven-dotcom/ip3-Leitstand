@@ -349,3 +349,45 @@ class TestNeuesProjekt:
         assert len(neu) == len(analyse.vorschau.zuordnungen) - sum(
             1 for z in analyse.vorschau.zuordnungen if z.zugeordnet
         )
+
+
+class TestZweiKundentexteEinProjekt:
+    """Zwei Zeilengruppen der Auftragsliste, ein Projekt – der Fall aus der Abnahme.
+
+    „Schuller, Theisseil" und „Schuller, Theisseil - Wallbox" sind derselbe Auftrag; die
+    Wallbox-Zeile trägt den Zusatz im Kundenteil, weil ihre Schreibweise keine bekannte
+    Rechnungsart ist. In der Zuordnungsmaske entscheidet ein Mensch beides auf dasselbe Projekt –
+    und genau daran ist die Übernahme in der Abnahme gescheitert: jede Zuordnung zählte ihre
+    Positionsnummern wieder bei 1, die zweite verletzte ``UNIQUE(projekt_id, pos_nr)``, und der
+    Lauf brach nach 24 Entscheidungen mit einem Datenbankfehler ab.
+    """
+
+    def test_positionsnummern_laufen_ueber_beide_gruppen_weiter(self, analyse, firma_id):
+        # Ein offener Kunde wird auf das Projekt gelegt, dem schon ein anderer Kundentext
+        # eindeutig zugeordnet ist – in der Maske ist das „anderes Projekt suchen …".
+        schon_zugeordnet = next(z for z in analyse.vorschau.zuordnungen if z.zugeordnet)
+        ziel = schon_zugeordnet.projekt_zeile
+        offener = next(z for z in analyse.vorschau.offene)
+        entscheidungen = {z.kundenteil: None for z in analyse.vorschau.offene}
+        entscheidungen[offener.kundenteil] = ziel
+        bestaetigen(analyse.vorschau, entscheidungen)
+
+        erwartete_zeilen = len(schon_zugeordnet.auftrags_zeilen) + len(offener.auftrags_zeilen)
+        bericht = _uebernehmen(analyse, firma_id)
+
+        with lese_sitzung() as sitzung:
+            projekt = sitzung.scalar(
+                select(Projekt).where(Projekt.quelle_migration.contains(f"Zeile {ziel}"))
+            )
+            positionen = list(
+                sitzung.scalars(
+                    select(Zahlungsplanposition).where(
+                        Zahlungsplanposition.projekt_id == projekt.id
+                    )
+                )
+            )
+        nummern = sorted(p.pos_nr for p in positionen)
+        assert len(nummern) >= erwartete_zeilen
+        assert len(nummern) == len(set(nummern)), "Positionsnummern doppelt"
+        assert nummern == list(range(1, len(nummern) + 1))
+        assert bericht.zahlungsplan > 0

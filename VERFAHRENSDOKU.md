@@ -123,4 +123,16 @@ betreffen, werden hier vermerkt.
 
 | Datum | Version | Änderung | Auswirkung auf die Buchführung |
 |---|---|---|---|
-| _wird ab Phase 3 gefüllt_ | | | |
+| 27.08.2026 | 0.2.0 | **Übernahme der Bestandsdaten** (Phase 1). Kunden, Projekte, Termine und Zahlungsplan aus den beiden bisher geführten Excel-Dateien. Stichtag der Übernahme ist der Tag des Laufs; ab dann ist der Leitstand die führende Aufzeichnung, die Excel-Dateien werden schreibgeschützt aufbewahrt. | Keine Belege betroffen: die Übernahme schreibt **keine** Rechnungen. Die 150 Positionen, die die Auftragsliste als „gestellt" führte, werden als solche gekennzeichnet, aber ohne Beleg im Leitstand – die zugehörigen Rechnungen wurden vor der Einführung außerhalb erstellt und liegen als Ausgangsrechnungen der bisherigen Ablage vor. Ihr Betrag ist im Leitstand unveränderbar (Datenbank-Trigger); eine Korrektur verlangt die ausdrückliche Rücknahme des Kennzeichens und steht im Änderungsprotokoll. |
+
+### Stichtag und Nachvollziehbarkeit der Übernahme
+
+Jeder übernommene Datensatz trägt in `quelle_migration` Datei und Zeile seiner Herkunft. Der Lauf
+selbst steht in `importlaeufe` mit Zeitpunkt, Dateinamen, Kontrollsummen und allen Befunden – auch
+denen, die auf Fehler in den Quelldateien hinweisen (drei falsche Summenformeln, siehe
+`docs/OFFENE-PUNKTE.md`). Ein zweiter Lauf ist ausgeschlossen; die Prüfung sitzt in der Anwendung
+und wird durch das Importprotokoll belegt.
+
+Was **nicht** übernommen wurde, weil es in den Quelldateien nicht steht: Rechnungsnummern,
+Rechnungsdaten, Zahlungseingänge. Der Umsatz-Ist vergangener Monate ergibt sich für die Zeit vor
+dem Stichtag deshalb weiter aus der Buchhaltung und nicht aus dem Leitstand.

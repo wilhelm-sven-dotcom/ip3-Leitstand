@@ -127,7 +127,7 @@ Nie direkt auf der Produktivinstanz (PLAN §2). Der Ablauf:
    cd ../frontend && npm ci && npm run build
    cd ../backend && uv run pytest
    ```
-4. Testinstanz starten (Port 8010) und die **Abnahmeliste** (Abschnitt 9) durchgehen.
+4. Testinstanz starten (Port 8010) und die **Abnahmeliste** (Abschnitt 10) durchgehen.
 
 **Produktivinstanz aktualisieren** – erst wenn die Testinstanz sauber ist:
 
@@ -236,7 +236,74 @@ Die beiseitegelegte Datei erst löschen, wenn der Leitstand einige Tage einwandf
 | Mitarbeiter scheidet aus | `uv run ip3-leitstand nutzer-deaktivieren <e-mail>` – offene Sitzungen enden sofort. Das Konto bleibt bestehen, weil das Änderungsprotokoll darauf verweist (PLAN §5). Rückgängig mit `--aktivieren`. |
 | Mehrere Sicherungen je Nacht | Der Dienst läuft mit mehreren Arbeitsprozessen. Der Leitstand ist für genau einen gedacht; Startparameter prüfen. |
 
-## 9. Abnahmeliste
+## 9. Bestandsdaten übernehmen (einmalig, Phase 1)
+
+Die Übernahme liest die beiden Excel-Dateien und schreibt Kunden, Projekte, Meilensteine und
+Zahlungsplan in die Datenbank. **Sie läuft genau einmal.** Ein zweiter Lauf wird abgewiesen, weil
+er alles doppelt anlegen würde; die Prüfung sitzt in der Datenbank, nicht in der Oberfläche.
+
+### Vorbereitung
+
+1. Beide Dateien in den Migrationsordner legen, unter genau diesen Namen:
+   * `Offene_Auftraege_2025.xlsx` (die Auftragsliste mit den Abschlägen)
+   * `Teambesprechung_NEU.xlsx` (die Projektliste)
+   Der Ordner steht in `config.toml` unter `[pfade] migration`.
+2. **Sicherung ziehen** (`ip3-leitstand backup`) – der Rückweg für den Fall, dass die
+   Zuordnungen doch nicht stimmen.
+3. Die Dateien vorher **nicht** aufräumen. Der Import kommt mit den Eigenheiten zurecht und
+   protokolliert jede, die er nicht sicher lesen konnte.
+
+### Ablauf
+
+```bash
+# 1. Nur ansehen, nichts schreiben: Kontrollsummen und Befunde
+uv run ip3-leitstand migration-analysieren --ausfuehrlich
+
+# 2. Übernahme über die Oberfläche: Importe & Daten → Bestandsdaten übernehmen
+#    Dort werden die offenen Zuordnungen entschieden (siehe unten).
+```
+
+Die Zuordnung von Hand ist der eigentliche Arbeitsschritt: die Auftragsliste kennt Kunden nur als
+Freitext (`Kunde, Ort - Rechnungsart`), die Projektliste führt Projekte. Was eindeutig
+zusammenpasst, ordnet der Leitstand selbst zu; der Rest steht in der Maske, nach Betrag sortiert –
+die größten Posten zuerst, weil dort eine Fehlzuordnung am meisten kostet. Je Kunde gibt es drei
+Möglichkeiten: einen Vorschlag bestätigen, über die Suche ein anderes Projekt wählen oder ein
+eigenes Projekt anlegen.
+
+**Hilfreich beim Entscheiden:** die Summe der Auftragszeilen eines Kunden entspricht bei den
+meisten Projekten auf den Euro dem AB-Wert genau eines Projekts der Teamliste. Steht in der
+Auswahlliste ein Projekt mit genau diesem Wert, ist es das richtige. Beim Abnahmelauf traf das
+bei 15 von 24 offenen Kunden zu; die übrigen 9 haben in der Teamliste kein Gegenstück und
+bekommen ein eigenes Projekt.
+
+Die Übernahme selbst läuft in **einer** Transaktion: entweder alles oder nichts. Bricht sie ab,
+steht die Datenbank unverändert da – auch das Importprotokoll ist dann leer.
+
+### Danach
+
+| Schritt | Warum |
+|---|---|
+| Beide Excel-Dateien schreibgeschützt setzen | Ab hier ist der Leitstand führend. Zwei Wahrheiten über denselben Auftrag sind der Anfang jeder Abweichung. |
+| Menü **Projekte → Projektleiter zuordnen** durchgehen | Die Teamliste führt Vornamen, keine Konten. Erst mit der Zuordnung wirkt eine eingeschränkte Sichtbarkeit. |
+| Importprotokoll lesen (Startseite → Datenstand, oder `importlaeufe`) | Dort stehen die Befunde: unlesbare Beträge, abgeleitete Gewerke, Projekte ohne Auftragsjahr. |
+| Projekte mit unvollständigem Zahlungsplan ansehen | Die Auftragsliste führt nur die **offenen** Positionen. Bei Altprojekten fehlt der in früheren Jahren berechnete Teil; die Differenz wird ausgewiesen und nicht durch eine erfundene Position geschlossen. |
+| Anlagenart je Projekt prüfen | Aufdach, Speicher und Ladestation leitet der Import aus den Anlagendaten ab. Ob eine Anlage auf einer **Freifläche** steht, sagt keine Spalte – das ist in der Projektmaske nachzutragen. |
+
+### Erwartete Zahlen (Abnahmelauf vom 27.08.2026)
+
+| Größe | Wert |
+|---|---|
+| Kunden | 484 (475 aus der Teamliste, 9 nur in der Auftragsliste) |
+| Projekte | 539 (530 + 9 neu angelegte) |
+| Meilensteine | 5.848 |
+| Zahlungsplanpositionen | 280 mit 3.826.937,38 € netto |
+| davon als „gestellt" markiert | 150 mit 862.152,24 € |
+| Auftragswert gesamt | 18.085.904,86 € über 500 Projekte mit Wert |
+
+Weichen diese Zahlen bei einem echten Lauf ab, sind die Quelldateien inzwischen andere – das ist
+kein Fehler, aber ein Grund, die Kontrollsummen in der Maske vor der Übernahme zu lesen.
+
+## 10. Abnahmeliste
 
 Nach Installation und nach jedem Update auf der Testinstanz durchgehen. Dauert wenige Minuten
 und fängt genau die Fehler, die niemand im Protokoll sucht.
@@ -256,8 +323,14 @@ und fängt genau die Fehler, die niemand im Protokoll sucht.
 | 11 | Unbekannten API-Pfad aufrufen, z. B. `/api/gibtesnicht` | JSON-Fehlerkörper, keine HTML-Seite |
 | 12 | Abmelden, dann zurück-Taste im Browser | Anmeldeseite, keine Daten mehr sichtbar |
 | 13 | Restore nach Abschnitt 7 proben (nur bei Installation) | Prüfbefehl meldet Integrität in Ordnung, Anmeldung funktioniert, Daten sind da |
+| 14 | Projektliste öffnen, Jahr und Gewerk filtern, „poellath" suchen | Trefferzahl und Auftragsvolumen ändern sich mit dem Filter; die Suche findet Pöllath auch ohne Umlaut |
+| 15 | Ein Projekt öffnen, Termin auf „erledigt" setzen, speichern, Seite neu laden | Der Termin steht noch da; das Änderungsprotokoll hat **einen** Eintrag für den Vorgang |
+| 16 | Dasselbe Projekt in zwei Browser-Tabs öffnen, in beiden speichern | Der zweite Tab bekommt eine Konfliktmeldung mit Zeitpunkt; die erste Änderung bleibt erhalten |
+| 17 | Als Rolle `team` die Projektliste öffnen | Keine Spalte „Auftragswert", kein Auftragsvolumen in der Kopfzeile, kein Knopf „Neues Projekt" |
+| 18 | Als Rolle `team` `/api/projekte/<nr>` direkt aufrufen | `ab_wert_netto: null`, `zahlungsplan: []` – die Werte fehlen in der Antwort, nicht nur in der Anzeige |
+| 19 | Bei einer migriert-gestellten Zahlungsplanposition den Betrag ändern | Meldung mit dem Weg zur Rücknahme; nach der Rücknahme ist die Position bearbeitbar, beides steht im Änderungsprotokoll |
 
-## 10. Was in späteren Phasen dazukommt
+## 11. Was in späteren Phasen dazukommt
 
 * **Vor Phase 3:** WeasyPrint braucht auf Windows die GTK/Pango-Bibliotheken. Rechtzeitig
   beschaffen, sonst blockiert es die Fakturierung.

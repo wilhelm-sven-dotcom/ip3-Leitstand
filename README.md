@@ -24,10 +24,16 @@ Alle Daten bleiben lokal beziehungsweise im Firmen-OneDrive.
 
 ## Stand
 
-**Phase 0 – Fundament.** Anmeldung mit Server-Sitzungen, Berechtigungen (RBAC), vollständiges
-Datenbankschema, Systemstatus, nächtliches Backup, Designsystem und Auslieferung der Oberfläche
-über das Backend. Projekt-, Fakturierungs- und Auswertungsfunktionen folgen in den Phasen 1 bis 6
-(siehe PLAN §7).
+**Phase 1 – Bestandsdaten und Stammdatenmasken.** Auf dem Fundament aus Phase 0 (Anmeldung,
+Berechtigungen, Datenbankschema, Systemstatus, nächtliches Backup, Designsystem) stehen jetzt die
+Übernahme der beiden bisher geführten Excel-Dateien mit Zuordnungsmaske und Importprotokoll sowie
+die Masken für Kunden, Ansprechpartner, Projekte, Termine, Zahlungsplan und Nachträge – alle mit
+Konfliktprüfung beim Speichern und serverseitiger Berechtigungsprüfung.
+
+Ein Abnahmelauf gegen die echten Dateien ergibt 484 Kunden, 539 Projekte, 5.848 Termine und 280
+Zahlungsplanpositionen mit 3.826.937,38 € netto; Kontrollsummen und Befunde stehen im
+Importprotokoll. Fakturierung, Umsatzübersicht, Nachkalkulation, Firmen-Cockpit und
+Service/Anlagen folgen in den Phasen 2 bis 6 (siehe PLAN §7).
 
 ## Schnellstart für die Entwicklung
 

@@ -2,6 +2,95 @@
 
 Format: neueste Phase oben. Jede Phase endet lauffähig mit grüner Testsuite (PLAN §7).
 
+## 0.2.0 – Phase 1: Bestandsdaten und Stammdatenmasken
+
+Der Leitstand kennt jetzt den Bestand: 484 Kunden, 539 Projekte, 5.848 Termine und 280
+Zahlungsplanpositionen aus den beiden bisher geführten Excel-Dateien, mit Kontrollsummen, die zu
+den Quelldateien passen. Dazu die Masken, um das alles zu pflegen. Ab hier ist der Leitstand die
+führende Aufzeichnung; die Excel-Dateien werden schreibgeschützt (VERFAHRENSDOKU §9).
+
+### Übernahme der Bestandsdaten (PLAN §9)
+
+* Leser für beide Dateien, gebaut an den echten Eigenheiten: Rechnungsarten in 21 Schreibweisen,
+  Beträge mit zwei Trennzeichen, Excel-Seriennummern neben Tippfehlern im Datum,
+  Speicherangaben als Produkttext („2x BYD HVM 22.1"), Termin- und Statusspalten mit `x`, `-`,
+  `o`, Kalenderwochen und Klartext. Jede Zelle, die nicht sicher lesbar war, steht als Befund
+  im Importprotokoll – nichts verschwindet still.
+* **Zuordnung Auftragsliste ↔ Teamliste** mit getrennter Bewertung von Name und Ort. Die
+  strengere Regel verhinderte eine belegte Fehlzuordnung: 550.000 € wären von „Nachtmann,
+  Weiden" auf „Hubmann, Weiden" gelaufen.
+* Zuordnungsmaske für den Rest: 24 Kunden mit 2,5 Mio. €, nach Betrag sortiert, mit Kandidaten
+  samt Leistung, Datum und Wert zur Unterscheidung. Je Kunde: Vorschlag bestätigen, anderes
+  Projekt suchen oder eigenes Projekt anlegen. Die Übernahme ist erst freigeschaltet, wenn
+  keine Entscheidung mehr offen ist.
+* Ein Lauf, eine Transaktion, kein zweites Mal. Bricht er ab, ist die Datenbank unverändert –
+  in der Abnahme geprüft, nachdem ein echter Fehler ihn hat abbrechen lassen (siehe unten).
+* **Lücken werden ausgewiesen, nicht gefüllt** (Entscheidung Svens): bei 9 Projekten passt der
+  Zahlungsplan nicht zum Auftragswert, weil die Auftragsliste nur die offenen Positionen führt.
+  Eine erfundene Sammelposition wäre Umsatz ohne Belegbezug.
+
+### Masken
+
+* **Kunden und Ansprechpartner** mit Suche über Name, Ort und Nummer – umlautunabhängig,
+  „poellath" findet Pöllath. Kunden werden nicht gelöscht, sondern inaktiv.
+* **Projektliste** nach `design/Projektliste.dc.html`: Filter für Jahr, Status, Projektleiter
+  und Gewerk, serverseitiges Blättern über 539 Projekte, Auftragsvolumen der Auswahl in der
+  Kopfzeile.
+* **Projektdetail** mit Reitern, Anlagendaten und der Zeitleiste der Termine (19 Schritte in
+  drei Gruppen, je drei Zustände). Reiter für Phase 4 und 6 sind sichtbar und gesperrt.
+* **Zahlungsplan und Nachträge** mit Deckungsprüfung gegen Auftragswert plus beauftragte
+  Nachträge (PLAN §6.12) und zwei Sperren, die von Anfang an als Sperre gezeichnet sind.
+* **Projektleiter-Zuordnung**: elf Namen der Teamliste auf Nutzerkonten, wirksam für alle
+  Projekte eines Namens. Ohne sie greift der Sichtbarkeits-Scope `eigene` nicht.
+
+### Buchführungsrelevante Absicherung
+
+* Migration `0005`: Trigger, die migriert-gestellte Zahlungsplanpositionen unveränderbar und
+  unlöschbar machen. Erlaubt bleiben genau zwei Wege, beide ohne Änderung der Beträge: das
+  Kennzeichen zurücknehmen oder die Position ab Phase 3 mit einem Beleg verknüpfen. Per SQL an
+  der Anwendung vorbei geprüft.
+* Finanzsichtbarkeit: ohne `projekte.werte_lesen` fehlen Auftragswert, Zahlungsplan und Summen
+  in der **Antwort**, nicht nur in der Anzeige. Wer sie nicht lesen darf, darf sie auch nicht
+  setzen.
+
+### Bemerkenswerte Funde beim Bau
+
+Sechs Fehler, drei davon in Code, der schon stand:
+
+* **Die Abnahme brach die Übernahme ab.** Zwei Kundentexte der Auftragsliste können auf dasselbe
+  Projekt zeigen – „Schuller, Theisseil" und „Schuller, Theisseil - Wallbox" sind derselbe
+  Auftrag. Jede Zuordnung zählte ihre Positionsnummern wieder bei 1, die zweite verletzte
+  `UNIQUE(projekt_id, pos_nr)`, und der Lauf scheiterte, nachdem 24 Entscheidungen getroffen
+  waren. Die Transaktion hat dabei gehalten: die Datenbank stand unverändert da, das
+  Importprotokoll war leer.
+* **`Decimal` passt nicht in eine JSON-Spalte.** Ein Projekt mit Leistungsangabe zu speichern
+  ergab einen Serverfehler mit Stacktrace, weil das Änderungsprotokoll `pv_kwp` nicht
+  serialisieren konnte – genau das, was CLAUDE.md Regel 8 verbietet.
+* **`Decimal("514.08") == 514.08` ist in Python `False`.** Jede Speicherung ohne echte Änderung
+  hätte „514.08 → 514.08" protokolliert und die wirklichen Änderungen darin untergehen lassen.
+* **Die Filterleiste umging die Sichtbarkeitsgrenze.** Jahre und Projektleiternamen entstanden
+  über ein Kreuzprodukt; die Auswahlliste hätte Angaben aus Projekten verraten, die der Nutzer
+  selbst nicht öffnen darf.
+* **Die Konfliktprüfung kürzte auf ganze Sekunden** (aus Phase 0). Zwei Speicherungen innerhalb
+  derselben Sekunde galten als derselbe Stand – der zweite überschrieb den ersten
+  stillschweigend, also genau der Fehler, den die Prüfung verhindern soll.
+* **`0,145 € * 100` ergibt 14 Cent statt 15.** Die Umrechnung von Euro-Eingaben stand zweimal im
+  Frontend nachgebaut; sie rechnet jetzt an einer Stelle auf ganzen Zahlen und rundet
+  kaufmännisch (PLAN §6.11).
+
+Dazu drei Befunde in den Quelldateien selbst, die Sven kennen sollte: drei falsche
+Summenformeln (der ausgewiesene Auftragsbestand übergeht 29 Projekte mit 1,5 Mio. €) und vier
+Zeilen bei einem Kunden, die alle „1. Abschlag PV" heißen. Einzelheiten in
+`docs/OFFENE-PUNKTE.md`.
+
+### Offen
+
+Vor Phase 3 zu entscheiden: der Rechnungsnummernkreis (`PV-ET JJ-NNNN` fortführen oder auf
+`RE-JJJJ-NNNN` umstellen) – GoBD-relevant, weil die Nummernfolge lückenlos bleiben muss. Weiter
+fehlen die Steuernummer für den Rechnungskopf sowie Backup-Zielpfad, Host und Dienstkonto.
+
+Tests: 641 im Backend, 91 im Frontend.
+
 ## 0.1.0 – Phase 0: Fundament
 
 Erste lauffähige Fassung: der Leitstand startet als ein Dienst im ip³-Design, Anmeldung und
