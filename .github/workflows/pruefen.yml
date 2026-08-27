@@ -32,4 +32,8 @@ jobs:
         run: uv run ruff format --check .
 
       - name: Tests
+        # Der niedrige bcrypt-Faktor gilt nur hier (siehe tests/conftest.py); im Betrieb bleibt
+        # es bei 12, was ein Test absichert.
+        env:
+          IP3_BCRYPT_KOSTEN: "4"
         run: uv run pytest

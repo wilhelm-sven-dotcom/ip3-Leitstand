@@ -32,7 +32,11 @@ from app.modelle import Base
 config = context.config
 
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # disable_existing_loggers=False ist hier keine Feinheit, sondern nötig: der Standard ist
+    # True, und dann schaltet fileConfig alle bereits bestehenden Logger ab. Läuft eine Migration
+    # aus dem laufenden Programm (Schema-Befehl, Testausstattung), protokolliert die Anwendung
+    # danach nichts mehr – ein stiller Ausfall genau der Protokollierung, die PLAN §2 verlangt.
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 target_metadata = Base.metadata
 

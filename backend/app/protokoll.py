@@ -15,7 +15,9 @@ from pathlib import Path
 FORMAT = "%(asctime)s %(levelname)-8s %(name)-28s %(message)s"
 ZEITFORMAT = "%Y-%m-%dT%H:%M:%S%z"
 
-_eingerichtet = False
+# Kennzeichen an unseren Handlern. Damit lässt sich die Protokollierung neu einrichten, ohne
+# fremde Handler (die von pytest oder von einem Dienstverwalter) anzufassen.
+MERKMAL = "_ip3_leitstand"
 
 
 def einrichten(
@@ -24,18 +26,22 @@ def einrichten(
     datei_max_mb: int = 10,
     generationen: int = 10,
 ) -> None:
-    """Protokollierung einrichten. Mehrfachaufruf ist unschädlich."""
-    global _eingerichtet
-    if _eingerichtet:
-        return
+    """Protokollierung einrichten.
 
+    Bei mehrfachem Aufruf werden die eigenen Handler ersetzt, nicht ergänzt. Ein Schalter „schon
+    eingerichtet" wäre bequemer, würde aber bedeuten: wer die Anwendung ein zweites Mal mit
+    anderer Konfiguration erzeugt, protokolliert weiter ins alte Verzeichnis. Genau das ist in
+    der Testsuite aufgefallen, wo jeder Test ein eigenes Verzeichnis hat.
+    """
     wurzel = logging.getLogger()
+    _eigene_handler_entfernen(wurzel)
     wurzel.setLevel(getattr(logging, stufe.upper(), logging.INFO))
     formatierer = logging.Formatter(FORMAT, datefmt=ZEITFORMAT)
 
     # Immer auf die Konsole: im Dienstbetrieb fängt der Dienstverwalter das ein.
     konsole = logging.StreamHandler(sys.stderr)
     konsole.setFormatter(formatierer)
+    setattr(konsole, MERKMAL, True)
     wurzel.addHandler(konsole)
 
     if verzeichnis is not None:
@@ -51,7 +57,11 @@ def einrichten(
                 delay=True,
             )
             datei.setFormatter(formatierer)
+            setattr(datei, MERKMAL, True)
             wurzel.addHandler(datei)
+            # Erste Zeile sofort schreiben, damit die Datei entsteht und ein fehlendes
+            # Schreibrecht beim Start auffällt und nicht erst beim ersten Fehler.
+            wurzel.info("Protokollierung eingerichtet: %s", verzeichnis / "leitstand.log")
         except OSError as fehler:
             # Ohne Protokolldatei läuft der Leitstand weiter – nur eben ohne Nachlese.
             wurzel.warning(
@@ -68,17 +78,22 @@ def einrichten(
         logger.handlers.clear()
         logger.propagate = True
 
-    _eingerichtet = True
+
+def _eigene_handler_entfernen(wurzel: logging.Logger) -> None:
+    """Nur die selbst gesetzten Handler abräumen.
+
+    Fremde Handler bleiben stehen – in der Testsuite hängt dort die Aufzeichnung von pytest, und
+    wer sie entfernt, nimmt den Tests die Möglichkeit, Meldungen zu prüfen.
+    """
+    for handler in list(wurzel.handlers):
+        if getattr(handler, MERKMAL, False):
+            wurzel.removeHandler(handler)
+            handler.close()
 
 
 def zuruecksetzen() -> None:
-    """Nur für Tests: Handler abräumen, damit die nächste Einrichtung greift."""
-    global _eingerichtet
-    wurzel = logging.getLogger()
-    for handler in list(wurzel.handlers):
-        wurzel.removeHandler(handler)
-        handler.close()
-    _eingerichtet = False
+    """Eigene Handler abräumen – für Tests und vor einem Neuaufbau der Anwendung."""
+    _eigene_handler_entfernen(logging.getLogger())
 
 
 def logger(name: str) -> logging.Logger:

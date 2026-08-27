@@ -393,3 +393,19 @@ class TestPasswort:
             erzeugt = pw.zufallspasswort()
             assert len(erzeugt) == 16
             assert not set(erzeugt) & set("0O1lI")
+
+    def test_kostenfaktor_bleibt_im_betrieb_bei_zwoelf(self):
+        """Die Testsuite senkt den Faktor über IP3_BCRYPT_KOSTEN, damit sie in Sekunden läuft.
+
+        Dieser Weg darf den Betrieb nicht schwächen: ohne die Umgebungsvariable muss der Wert
+        bei 12 liegen. Ein Hash mit Faktor 4 wäre um Größenordnungen leichter angreifbar.
+        """
+        assert pw.KOSTEN == 12
+
+    def test_umgebungsvariable_bleibt_in_gueltigen_grenzen(self, monkeypatch):
+        monkeypatch.setattr(pw, "_AUS_UMGEBUNG", "1")
+        assert pw.kosten() == 4, "Unter 4 lässt bcrypt keinen Faktor zu"
+        monkeypatch.setattr(pw, "_AUS_UMGEBUNG", "99")
+        assert pw.kosten() == 31, "Über 31 lässt bcrypt keinen Faktor zu"
+        monkeypatch.setattr(pw, "_AUS_UMGEBUNG", "unsinn")
+        assert pw.kosten() == 12, "Ein unlesbarer Wert fällt auf den Betriebswert zurück"

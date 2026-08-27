@@ -16,7 +16,7 @@ from app.fehler import handler_registrieren
 from app.konfiguration import Einstellungen, einstellungen, pruefe_betriebsbereit
 from app.protokoll import einrichten as protokoll_einrichten
 from app.protokoll import logger
-from app.routen import gesundheit
+from app.routen import auth, gesundheit
 
 log = logger(__name__)
 
@@ -64,5 +64,6 @@ def anwendung_erzeugen(werte: Einstellungen | None = None) -> FastAPI:
 
     handler_registrieren(app)
     app.include_router(gesundheit.router)
+    app.include_router(auth.router)
 
     return app

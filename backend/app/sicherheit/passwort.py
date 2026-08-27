@@ -11,15 +11,35 @@ Hinweises am Feld. Achtung: Byte, nicht Zeichen – Umlaute zählen doppelt.
 
 from __future__ import annotations
 
+import os
+
 import bcrypt
 
 from app.fehler import FachFehler
 
 # bcrypt-Grenze. 72 Byte sind rund 72 ASCII-Zeichen oder 36 Umlaute.
 MAX_BYTES = 72
+
 # Aufwand des Verfahrens. 12 ist der übliche Wert: rund 0,3 Sekunden je Prüfung auf üblicher
 # Bürohardware – für einen Menschen nicht wahrnehmbar, für einen Angreifer teuer.
 KOSTEN = 12
+
+# Die Testsuite legt Dutzende Konten an und meldet sich Hunderte Male an; mit Faktor 12 dauert
+# ein Lauf Minuten, die vollständig in bcrypt verbracht werden. Über IP3_BCRYPT_KOSTEN lässt er
+# sich für Tests senken. Ein Test stellt sicher, dass der Standard 12 bleibt: dieser Weg darf
+# den Betrieb nicht schwächen.
+_AUS_UMGEBUNG = os.environ.get("IP3_BCRYPT_KOSTEN")
+
+
+def kosten() -> int:
+    if _AUS_UMGEBUNG:
+        try:
+            gesetzt = int(_AUS_UMGEBUNG)
+        except ValueError:
+            return KOSTEN
+        # bcrypt erlaubt 4 bis 31.
+        return max(4, min(31, gesetzt))
+    return KOSTEN
 
 
 class PasswortFehler(FachFehler):
@@ -53,7 +73,7 @@ def hashen(passwort: str) -> str:
             "(Umlaute zählen doppelt).",
             "Ein kürzeres Passwort wählen.",
         )
-    return bcrypt.hashpw(passwort.encode("utf-8"), bcrypt.gensalt(rounds=KOSTEN)).decode("ascii")
+    return bcrypt.hashpw(passwort.encode("utf-8"), bcrypt.gensalt(rounds=kosten())).decode("ascii")
 
 
 def passt(passwort: str, gespeicherter_hash: str) -> bool:
