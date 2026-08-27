@@ -319,14 +319,18 @@ class TestBerechneteSperre:
         """Eine Position mit Rechnungsbezug – wie ab Phase 3."""
         from datetime import date
 
-        from app.modelle import Rechnung
+        from app.modelle import Projekt, Rechnung
 
         with schreib_sitzung() as sitzung:
             firma_id = sitzung.scalar(select(Firma.id).order_by(Firma.id).limit(1))
+            kunde_id = sitzung.scalar(
+                select(Projekt.kunde_id).where(Projekt.id == projekt["projekt_id"])
+            )
             rechnung = Rechnung(
                 firma_id=firma_id,
                 art="abschlag",
                 projekt_id=projekt["projekt_id"],
+                kunde_id=kunde_id,
                 datum=date(2026, 3, 1),
                 netto=18375000,
                 ust=3491250,

@@ -103,24 +103,33 @@ class FirmaEinstellungen(BaseModel):
     web: str = "www.ip3-energie.de"
     bank: BankEinstellungen = Field(default_factory=BankEinstellungen)
 
+    def _gesetzt(self, feld: str) -> bool:
+        """Wert vorhanden und kein Platzhalter der Beispielkonfiguration (``<…>``)."""
+        wert = str(getattr(self, feld, "") or "").strip()
+        return bool(wert) and not wert.startswith("<")
+
     def unvollstaendige_pflichtangaben(self) -> list[str]:
         """Für den Rechnungskopf nach § 14 UStG nötige Angaben, die noch fehlen.
 
         In Phase 0 nur ein Hinweis im Systemstatus; ab Phase 3 blockiert es die Festschreibung.
+
+        **Steuernummer oder USt-IdNr., nicht beides.** § 14 Abs. 4 Nr. 2 UStG verlangt „die dem
+        leistenden Unternehmer vom Finanzamt erteilte Steuernummer **oder** die ihm vom
+        Bundeszentralamt für Steuern erteilte Umsatzsteuer-Identifikationsnummer". Die bestehende
+        Rechnungsvorlage führt nur die USt-IdNr., und das genügt – beides zu fordern hätte die
+        Fakturierung ohne Rechtsgrund blockiert. Die Steuernummer bleibt trotzdem wünschenswert
+        (docs/OFFENE-PUNKTE.md), sie ist nur keine Voraussetzung.
         """
         pflicht = {
             "strasse": "Straße und Hausnummer",
             "plz": "Postleitzahl",
-            "ust_id": "Umsatzsteuer-Identifikationsnummer",
-            "st_nr": "Steuernummer",
+            "ort": "Ort",
             "hrb": "Handelsregistereintrag",
             "geschaeftsfuehrer": "Geschäftsführer",
         }
-        fehlend = [
-            bezeichnung
-            for feld, bezeichnung in pflicht.items()
-            if not str(getattr(self, feld, "")).strip() or str(getattr(self, feld)).startswith("<")
-        ]
+        fehlend = [bezeichnung for feld, bezeichnung in pflicht.items() if not self._gesetzt(feld)]
+        if not self._gesetzt("ust_id") and not self._gesetzt("st_nr"):
+            fehlend.append("Steuernummer oder Umsatzsteuer-Identifikationsnummer")
         if not self.bank.iban.strip() or self.bank.iban.startswith("<"):
             fehlend.append("Bankverbindung")
         return fehlend

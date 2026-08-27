@@ -12,6 +12,12 @@ Die Regeln aus PLAN §6.4 (GoBD) prägen dieses Modul:
 
 Der Kundenstamm wird beim Festschreiben als ``kunde_snapshot`` mitgeschrieben. Eine spätere
 Adressänderung beim Kunden darf einen bereits ausgestellten Beleg nicht verändern.
+
+Der **Absetzungsblock** einer Schlussrechnung (PLAN §6.1, § 14 Abs. 5 UStG) steht als eigene
+Tabelle ``rechnung_absetzung`` und wird beim Erzeugen des Belegs gefüllt – nicht beim Anzeigen
+abgeleitet. Sonst würde ein später entstehender Abschlag eine bereits festgeschriebene
+Schlussrechnung rückwirkend verändern, und die Rechnung auf dem Papier passte nicht mehr zu der
+in der Datenbank.
 """
 
 from __future__ import annotations
@@ -33,11 +39,12 @@ from app.modelle.basis import (
     UtcDateTime,
     ZeitstempelMixin,
 )
+from app.modelle.projekte import UST_KENNZEICHEN
 from app.modelle.pruefungen import in_werten, nicht_negativ
 
 if TYPE_CHECKING:
     from app.modelle.projekte import Projekt, Zahlungsplanposition
-    from app.modelle.stammdaten import Firma
+    from app.modelle.stammdaten import Firma, Kunde
 
 BELEGARTEN = ("ab", "abschlag", "schluss", "service", "gutschrift", "storno")
 BELEG_STATUS = ("entwurf", "festgeschrieben", "storniert")
@@ -51,6 +58,19 @@ KREIS_KUNDE = "KD"
 KREIS_PROJEKT = "PR"
 KREIS_SERVICEAUFTRAG = "SA"
 
+# Welcher Kreis zu welcher Belegart gehört. Storno und Gutschrift stehen nicht in der Tabelle:
+# sie erben den Kreis des Belegs, den sie korrigieren – ein Storno einer Servicerechnung bleibt
+# im SR-Kreis, sonst liefe die Korrektur in einem anderen Nummernkreis als das Original.
+KREIS_JE_ART: dict[str, str] = {
+    "ab": KREIS_AUFTRAGSBESTAETIGUNG,
+    "abschlag": KREIS_RECHNUNG,
+    "schluss": KREIS_RECHNUNG,
+    "service": KREIS_SERVICERECHNUNG,
+}
+
+# Belegarten mit Negativbeträgen (PLAN §6.4, §6.14).
+KORREKTURARTEN = ("storno", "gutschrift")
+
 
 class Rechnung(OptimistischMixin, ZeitstempelMixin, Base):
     __tablename__ = "rechnungen"
@@ -60,6 +80,7 @@ class Rechnung(OptimistischMixin, ZeitstempelMixin, Base):
         UniqueConstraint("firma_id", "rechnung_nr", name="uq_rechnungen_firma_id_rechnung_nr"),
         in_werten("art", BELEGARTEN),
         in_werten("status", BELEG_STATUS),
+        in_werten("ust_kz", UST_KENNZEICHEN),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -70,6 +91,15 @@ class Rechnung(OptimistischMixin, ZeitstempelMixin, Base):
     projekt_id: Mapped[int | None] = mapped_column(
         ForeignKey("projekte.id"), nullable=True, index=True
     )
+    # Der Empfänger steht am Beleg selbst, nicht nur am Projekt: eine Servicerechnung kann ohne
+    # Projekt entstehen (PLAN §10), und ohne diesen Verweis hätte sie keinen Adressaten.
+    kunde_id: Mapped[int] = mapped_column(ForeignKey("kunden.id"), nullable=False, index=True)
+    # Steuerkennzeichen des Belegs (PLAN §6.2). Vorbelegt aus dem Projekt, danach am Beleg
+    # eingefroren: ändert jemand später das Kennzeichen am Projekt, bleibt der Beleg richtig.
+    ust_kz: Mapped[str] = mapped_column(Kurztext, nullable=False, default="19")
+    # Wievielter Abschlag des Projekts – steht auf dem Beleg („3. Abschlagsrechnung"). Gespeichert
+    # statt gezählt, damit ein späterer Storno die Beschriftung alter Belege nicht verschiebt.
+    abschlag_nr: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # Kundenstand zum Zeitpunkt der Ausstellung – der Beleg bleibt gültig, auch wenn sich die
     # Adresse später ändert (§ 14 UStG verlangt die Angaben zum Ausstellungszeitpunkt).
     kunde_snapshot: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
@@ -77,9 +107,25 @@ class Rechnung(OptimistischMixin, ZeitstempelMixin, Base):
     leistungszeitraum: Mapped[str | None] = mapped_column(Text, nullable=True)
     faellig_am: Mapped[date | None] = mapped_column(Date, nullable=True, index=True)
 
+    betreff: Mapped[str | None] = mapped_column(Text, nullable=True)
+    anschreiben: Mapped[str | None] = mapped_column(Langtext, nullable=True)
+    schlusstext: Mapped[str | None] = mapped_column(Langtext, nullable=True)
+
+    # Gesamtleistung des Belegs.
     netto: Mapped[int] = mapped_column(Cent, nullable=False, default=0)
     ust: Mapped[int] = mapped_column(Cent, nullable=False, default=0)
     brutto: Mapped[int] = mapped_column(Cent, nullable=False, default=0)
+    # Aufteilung je Steuersatz zum Zeitpunkt der Festschreibung, als Liste von
+    # ``{"satz": 190, "netto": …, "ust": …}``. Gespeichert, damit PDF, XML und Hash denselben
+    # Stand zeigen, ohne dass irgendwo nachgerechnet wird (PLAN §6.11).
+    ust_details: Mapped[list[dict[str, int]] | None] = mapped_column(JSON, nullable=True)
+    # Absetzung der bereits berechneten Abschläge (§ 14 Abs. 5 UStG, PLAN §6.1). Bei allen
+    # anderen Belegarten null.
+    absetzung_netto: Mapped[int] = mapped_column(Cent, nullable=False, default=0)
+    absetzung_ust: Mapped[int] = mapped_column(Cent, nullable=False, default=0)
+    # Was der Kunde zu zahlen hat: Brutto minus Absetzung. Bei einer Schlussrechnung ist das der
+    # Restbetrag, sonst der Bruttobetrag.
+    zahlbetrag: Mapped[int] = mapped_column(Cent, nullable=False, default=0)
 
     status: Mapped[str] = mapped_column(Kurztext, nullable=False, default="entwurf", index=True)
     # Verweis auf den Beleg, der storniert oder korrigiert wird.
@@ -96,9 +142,16 @@ class Rechnung(OptimistischMixin, ZeitstempelMixin, Base):
     quelle_migration: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     firma: Mapped[Firma] = relationship()
+    kunde: Mapped[Kunde] = relationship()
     projekt: Mapped[Projekt | None] = relationship(back_populates="rechnungen")
     positionen: Mapped[list[Rechnungsposition]] = relationship(
         back_populates="rechnung", cascade="all, delete-orphan", order_by="Rechnungsposition.pos"
+    )
+    absetzungen: Mapped[list[Absetzung]] = relationship(
+        back_populates="rechnung",
+        cascade="all, delete-orphan",
+        order_by="Absetzung.pos",
+        foreign_keys="Absetzung.rechnung_id",
     )
     zahlungsplan_positionen: Mapped[list[Zahlungsplanposition]] = relationship(
         back_populates="rechnung"
@@ -149,6 +202,51 @@ class Rechnungsposition(OptimistischMixin, ZeitstempelMixin, Base):
 
     def __repr__(self) -> str:
         return f"<Rechnungsposition {self.rechnung_id}/{self.pos}>"
+
+
+class Absetzung(ZeitstempelMixin, Base):
+    """Eine abgesetzte Abschlagsrechnung im Absetzungsblock einer Schlussrechnung.
+
+    § 14 Abs. 5 UStG verlangt, dass die Schlussrechnung jede vorher berechnete Abschlagszahlung
+    **einzeln** mit Netto und darauf entfallender Umsatzsteuer absetzt. Fehlt das, ist der
+    Steuerausweis unrichtig (§ 14c UStG) – deshalb erzeugt der Leitstand keine Schlussrechnung
+    ohne diesen Block (PLAN §6.1).
+
+    Nummer, Datum und Beträge stehen hier **als Kopie**, nicht als Verweis. Der Beleg muss auch
+    dann noch zeigen, was auf dem Papier stand, wenn der Abschlag später storniert wird.
+    """
+
+    __tablename__ = "rechnung_absetzung"
+    __table_args__ = (
+        UniqueConstraint("rechnung_id", "abschlag_id", name="uq_rechnung_absetzung_beleg"),
+        nicht_negativ("ust_satz"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    rechnung_id: Mapped[int] = mapped_column(
+        ForeignKey("rechnungen.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    abschlag_id: Mapped[int] = mapped_column(
+        ForeignKey("rechnungen.id"), nullable=False, index=True
+    )
+    pos: Mapped[int] = mapped_column(Integer, nullable=False)
+    rechnung_nr: Mapped[str] = mapped_column(Kurztext, nullable=False)
+    datum: Mapped[date] = mapped_column(Date, nullable=False)
+    netto: Mapped[int] = mapped_column(Cent, nullable=False)
+    ust_satz: Mapped[int] = mapped_column(Integer, nullable=False)
+    ust: Mapped[int] = mapped_column(Cent, nullable=False)
+
+    rechnung: Mapped[Rechnung] = relationship(
+        back_populates="absetzungen", foreign_keys=[rechnung_id]
+    )
+    abschlag: Mapped[Rechnung] = relationship(foreign_keys=[abschlag_id])
+
+    @property
+    def brutto(self) -> int:
+        return self.netto + self.ust
+
+    def __repr__(self) -> str:
+        return f"<Absetzung {self.rechnung_nr}: {self.netto}>"
 
 
 class Nummernkreis(ZeitstempelMixin, Base):

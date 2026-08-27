@@ -73,6 +73,7 @@ def bestand(gesäte_db) -> dict:
             firma_id=firma_id,
             art="abschlag",
             projekt_id=zwei.id,
+            kunde_id=zwei.kunde_id,
             datum=date(2026, 6, 1),
             netto=2000000,
             ust=380000,

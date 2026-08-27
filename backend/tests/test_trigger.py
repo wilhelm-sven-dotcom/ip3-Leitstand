@@ -19,7 +19,15 @@ from sqlalchemy.orm import Session
 from app.datenbank import engine_erzeugen, schreib_transaktion
 from app.datenbank_sperren import SPERRMELDUNGEN, als_fachfehler, sperren_uebersetzen
 from app.fehler import Konflikt
-from app.modelle import Firma, Kunde, Projekt, Rechnung, Rechnungsposition, Zahlungsplanposition
+from app.modelle import (
+    Absetzung,
+    Firma,
+    Kunde,
+    Projekt,
+    Rechnung,
+    Rechnungsposition,
+    Zahlungsplanposition,
+)
 from app.zeit import jetzt_utc
 
 
@@ -63,6 +71,7 @@ def beleg(db) -> dict[str, int]:
             firma_id=firma.id,
             art="abschlag",
             projekt_id=projekt.id,
+            kunde_id=kunde.id,
             datum=date(2026, 9, 1),
             netto=9187500,
             ust=1745625,
@@ -275,6 +284,7 @@ class TestStornoIstDerEineErlaubteWeg:
                 firma_id=beleg["firma"],
                 art="storno",
                 projekt_id=beleg["projekt"],
+                kunde_id=beleg["kunde"],
                 datum=date(2026, 9, 15),
                 netto=-9187500,
                 ust=-1745625,
@@ -323,6 +333,37 @@ class TestStornoIstDerEineErlaubteWeg:
                 {"id": beleg["rechnung"]},
             )
 
+    @pytest.mark.parametrize(
+        "feld,wert",
+        [
+            ("absetzung_netto", 1),
+            ("absetzung_ust", 1),
+            ("zahlbetrag", 1),
+            ("ust_details", "'[]'"),
+            ("ust_kz", "'0'"),
+            ("kunde_id", 999),
+        ],
+    )
+    def test_storno_darf_auch_die_neuen_felder_nicht_veraendern(self, db, beleg, feld, wert):
+        """Die Felder aus Migration 0006 gehören in dieselbe Sperre wie Netto und Nummer.
+
+        Ohne sie ließe sich über den Statuswechsel auf ``storniert`` der Absetzungsblock, der
+        Zahlbetrag oder der Empfänger eines festgeschriebenen Belegs umschreiben.
+        """
+        _festschreiben(db, beleg["rechnung"])
+        with (
+            Session(db) as sitzung,
+            pytest.raises((IntegrityError, OperationalError)),
+            schreib_transaktion(sitzung),
+        ):
+            sitzung.execute(
+                text(
+                    "UPDATE rechnungen SET status='storniert', storno_ref=1, "
+                    f"{feld}={wert} WHERE id=:id"
+                ),
+                {"id": beleg["rechnung"]},
+            )
+
     def test_zurueck_auf_entwurf_ist_ausgeschlossen(self, db, beleg):
         _festschreiben(db, beleg["rechnung"])
         with (
@@ -348,6 +389,83 @@ class TestStornoIstDerEineErlaubteWeg:
             schreib_transaktion(sitzung),
         ):
             sitzung.execute(text("DELETE FROM rechnungen WHERE id=:id"), {"id": beleg["rechnung"]})
+
+
+class TestAbsetzungsblockIstMitgesperrt:
+    """§ 14 Abs. 5 UStG: der Absetzungsblock ist Teil des Belegs, also genauso unveränderbar.
+
+    Ließe er sich nachträglich ändern, stünde auf dem Papier eine andere Absetzung als in der
+    Datenbank – und der ausgewiesene Restbetrag wäre nicht mehr nachvollziehbar.
+    """
+
+    def _absetzung_anlegen(self, db, beleg) -> int:
+        with Session(db) as sitzung, schreib_transaktion(sitzung):
+            eintrag = Absetzung(
+                rechnung_id=beleg["rechnung"],
+                abschlag_id=beleg["rechnung"],
+                pos=1,
+                rechnung_nr="RE-2026-0001",
+                datum=date(2026, 7, 1),
+                netto=5000000,
+                ust_satz=190,
+                ust=950000,
+            )
+            sitzung.add(eintrag)
+            sitzung.flush()
+            return eintrag.id
+
+    def test_am_entwurf_ist_der_block_aenderbar(self, db, beleg):
+        eintrag_id = self._absetzung_anlegen(db, beleg)
+        with Session(db) as sitzung, schreib_transaktion(sitzung):
+            sitzung.execute(
+                text("UPDATE rechnung_absetzung SET netto=1 WHERE id=:id"), {"id": eintrag_id}
+            )
+        with Session(db) as sitzung:
+            assert sitzung.get(Absetzung, eintrag_id).netto == 1
+
+    def test_am_festgeschriebenen_beleg_ist_er_gesperrt(self, db, beleg):
+        eintrag_id = self._absetzung_anlegen(db, beleg)
+        _festschreiben(db, beleg["rechnung"])
+        with (
+            Session(db) as sitzung,
+            pytest.raises((IntegrityError, OperationalError)),
+            schreib_transaktion(sitzung),
+        ):
+            sitzung.execute(
+                text("UPDATE rechnung_absetzung SET netto=1 WHERE id=:id"), {"id": eintrag_id}
+            )
+
+    def test_am_festgeschriebenen_beleg_ist_er_unloeschbar(self, db, beleg):
+        eintrag_id = self._absetzung_anlegen(db, beleg)
+        _festschreiben(db, beleg["rechnung"])
+        with (
+            Session(db) as sitzung,
+            pytest.raises((IntegrityError, OperationalError)),
+            schreib_transaktion(sitzung),
+        ):
+            sitzung.execute(text("DELETE FROM rechnung_absetzung WHERE id=:id"), {"id": eintrag_id})
+
+    def test_kein_nachtraeglicher_abschlag_im_block(self, db, beleg):
+        """Ein später entstandener Abschlag gehört auf eine neue Schlussrechnung."""
+        _festschreiben(db, beleg["rechnung"])
+        with (
+            Session(db) as sitzung,
+            pytest.raises((IntegrityError, OperationalError)),
+            schreib_transaktion(sitzung),
+        ):
+            sitzung.add(
+                Absetzung(
+                    rechnung_id=beleg["rechnung"],
+                    abschlag_id=beleg["rechnung"],
+                    pos=2,
+                    rechnung_nr="RE-2026-0002",
+                    datum=date(2026, 8, 1),
+                    netto=1000000,
+                    ust_satz=190,
+                    ust=190000,
+                )
+            )
+            sitzung.flush()
 
 
 class TestZahlungsplanSperre:
@@ -655,5 +773,8 @@ class TestTriggerSindVorhanden:
             "trg_zahlungsplan_berechnet_delete",
             "trg_zahlungsplan_migriert_gestellt",
             "trg_zahlungsplan_migriert_gestellt_delete",
+            "trg_rechnung_absetzung_update",
+            "trg_rechnung_absetzung_delete",
+            "trg_rechnung_absetzung_insert",
         }
         assert erwartet <= vorhandene, "Fehlende Trigger: " + ", ".join(erwartet - vorhandene)

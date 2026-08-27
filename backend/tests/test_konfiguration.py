@@ -147,8 +147,37 @@ def test_unvollstaendige_firmenstammdaten_werden_gemeldet():
         firma={"ust_id": "<USt-IdNr.>", "strasse": "Musterweg 1"},
     )
     fehlend = werte_mit_platzhaltern.firma.unvollstaendige_pflichtangaben()
-    assert "Umsatzsteuer-Identifikationsnummer" in fehlend
+    assert "Steuernummer oder Umsatzsteuer-Identifikationsnummer" in fehlend
     assert "Straße und Hausnummer" not in fehlend
+
+
+def test_steuernummer_oder_ust_id_genuegt():
+    """§ 14 Abs. 4 Nr. 2 UStG verlangt eines von beiden, nicht beides.
+
+    Die bestehende Rechnungsvorlage führt nur die USt-IdNr. Beides zu fordern hätte die
+    Fakturierung ohne Rechtsgrund blockiert.
+    """
+    gemeinsam = {
+        "strasse": "Brandweg 1",
+        "plz": "92637",
+        "hrb": "HRB 5725 Amtsgericht Weiden",
+        "geschaeftsfuehrer": "Sven Wilhelm, Michael Bäumler",
+        "bank": {"institut": "VR Bank", "iban": "DE02120300000000202051", "bic": "GENODEF1WEV"},
+    }
+    nur_ust_id = Einstellungen(
+        app={"umgebung": "test"}, firma={**gemeinsam, "ust_id": "DE346672260"}
+    )
+    assert nur_ust_id.firma.unvollstaendige_pflichtangaben() == []
+
+    nur_steuernummer = Einstellungen(
+        app={"umgebung": "test"}, firma={**gemeinsam, "st_nr": "255/123/45678"}
+    )
+    assert nur_steuernummer.firma.unvollstaendige_pflichtangaben() == []
+
+    keines = Einstellungen(app={"umgebung": "test"}, firma=gemeinsam)
+    assert keines.firma.unvollstaendige_pflichtangaben() == [
+        "Steuernummer oder Umsatzsteuer-Identifikationsnummer"
+    ]
 
 
 def test_vollstaendige_firmenstammdaten_ohne_hinweis():

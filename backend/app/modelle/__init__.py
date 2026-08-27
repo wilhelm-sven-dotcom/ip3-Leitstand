@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from app.modelle.anlagen import Anlage, Frist
 from app.modelle.basis import Base, Cent, UtcDateTime, ZeitstempelMixin
-from app.modelle.fakturierung import Nummernkreis, Rechnung, Rechnungsposition
+from app.modelle.fakturierung import Absetzung, Nummernkreis, Rechnung, Rechnungsposition
 from app.modelle.finanzen import DatevSaldo, FixkostenPlan, KontenMapping, Opos
 from app.modelle.kalkulation import IstKosten, SollKalkulation, Stuecklistenposition, Stunden
 from app.modelle.projekte import (
@@ -37,6 +37,7 @@ from app.modelle.system import (
 )
 
 __all__ = [
+    "Absetzung",
     "Anlage",
     "Ansprechpartner",
     "AuditEintrag",
@@ -91,6 +92,7 @@ ERWARTETE_TABELLEN = frozenset(
         # Fakturierung
         "rechnungen",
         "rechnungspos",
+        "rechnung_absetzung",
         "nummernkreise",
         # Nachkalkulation
         "soll_kalkulation",

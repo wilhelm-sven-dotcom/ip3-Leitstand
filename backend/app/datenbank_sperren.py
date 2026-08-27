@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.fehler import Konflikt
 
-# Muss zu den Meldungen in alembic/versions/0002_festschreibsperren.py passen; ein Test prüft das.
+# Muss zu den Meldungen in den Migrationen 0002, 0005 und 0006 passen; ein Test prüft das.
 SPERRMELDUNGEN: dict[str, tuple[str, str, str]] = {
     "festgeschriebene Rechnung nicht aenderbar": (
         "beleg_festgeschrieben",
@@ -39,6 +39,23 @@ SPERRMELDUNGEN: dict[str, tuple[str, str, str]] = {
         "beleg_festgeschrieben",
         "An einen festgeschriebenen Beleg lassen sich keine Positionen anfügen.",
         "Die zusätzliche Leistung auf einem neuen Beleg abrechnen.",
+    ),
+    "Absetzung einer festgeschriebenen Rechnung nicht aenderbar": (
+        "beleg_festgeschrieben",
+        "Der Absetzungsblock gehört zu einem festgeschriebenen Beleg und ist nicht mehr änderbar.",
+        "Für eine Korrektur einen Storno erzeugen und die Schlussrechnung neu ausstellen. Der "
+        "Absetzungsblock nach § 14 Abs. 5 UStG muss zu dem passen, was auf dem Papier steht.",
+    ),
+    "Absetzung einer festgeschriebenen Rechnung nicht loeschbar": (
+        "beleg_festgeschrieben",
+        "Der Absetzungsblock eines festgeschriebenen Belegs kann nicht gelöscht werden.",
+        "Für eine Korrektur einen Storno erzeugen und die Schlussrechnung neu ausstellen.",
+    ),
+    "keine Absetzung an einer festgeschriebenen Rechnung": (
+        "beleg_festgeschrieben",
+        "An einen festgeschriebenen Beleg lässt sich kein weiterer Abschlag zum Absetzen anfügen.",
+        "Der später entstandene Abschlag gehört auf eine neue Schlussrechnung. Dafür zuerst die "
+        "bestehende stornieren.",
     ),
     "berechnete Zahlungsplanposition nicht aenderbar": (
         "zahlungsplan_berechnet",
