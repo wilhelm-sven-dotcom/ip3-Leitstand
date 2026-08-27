@@ -462,6 +462,217 @@ def backup_ausfuehren() -> None:
             )
 
 
+@anwendung.command("migration-analysieren")
+def migration_analysieren(
+    ordner: str = typer.Option(None, help="Abweichender Quellordner (Standard: [pfade] migration)"),
+    ausfuehrlich: bool = typer.Option(False, "--ausfuehrlich", help="Alle Befunde auflisten"),
+) -> None:
+    """Bestandsdateien lesen und den Bericht zeigen, ohne etwas zu schreiben.
+
+    Der erste Schritt der Migration (PLAN §9). Zeigt Kontrollsummen, offene Zuordnungen und
+    alles, was in den Dateien auffällig ist. Die Datenbank wird dabei nicht angefasst.
+    """
+    from app.migration.uebernahme import analysieren
+
+    werte = _konfiguration_holen()
+    quelle = _migrationsordner(werte, ordner)
+    analyse = analysieren(quelle)
+    _analyse_ausgeben(analyse, ausfuehrlich=ausfuehrlich)
+
+
+@anwendung.command("migration-uebernehmen")
+def migration_uebernehmen(
+    ordner: str = typer.Option(None, help="Abweichender Quellordner (Standard: [pfade] migration)"),
+    offene_zulassen: bool = typer.Option(
+        False,
+        "--offene-zulassen",
+        help="Auch übernehmen, wenn Zuordnungen offen sind (deren Zahlungsplan fehlt dann)",
+    ),
+    ja: bool = typer.Option(False, "--ja", help="Ohne Rückfrage übernehmen"),
+) -> None:
+    """Bestandsdaten in die Datenbank übernehmen.
+
+    Läuft in einer Transaktion: entweder ganz oder gar nicht. Ein zweiter Lauf wird abgewiesen,
+    weil er alles doppelt anlegen würde.
+    """
+    from sqlalchemy import select
+
+    from app.datenbank import schreib_sitzung
+    from app.migration.uebernahme import MigrationFehler, analysieren, uebernehmen
+    from app.modelle import Firma
+
+    werte = _konfiguration_holen()
+    quelle = _migrationsordner(werte, ordner)
+    try:
+        analyse = analysieren(quelle)
+    except MigrationFehler as fehler:
+        _fachfehler_ausgeben(fehler)
+        raise typer.Exit(code=2) from fehler
+
+    _analyse_ausgeben(analyse, ausfuehrlich=False)
+    if analyse.vorschau.offene and not offene_zulassen:
+        typer.secho(
+            f"\n{len(analyse.vorschau.offene)} Zuordnungen sind offen. Sie lassen sich in der "
+            "Oberfläche entscheiden; für einen Lauf ohne diese Zahlungsplanpositionen "
+            "--offene-zulassen angeben.",
+            fg=typer.colors.YELLOW,
+            err=True,
+        )
+        raise typer.Exit(code=2)
+
+    if not ja:
+        typer.confirm("\nJetzt in die Datenbank übernehmen?", abort=True)
+
+    # schreib_sitzung öffnet die Schreibtransaktion selbst und nimmt sie bei einem Fehler
+    # zurück – die Übernahme geht damit ganz durch oder gar nicht.
+    try:
+        with schreib_sitzung() as sitzung:
+            firma_id = sitzung.scalar(select(Firma.id).order_by(Firma.id).limit(1))
+            if firma_id is None:
+                typer.secho(
+                    "In der Datenbank ist keine Firma angelegt.\n"
+                    "Nächster Schritt: 'ip3-leitstand seed' ausführen, dann erneut migrieren.",
+                    fg=typer.colors.RED,
+                    err=True,
+                )
+                raise typer.Exit(code=2)
+            bericht = uebernehmen(sitzung, analyse, firma_id, offene_zulassen=offene_zulassen)
+    except MigrationFehler as fehler:
+        _fachfehler_ausgeben(fehler)
+        raise typer.Exit(code=2) from fehler
+    _bericht_ausgeben(bericht)
+
+
+def _konfiguration_holen():
+    try:
+        return einstellungen()
+    except KonfigurationsFehler as fehler:
+        _fehler_ausgeben(fehler)
+        raise typer.Exit(code=2) from fehler
+
+
+def _fachfehler_ausgeben(fehler) -> None:
+    typer.secho(fehler.meldung, fg=typer.colors.RED, err=True)
+    if fehler.naechster_schritt:
+        typer.secho(f"Nächster Schritt: {fehler.naechster_schritt}", fg=typer.colors.RED, err=True)
+
+
+def _migrationsordner(werte, ordner: str | None):
+    from pathlib import Path
+
+    if ordner:
+        return Path(ordner)
+    if werte.pfade.migration is None:
+        typer.secho(
+            "Es ist kein Migrationsordner eingerichtet.\n"
+            "Nächster Schritt: in config.toml unter [pfade] den Eintrag migration auf den "
+            "Ordner mit den beiden Bestandsdateien setzen, oder --ordner angeben.",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=2)
+    return werte.pfade.migration
+
+
+def _analyse_ausgeben(analyse, *, ausfuehrlich: bool) -> None:
+    from decimal import Decimal
+
+    from app.formate import leistung
+    from app.geld import formatiere_euro
+
+    summen = analyse.kontrollsummen()
+    auftraege = summen["auftragsliste"]
+    projekte = summen["teamliste"]
+
+    typer.echo(f"Auftragsliste:  {auftraege['datei']}")
+    typer.echo(f"  Zeilen:       {auftraege['zeilen']}")
+    typer.echo(f"  Summe netto:  {formatiere_euro(int(auftraege['summe_netto_cent']))}")
+    typer.echo(
+        f"  davon gestellt: {formatiere_euro(int(auftraege['summe_gestellt_cent']))} "
+        f"in {auftraege['zeilen_gestellt']} Zeilen"
+    )
+    typer.echo("  Planmonate:")
+    for monat, cent in auftraege["summe_je_monat_cent"].items():
+        typer.echo(f"    {monat:<14}{formatiere_euro(int(cent)):>16}")
+
+    typer.echo(f"\nTeamliste:      {projekte['datei']}")
+    typer.echo(f"  Projekte:     {projekte['projekte']}")
+    typer.echo(
+        f"  Auftragswert: {formatiere_euro(int(projekte['summe_ab_wert_cent']))} "
+        f"({projekte['projekte_mit_ab_wert']} Projekte mit Wert)"
+    )
+    typer.echo(f"  PV-Leistung:  {leistung(Decimal(str(projekte['summe_pv_kwp'])))}")
+    typer.echo(f"  Status:       {projekte['anzahl_je_status']}")
+    typer.echo(f"  Meilensteine: {projekte['meilensteine']}")
+
+    zuordnung = summen["zuordnung"]
+    typer.echo("\nZuordnung Auftragsliste auf Projekte:")
+    typer.echo(f"  Kunden je Art: {zuordnung['kunden_je_art']}")
+    typer.echo(f"  Zeilen je Art: {zuordnung['zeilen_je_art']}")
+    typer.echo(
+        f"  offen:         {zuordnung['offen']} Kunden, "
+        f"{formatiere_euro(int(zuordnung['offen_betrag_cent']))}"
+    )
+
+    befunde = summen["befunde"]
+    typer.echo(f"\nBefunde: {befunde['warnung']} Warnung(en), {befunde['hinweis']} Hinweis(e)")
+    zu_zeigen = [b for b in analyse.befunde if ausfuehrlich or b.schwere == "warnung"]
+    for befund in zu_zeigen:
+        farbe = typer.colors.YELLOW if befund.schwere == "warnung" else None
+        typer.secho(f"  {befund.als_text()}", fg=farbe)
+
+    typer.secho(
+        "\nHinweis: die Summenzellen der Quelldateien rechnen falsch. Gerechnet wird über die "
+        "Datenzeilen; Einzelheiten im Importprotokoll.",
+        fg=typer.colors.YELLOW,
+    )
+    for eintrag in summen["summenfehler_der_quelldateien"]:
+        typer.echo(f"  {eintrag['datei']} {eintrag['zelle']}: {eintrag['fehler']}")
+
+
+def _bericht_ausgeben(bericht) -> None:
+    from app.geld import formatiere_euro
+
+    typer.echo("\nÜbernommen:")
+    typer.echo(f"  Kunden:            {bericht.kunden}")
+    typer.echo(f"  Projekte:          {bericht.projekte}")
+    typer.echo(f"  Meilensteine:      {bericht.meilensteine}")
+    typer.echo(
+        f"  Zahlungsplan:      {bericht.zahlungsplan} Positionen, "
+        f"{formatiere_euro(bericht.zahlungsplan_summe_cent)}"
+    )
+    typer.echo(f"  davon gestellt:    {bericht.zahlungsplan_gestellt}")
+    if bericht.projekte_ohne_auftragsjahr:
+        typer.echo(
+            f"  ohne Auftragsjahr: {bericht.projekte_ohne_auftragsjahr} "
+            "(Projektnummer im laufenden Jahr)"
+        )
+    if bericht.ab_luecken:
+        typer.echo(
+            f"\n{len(bericht.ab_luecken)} Projekte, deren Zahlungsplan nicht zum Auftragswert "
+            f"passt (gesamt {formatiere_euro(bericht.luecke_gesamt_cent)}):"
+        )
+        for eintrag in bericht.ab_luecken[:10]:
+            typer.echo(
+                f"  Projekt {eintrag['projekt_nr']}: Auftrag "
+                f"{formatiere_euro(int(eintrag['ab_wert_cent']))}, Plan "
+                f"{formatiere_euro(int(eintrag['zahlungsplan_cent']))}, Differenz "
+                f"{formatiere_euro(int(eintrag['differenz_cent']))}"
+            )
+        if len(bericht.ab_luecken) > 10:
+            typer.echo(f"  ... und {len(bericht.ab_luecken) - 10} weitere, siehe Importprotokoll")
+        typer.echo(
+            "  Die Auftragsliste führt nur die offenen Positionen; bei Altprojekten ist der "
+            "Rest in früheren Jahren berechnet worden."
+        )
+    if bericht.gewerk_abgeleitet:
+        typer.echo(
+            f"\n{len(bericht.gewerk_abgeleitet)} Positionen ohne Gewerk im Text – aus den "
+            "Anlagendaten abgeleitet, bitte in der Projektmaske nachsehen."
+        )
+    typer.echo(f"\nImportprotokoll: importlaeufe Nr. {bericht.importlauf_id}")
+
+
 @anwendung.command("openapi")
 def openapi_exportieren(
     ziel: str = typer.Option(None, help="Abweichender Zielpfad (Standard: backend/openapi.json)"),

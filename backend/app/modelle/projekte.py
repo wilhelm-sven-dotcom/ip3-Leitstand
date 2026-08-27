@@ -172,6 +172,15 @@ class Zahlungsplanposition(OptimistischMixin, ZeitstempelMixin, Base):
         ForeignKey("rechnungen.id"), nullable=True, index=True
     )
 
+    # Herkunft bei Positionen aus der Migration (PLAN §9): Datei und Zeile, damit ein Betrag
+    # später bis in die Quelldatei zurückverfolgbar bleibt.
+    quelle_migration: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Positionen des Altbestands, die laut Auftragsliste schon berechnet wurden. Es gibt dazu
+    # keinen Beleg im Leitstand – die Rechnungen wurden vor der Einführung gestellt. PLAN §6.7
+    # trennt „gestellt" von „bezahlt": das hier ist gestellt, der Zahlungsstatus kommt erst mit
+    # dem OPOS-Import. NULL heißt „keine Migrationsposition".
+    migriert_gestellt: Mapped[bool | None] = mapped_column(Boolean, nullable=True, index=True)
+
     projekt: Mapped[Projekt] = relationship(back_populates="zahlungsplan")
     rechnung: Mapped[Rechnung | None] = relationship(back_populates="zahlungsplan_positionen")
 
