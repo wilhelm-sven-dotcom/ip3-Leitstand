@@ -2,6 +2,66 @@
 
 Format: neueste Phase oben. Jede Phase endet lauffähig mit grüner Testsuite (PLAN §7).
 
+## 0.3.0 – Phase 2: Umsatz und Forecast
+
+Aus 280 Zahlungsplanpositionen wird eine Aussage: was ist abgerechnet, was steht noch aus, was ist
+vom Auftragsbestand offen. Menüpunkt **Umsatz & Forecast**, sichtbar mit `umsatz.lesen`.
+
+### Auswertung
+
+* **Jahresverlauf** mit zwölf Monaten – auch den leeren – als Ist und Plan. Ist heißt: berechnet
+  oder im Altbestand als gestellt gekennzeichnet (PLAN §6.7 trennt das von *bezahlt*).
+* **Unterminierte Positionen** stehen in keiner Monatssäule und trotzdem sichtbar: eigene Kachel,
+  eigene Zeile neben der Legende. Im Bestand sind das 689.698,50 €, darunter 12.342,06 €, die
+  bereits gestellt sind – Umsatz ohne Monat.
+* **Auftragsbestand** = Auftragswert plus beauftragte Nachträge minus dem, was schon abgerechnet
+  ist, je laufendem Projekt und in Summe (Entscheidung Svens). Überdeckungen werden nicht auf
+  null geklammert, sondern als „prüfen" ausgewiesen: dort stimmt der Auftragswert nicht.
+* **Filter** für Jahr, Status, Projektleiter und Gewerk, wie in der Projektliste. Die Werte sind
+  serverseitig als `Literal` deklariert – ein Tippfehler ergibt eine Meldung und nicht eine
+  stillschweigend leere Auswertung, die wie „kein Umsatz" aussieht.
+* Ein Jahr ohne Daten liefert zwölf leere Monate mit Status 200. Eine leere Auswertung ist eine
+  Auskunft, keine Störung.
+
+### Was die Seite ausdrücklich sagt
+
+* **Der Ist ist unvollständig.** Die Auftragsliste führte nur die offenen Positionen; vor der
+  Einführung bezahlte Rechnungen aus 2026 fehlen deshalb. Der Hinweis kommt vom Server und
+  verschwindet von selbst, sobald keine Altpositionen mehr im Ist stecken – ab Phase 3.
+* **Kachel und Diagramm sind nicht dieselbe Zahl.** Der Auftragsbestand rechnet über
+  Auftragswerte, der Forecast über Zahlungsplanpositionen; die Differenz steht als eigene Zeile
+  darunter.
+
+### Korrektur an der Migration
+
+19 der 87 laufenden Projekte hatten keinen Auftragswert, 9 davon mit 1.798.837,71 € offenen
+Positionen – 38 % des Bestands wären unsichtbar geblieben. Für die Zeilen ohne Rechnungsart, die
+PLAN §9 „Projektsummen" nennt, steht der Wert in der Quelle; die Migration übernimmt ihn jetzt
+mit Vermerk in der Herkunft. Trägt eine Zeile der Gruppe eine Rechnungsart, bleibt das Feld leer:
+eine Schlussrechnung ist der Rest eines größeren Auftrags, ihr Betrag wäre als Auftragswert eine
+Falschangabe. Im Abnahmelauf betrifft das 7 Projekte mit 1.767.000,00 €; ohne Wert bleiben
+`Breite Wiesen FF / Inbetriebnahme Schlussrechnung` und `Forster ENMAG Weiden - Schlussrechnung`.
+
+### Bemerkenswerte Funde beim Bau
+
+* **Die Monatssummen kamen versechsfacht heraus** (18 Mio. € statt 3 Mio. €) – dieselbe Ursache
+  wie in der Filterleiste der Projektliste: `select(spalten).select_from(basis.subquery())`
+  bezieht die Spalten auf die Tabelle statt auf die Unterabfrage und erzeugt ein Kreuzprodukt,
+  ohne dass etwas fehlschlägt. Gefunden haben es die von Hand gerechneten Testdaten; die
+  Abfragehilfe trägt den Grund jetzt als Kommentar.
+* **Die Jahresauswahl war eine Sackgasse.** Sie führte nur Jahre aus den Daten – im Bestand nur
+  2026. Wer im Dezember auf das nächste Jahr schauen will, wäre nicht hingekommen.
+
+### Abnahme (PLAN §7 Phase 2: „Monatssummen entsprechen einer manuellen Stichprobe")
+
+Die Monatssummen wurden **unabhängig** aus `Offene_Auftraege_2025.xlsx` nachgerechnet – die
+Markerspalten direkt gelesen, nicht über den Importer. Sie stimmen Monat für Monat, Ist und Plan
+getrennt: 280 Zeilen, 150 gestellt, 3.826.937,38 € netto; Ist 862.152,24 €, Plan 2.964.785,14 €;
+Juli 226.302,01 € (die Datei selbst weist an ihrer Kopfzeile falsch 360.813,53 € aus), November
+1.261.894,53 €, ohne Monat 689.698,50 €. Auftragsbestand 4.661.559,76 €.
+
+Tests: 684 im Backend, 105 im Frontend.
+
 ## 0.2.0 – Phase 1: Bestandsdaten und Stammdatenmasken
 
 Der Leitstand kennt jetzt den Bestand: 484 Kunden, 539 Projekte, 5.848 Termine und 280

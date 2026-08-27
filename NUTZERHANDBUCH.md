@@ -1,10 +1,10 @@
 # Nutzerhandbuch ip³ Leitstand
 
-Kurzanleitung je Rolle. Wird mit jeder Phase erweitert. Stand: Phase 1.
+Kurzanleitung je Rolle. Wird mit jeder Phase erweitert. Stand: Phase 2.
 
 Vorhanden sind Anmeldung, Startseite mit Datenstand, Passwortwechsel, die Übernahme der
-Bestandsdaten und die Masken für Kunden, Projekte, Termine und Zahlungsplan. Fakturierung,
-Umsatzübersicht und Nachkalkulation folgen mit den Phasen 2 bis 6.
+Bestandsdaten, die Masken für Kunden, Projekte, Termine und Zahlungsplan sowie Umsatz und
+Forecast. Fakturierung, Nachkalkulation und Firmen-Cockpit folgen mit den Phasen 3 bis 6.
 
 ## Anmelden
 
@@ -108,6 +108,44 @@ egal. Kunden werden **nicht gelöscht**, sondern auf „inaktiv" gesetzt: an ihn
 und später Rechnungen. Ansprechpartner dürfen entfernt werden.
 
 Die Kundennummer vergibt der Leitstand fortlaufend ab 10001.
+
+## Umsatz & Forecast
+
+**Menü → Umsatz & Forecast.** Sichtbar für Geschäftsführung und Buchhaltung.
+
+Oben vier Kacheln: **Ist** des gewählten Jahres, **Plan Restjahr** (ab dem laufenden Monat – was
+noch kommt), **Auftragsbestand** und **unterminiert**. Darunter der Jahresverlauf: gefüllte Balken
+sind Ist, Konturen sind Plan; ein Monat kann beides tragen. Die Tabelle darunter nennt die Zahlen
+je Monat, das Diagramm zeigt den Verlauf.
+
+**Ist heißt abgerechnet, nicht bezahlt.** Dazu zählen die Rechnungen des Leitstands (ab Phase 3)
+und die Positionen, die der Altbestand als „gestellt" führt. Der Zahlungsstatus kommt erst mit dem
+Abgleich der offenen Posten in Phase 5.
+
+**Der Ist ist zurzeit unvollständig**, und die Seite sagt das über dem Diagramm: die
+Auftragsliste führte nur die **offenen** Positionen. Rechnungen, die vor der Einführung des
+Leitstands schon bezahlt waren, stehen dort nicht und fehlen deshalb im Verlauf. Das ändert sich
+mit Phase 3 (eigene Belege) und Phase 4 (Abgleich mit DATEV).
+
+**Unterminierte Positionen** haben keinen Planmonat. Sie stehen in keiner Säule – sonst wäre der
+Verlauf falsch – und deshalb in einer eigenen Kachel. Wer sie terminieren will: im Projekt den
+Zahlungsplan öffnen und einen Planmonat setzen.
+
+### Auftragsbestand
+
+Auftragswert plus beauftragte Nachträge minus dem, was schon abgerechnet ist – je laufendem
+Projekt (Status „Beauftragt" und „In Bau"). Die Tabelle zeigt die 25 größten Posten und klappt auf
+Wunsch auf alle auf; ein Klick öffnet das Projekt.
+
+Zwei Zahlen darüber, die verschieden sind und verschieden bleiben sollen:
+
+* **Offen** ist der Auftragsbestand.
+* **Im Zahlungsplan verplant** ist die Summe der offenen Positionen.
+
+Die Differenz heißt „noch nicht verplant": bei den übernommenen Altprojekten der Normalfall, weil
+die Auftragsliste nur die offenen Abschläge führte. Zwei Hinweise unter der Tabelle nennen die
+Projekte, bei denen etwas nachzutragen ist – ohne Auftragswert, oder mehr abgerechnet als
+beauftragt.
 
 ## Bestandsdaten übernehmen
 

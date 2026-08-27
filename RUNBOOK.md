@@ -288,6 +288,7 @@ steht die Datenbank unverändert da – auch das Importprotokoll ist dann leer.
 | Importprotokoll lesen (Startseite → Datenstand, oder `importlaeufe`) | Dort stehen die Befunde: unlesbare Beträge, abgeleitete Gewerke, Projekte ohne Auftragsjahr. |
 | Projekte mit unvollständigem Zahlungsplan ansehen | Die Auftragsliste führt nur die **offenen** Positionen. Bei Altprojekten fehlt der in früheren Jahren berechnete Teil; die Differenz wird ausgewiesen und nicht durch eine erfundene Position geschlossen. |
 | Anlagenart je Projekt prüfen | Aufdach, Speicher und Ladestation leitet der Import aus den Anlagendaten ab. Ob eine Anlage auf einer **Freifläche** steht, sagt keine Spalte – das ist in der Projektmaske nachzutragen. |
+| Projekte ohne Auftragswert nachtragen | Die Seite **Umsatz & Forecast** listet sie unter der Bestandstabelle. Ohne Auftragswert zählt ein Projekt nicht zum Auftragsbestand. Betroffen sind die Zeilen, deren Auftragswert in der Teamliste fehlt oder unlesbar war, sowie Schlussrechnungen aus der Auftragsliste ohne Gegenstück. |
 
 ### Erwartete Zahlen (Abnahmelauf vom 27.08.2026)
 
@@ -329,6 +330,9 @@ und fängt genau die Fehler, die niemand im Protokoll sucht.
 | 17 | Als Rolle `team` die Projektliste öffnen | Keine Spalte „Auftragswert", kein Auftragsvolumen in der Kopfzeile, kein Knopf „Neues Projekt" |
 | 18 | Als Rolle `team` `/api/projekte/<nr>` direkt aufrufen | `ab_wert_netto: null`, `zahlungsplan: []` – die Werte fehlen in der Antwort, nicht nur in der Anzeige |
 | 19 | Bei einer migriert-gestellten Zahlungsplanposition den Betrag ändern | Meldung mit dem Weg zur Rücknahme; nach der Rücknahme ist die Position bearbeitbar, beides steht im Änderungsprotokoll |
+| 20 | Umsatz & Forecast öffnen | Vier Kacheln, Hinweis zum unvollständigen Ist über dem Diagramm, zwölf Monate im Verlauf – auch die leeren |
+| 21 | Ein Jahr ohne Daten wählen (z. B. das nächste) | Zwölf leere Monate, Kacheln auf 0,00 €, keine Fehlermeldung |
+| 22 | Als Rolle `team` `/umsatz` aufrufen | Kein Menüpunkt „Umsatz & Forecast"; `/api/umsatz/monate` antwortet 403 |
 
 ## 11. Was in späteren Phasen dazukommt
 

@@ -77,6 +77,18 @@ Mockups zum Ansehen einfach im Browser öffnen.
     Rücknahme des Kennzeichens „gestellt" ist ein eigener Knopf mit Rückfrage – kein
     Nebeneffekt des Speicherns.
 
+14. **Für „Umsatz & Forecast" gibt es kein Mockup.** Die Seite entsteht im Duktus von
+    Projektliste (Filterleiste, Datentabelle) und Firmen-Cockpit (Kachelreihe, Monatsbalken).
+    Neu ist eine **gestapelte** Variante der Monatsbalken: Ist gefüllt, Plan als Kontur darüber,
+    Gesamthöhe Ist plus Plan. Das Designsystem kennt „Ist gefüllt, Plan Kontur" für Monate, die
+    entweder das eine oder das andere sind; in den echten Daten trägt ein Monat beides (Februar
+    2026: 8.840,00 € Ist und 7.557,88 € Plan). Zwei Balken nebeneinander wären 24 Säulen für
+    zwölf Monate – gestapelt bleibt die Bildsprache erhalten und der Monat lesbar.
+15. **Was nicht im Diagramm steht, steht daneben.** Positionen ohne Planmonat gehören in keine
+    Monatssäule. Sie stehen deshalb in einer eigenen Kachel und noch einmal in Akzent-Rot neben
+    der Legende („Nicht im Verlauf: 689.698,50 € ohne Planmonat"). Eine Fußnote unter dem
+    Diagramm hätte dieselbe Information und würde nicht gelesen.
+
 ## Prüfliste vor dem Abschluss einer Frontend-Änderung
 
 - Farben ausschließlich über die Token-Variablen, kein Grün, keine Verläufe.

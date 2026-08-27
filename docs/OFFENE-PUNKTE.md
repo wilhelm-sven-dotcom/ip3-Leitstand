@@ -32,6 +32,23 @@ nicht übernommen.
 | 10 | Firmen im Rechnungskopf | **Nur ip³ Energietechnik GmbH, Theisseil.** Eine zweite Gesellschaft kann die Tabelle `firmen` später ohne Schemaänderung aufnehmen. |
 | 11 | Lücke zwischen AB-Wert und Summe des Zahlungsplans bei Altprojekten (die Auftragsliste führt nur die offenen Positionen; Beispiel KMV Medi Center: 5.303,95 € Plan gegen 154.070,64 € AB-Wert) | **Lücke ausweisen, nicht füllen.** Importiert wird nur, was in der Datei steht; das Importprotokoll listet die Differenz je Projekt. Keine Sammelposition, die es als Rechnung nie gab, und kein Umsatz ohne Belegbezug. |
 
+## Entschieden für Phase 2 (27.08.2026)
+
+| # | Frage | Entscheidung |
+|---|---|---|
+| 12 | Der Umsatz-Ist besteht in Phase 2 nur aus den 150 gestellten Altpositionen (862.152,24 €). Die Auftragsliste führte aber nur die **offenen** Positionen – vor der Einführung bezahlte Rechnungen aus 2026 fehlen darin und damit im Ist. | **Ist zeigen und die Lücke benennen.** Über dem Diagramm steht ein Hinweis, der vom Server kommt und verschwindet, sobald keine Altpositionen mehr im Ist stecken. Vollständig wird der Ist mit Phase 3 (eigene Belege) und dem DATEV-Abgleich in Phase 4. |
+| 13 | „Offener Auftragsbestand" (PLAN §7 Phase 2) – Summe der offenen Zahlungsplanpositionen oder Auftragswert minus Gestelltes? | **Auftragswert plus beauftragte Nachträge minus dem, was schon abgerechnet ist**, je laufendem Projekt (`beauftragt`, `in_bau`). Die Differenz zur Summe der offenen Positionen steht als eigene Zeile darunter – bei den Altprojekten führte die Auftragsliste nur die offenen Abschläge. |
+| 14 | Abschlagsvorschläge (PLAN §6.8) schon in Phase 2? | **Erst mit Phase 3.** Ein Vorschlag, aus dem sich keine Rechnung erzeugen lässt, ist eine Liste ohne Knopf. |
+
+**Was mit Entscheidung 13 aufgefallen ist:** 19 der 87 laufenden Projekte hatten keinen
+Auftragswert, 9 davon mit 1.798.837,71 € offenen Positionen. Für die Zeilen ohne Rechnungsart, die
+PLAN §9 „Projektsummen" nennt, steht der Wert in der Quelle – die Migration übernimmt ihn jetzt
+(7 Projekte, 1.767.000,00 €). Ohne Wert bleiben `Breite Wiesen FF / Inbetriebnahme
+Schlussrechnung` (25.000,00 €) und `Forster ENMAG Weiden - Schlussrechnung - PV` (6.837,71 €):
+eine Schlussrechnung ist der Rest eines größeren Auftrags, ihr Betrag wäre als Auftragswert eine
+Falschangabe. **Diese beiden und die 10 Teamlisten-Projekte mit unlesbarem Auftragswert stehen auf
+der Umsatzseite unter der Bestandstabelle und sind nachzutragen.**
+
 ## Befunde in den Quelldateien, die Sven kennen sollte
 
 Beide Dateien rechnen an ihren Kopfzeilen falsch. Der Importer rechnet die Kontrollsummen selbst

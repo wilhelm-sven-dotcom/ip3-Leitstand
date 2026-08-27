@@ -24,6 +24,11 @@ Alle Daten bleiben lokal beziehungsweise im Firmen-OneDrive.
 
 ## Stand
 
+**Phase 2 – Umsatz und Forecast.** Neu: die Seite **Umsatz & Forecast** mit Jahresverlauf (Ist und
+Plan je Monat), unterminierten Positionen, offenem Auftragsbestand je Projekt und Filtern für
+Jahr, Status, Projektleiter und Gewerk. Die Monatssummen sind gegen eine unabhängig aus der
+Auftragsliste gerechnete Stichprobe geprüft (PLAN §7).
+
 **Phase 1 – Bestandsdaten und Stammdatenmasken.** Auf dem Fundament aus Phase 0 (Anmeldung,
 Berechtigungen, Datenbankschema, Systemstatus, nächtliches Backup, Designsystem) stehen jetzt die
 Übernahme der beiden bisher geführten Excel-Dateien mit Zuordnungsmaske und Importprotokoll sowie
