@@ -622,3 +622,141 @@
   margin-top: var(--abstand-1);
   font-weight: 400;
 }
+
+/* ---------------------------------------------------------------- Seitenpanel -------------- */
+
+/* Der Schleier dunkelt den Hintergrund nur leicht ab – schwächer als --overlay hinter einem
+   Dialog. Das Panel soll neben der Liste stehen, nicht vor ihr: der Zusammenhang ist der
+   Grund, warum es ein Panel und kein eigener Bildschirm ist. */
+.panel-schleier {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 26, 61, 0.18);
+  z-index: 40;
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 420px;
+  max-width: 100vw;
+  background: var(--weiss);
+  border-left: 1px solid var(--linie);
+  box-shadow: var(--schatten-panel);
+  display: flex;
+  flex-direction: column;
+  z-index: 41;
+}
+
+.panel__kopf {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--abstand-3);
+  padding: var(--abstand-4) var(--abstand-5);
+  border-bottom: 1px solid var(--linie);
+}
+
+.panel__titel {
+  margin: 0;
+  font-size: var(--text-l);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ip3-blau);
+}
+
+.panel__meta {
+  margin-top: var(--abstand-1);
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.panel__schliessen {
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  padding: 2px 6px;
+  cursor: pointer;
+  color: var(--text-sekundaer);
+  border-radius: var(--radius-s);
+}
+
+.panel__schliessen:hover {
+  background: var(--flaeche-info);
+  color: var(--text);
+}
+
+.panel__schliessen:focus-visible {
+  outline: none;
+  box-shadow: var(--fokus);
+}
+
+.panel__inhalt {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--abstand-5);
+}
+
+.panel__fuss {
+  display: flex;
+  gap: var(--abstand-2);
+  justify-content: flex-end;
+  padding: var(--abstand-3) var(--abstand-5);
+  border-top: 1px solid var(--linie);
+  background: var(--flaeche-info);
+}
+
+/* ---------------------------------------------------------------- Auswahlliste -------------- */
+
+/* Liste zum Auswählen im Seitenpanel. Jeder Eintrag trägt eine zweite Zeile mit den Angaben,
+   an denen sich gleichnamige Datensätze unterscheiden – ohne sie ist die Auswahl ein Rätsel. */
+.waehler {
+  list-style: none;
+  margin: var(--abstand-4) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--linie);
+}
+
+.waehler__eintrag {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid var(--linie);
+  background: transparent;
+  padding: var(--abstand-3) var(--abstand-2);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.waehler__eintrag:hover {
+  background: var(--zeile-hover);
+}
+
+.waehler__eintrag:focus-visible {
+  outline: none;
+  box-shadow: var(--fokus);
+}
+
+.waehler__name {
+  display: block;
+  font-size: var(--text-m);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.waehler__meta {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.waehler__hinweis {
+  margin: var(--abstand-3) 0 0;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}

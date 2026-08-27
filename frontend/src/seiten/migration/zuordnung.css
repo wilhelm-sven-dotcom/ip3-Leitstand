@@ -1,0 +1,144 @@
+/* Zuordnungsmaske der Bestandsübernahme (design/Projektliste.dc.html als Duktus).
+   Ruhige Liste, kein Assistent mit Schritten: die Entscheidungen hängen nicht voneinander ab,
+   und eine Tabelle lässt sich überblicken. */
+
+.kpi-reihe {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--abstand-4);
+  margin: var(--abstand-5) 0;
+}
+
+.zuordnung__karte {
+  margin-bottom: var(--abstand-5);
+}
+
+.zuordnung__fortschritt {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  font-variant-numeric: tabular-nums;
+}
+
+.zuordnung__kunde {
+  display: block;
+  font-weight: 600;
+}
+
+.zuordnung__zeilen {
+  display: block;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.zuordnung__fest {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.zuordnung__entscheidung {
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-1);
+}
+
+.zuordnung__auswahl {
+  width: 100%;
+  font-family: var(--font-ui);
+  font-size: var(--text-m);
+  padding: 6px 8px;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-m);
+  background: var(--weiss);
+  color: var(--text);
+}
+
+.zuordnung__auswahl:focus-visible {
+  outline: none;
+  box-shadow: var(--fokus);
+}
+
+.zuordnung__hinweis {
+  font-size: var(--text-s);
+  color: var(--akzent-rot);
+}
+
+/* Die Fußzeile bleibt am unteren Rand stehen: bei 49 Zeilen wäre der Übernehmen-Knopf sonst
+   außer Sicht, und der Fortschritt ist genau dann interessant, wenn man scrollt. */
+.zuordnung__fuss {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--abstand-4);
+  flex-wrap: wrap;
+  padding: var(--abstand-3) var(--abstand-4);
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  box-shadow: 0 -4px 12px rgba(12, 26, 61, 0.06);
+}
+
+.zuordnung__fussmeldung {
+  font-size: var(--text-m);
+  color: var(--text-sekundaer);
+}
+
+.zuordnung__erklaerung {
+  margin: 0 0 var(--abstand-4);
+  font-size: var(--text-m);
+  color: var(--text-sekundaer);
+  max-width: 70ch;
+}
+
+.summenfehler {
+  margin: var(--abstand-2) 0 0;
+  padding-left: var(--abstand-5);
+  font-size: var(--text-s);
+}
+
+.summenfehler li {
+  margin-bottom: 2px;
+}
+
+/* Befundliste: Ort, Meldung, Originalinhalt. Der Originalinhalt gehört dazu – ohne ihn muss
+   jemand die Datei aufmachen, um zu verstehen, was gemeint ist. */
+.befunde {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.befunde__eintrag {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 2px var(--abstand-3);
+  padding: var(--abstand-2) 0;
+  border-bottom: 1px solid var(--linie);
+  font-size: var(--text-s);
+}
+
+.befunde__ort {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-sekundaer);
+}
+
+.befunde__eintrag--warnung .befunde__ort {
+  color: var(--akzent-rot);
+  font-weight: 600;
+}
+
+.befunde__meldung {
+  color: var(--text);
+}
+
+.befunde__wert {
+  grid-column: 2;
+  color: var(--text-sekundaer);
+}
+
+.lademeldung {
+  color: var(--text-sekundaer);
+  font-size: var(--text-m);
+}

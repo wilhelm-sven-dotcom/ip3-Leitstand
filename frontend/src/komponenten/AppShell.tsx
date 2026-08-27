@@ -10,53 +10,85 @@
  * Anfang an sichtbar, wohin der Leitstand wächst, ohne dass jemand ins Leere klickt.
  */
 
-import type { ReactNode } from 'react'
-import { NavLink } from 'react-router-dom'
-import wortmarke from '@cd/logos/ip3-energietechnik-farbig.svg'
-import { useSitzung } from '@/sitzung/SitzungKontext'
-import './appshell.css'
+import type { ReactNode } from "react";
+import { NavLink } from "react-router-dom";
+import wortmarke from "@cd/logos/ip3-energietechnik-farbig.svg";
+import { useSitzung } from "@/sitzung/SitzungKontext";
+import "./appshell.css";
 
 type Menuepunkt = {
-  pfad: string
-  beschriftung: string
+  pfad: string;
+  beschriftung: string;
   /** Ohne diese Berechtigung ist der Punkt nicht sichtbar. */
-  recht?: string
+  recht?: string;
   /** Ab welcher Phase es die Seite gibt; bis dahin ohne Verweis. */
-  abPhase?: number
-}
+  abPhase?: number;
+};
 
-const AKTUELLE_PHASE = 0
+const AKTUELLE_PHASE = 1;
 
 export const MENUE: Menuepunkt[] = [
-  { pfad: '/', beschriftung: 'Start' },
-  { pfad: '/projekte', beschriftung: 'Projekte', recht: 'projekte.lesen', abPhase: 1 },
+  { pfad: "/", beschriftung: "Start" },
   {
-    pfad: '/fakturierung',
-    beschriftung: 'Fakturierung',
-    recht: 'rechnungen.lesen',
+    pfad: "/projekte",
+    beschriftung: "Projekte",
+    recht: "projekte.lesen",
+    abPhase: 1,
+  },
+  {
+    pfad: "/fakturierung",
+    beschriftung: "Fakturierung",
+    recht: "rechnungen.lesen",
     abPhase: 3,
   },
-  { pfad: '/umsatz', beschriftung: 'Umsatz & Forecast', recht: 'umsatz.lesen', abPhase: 2 },
   {
-    pfad: '/nachkalkulation',
-    beschriftung: 'Nachkalkulation',
-    recht: 'nachkalkulation.lesen',
+    pfad: "/umsatz",
+    beschriftung: "Umsatz & Forecast",
+    recht: "umsatz.lesen",
+    abPhase: 2,
+  },
+  {
+    pfad: "/nachkalkulation",
+    beschriftung: "Nachkalkulation",
+    recht: "nachkalkulation.lesen",
     abPhase: 4,
   },
-  { pfad: '/cockpit', beschriftung: 'Firmen-Cockpit', recht: 'cockpit.lesen', abPhase: 5 },
-  { pfad: '/service', beschriftung: 'Service & Anlagen', recht: 'anlagen.lesen', abPhase: 6 },
-  { pfad: '/importe', beschriftung: 'Importe & Daten', recht: 'importe.ausfuehren', abPhase: 1 },
-  { pfad: '/administration', beschriftung: 'Administration', recht: 'admin.nutzer', abPhase: 1 },
-]
+  {
+    pfad: "/cockpit",
+    beschriftung: "Firmen-Cockpit",
+    recht: "cockpit.lesen",
+    abPhase: 5,
+  },
+  {
+    pfad: "/service",
+    beschriftung: "Service & Anlagen",
+    recht: "anlagen.lesen",
+    abPhase: 6,
+  },
+  {
+    pfad: "/importe/migration",
+    beschriftung: "Importe & Daten",
+    recht: "importe.ausfuehren",
+    abPhase: 1,
+  },
+  // Nutzerverwaltung in der Oberfläche kommt später; in Phase 1 legt die Kommandozeile
+  // die Konten an (RUNBOOK, Schritt 8a).
+  {
+    pfad: "/administration",
+    beschriftung: "Administration",
+    recht: "admin.nutzer",
+    abPhase: 7,
+  },
+];
 
 type Props = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
 export function AppShell({ children }: Props) {
-  const { nutzer, darf, abmelden } = useSitzung()
+  const { nutzer, darf, abmelden } = useSitzung();
 
-  const sichtbar = MENUE.filter((punkt) => !punkt.recht || darf(punkt.recht))
+  const sichtbar = MENUE.filter((punkt) => !punkt.recht || darf(punkt.recht));
 
   return (
     <div className="huelle">
@@ -67,7 +99,8 @@ export function AppShell({ children }: Props) {
 
         <nav className="sidebar__menue" aria-label="Hauptmenü">
           {sichtbar.map((punkt) => {
-            const kommtNoch = punkt.abPhase !== undefined && punkt.abPhase > AKTUELLE_PHASE
+            const kommtNoch =
+              punkt.abPhase !== undefined && punkt.abPhase > AKTUELLE_PHASE;
             if (kommtNoch) {
               return (
                 <span
@@ -77,27 +110,33 @@ export function AppShell({ children }: Props) {
                 >
                   {punkt.beschriftung}
                 </span>
-              )
+              );
             }
             return (
               <NavLink
                 key={punkt.pfad}
                 to={punkt.pfad}
-                end={punkt.pfad === '/'}
+                end={punkt.pfad === "/"}
                 className={({ isActive }) =>
-                  isActive ? 'sidebar__punkt sidebar__punkt--aktiv' : 'sidebar__punkt'
+                  isActive
+                    ? "sidebar__punkt sidebar__punkt--aktiv"
+                    : "sidebar__punkt"
                 }
               >
                 {punkt.beschriftung}
               </NavLink>
-            )
+            );
           })}
         </nav>
 
         <div className="sidebar__fuss">
           <div className="sidebar__nutzer">{nutzer?.name}</div>
-          <div className="sidebar__rolle">{nutzer?.rollen.join(', ')}</div>
-          <button type="button" className="sidebar__abmelden" onClick={() => void abmelden()}>
+          <div className="sidebar__rolle">{nutzer?.rollen.join(", ")}</div>
+          <button
+            type="button"
+            className="sidebar__abmelden"
+            onClick={() => void abmelden()}
+          >
             Abmelden
           </button>
         </div>
@@ -113,5 +152,5 @@ export function AppShell({ children }: Props) {
         <main className="inhalt__flaeche">{children}</main>
       </div>
     </div>
-  )
+  );
 }
