@@ -2,6 +2,115 @@
 
 Format: neueste Phase oben. Jede Phase endet lauffähig mit grüner Testsuite (PLAN §7).
 
+## 0.4.0 – Phase 3: Fakturierung
+
+Der Leitstand stellt Rechnungen. Menüpunkt **Fakturierung**, sichtbar mit `rechnungen.lesen`.
+Der Weg aus PLAN §10 ist durchgängig: Entwurf → PDF-Vorschau → Festschreibung mit Nummer, Hash
+und Sperre → Ablage von PDF und XML in `01_Rechnungen`.
+
+### Belegarten
+
+* **Auftragsbestätigung** aus Projekt und Zahlungsplan, eigener Kreis `AB-JJJJ-NNNN`. Keine
+  Rechnung: kein Leistungszeitraum als Pflichtfeld, keine Bankverbindung auf dem Papier, und der
+  Zahlungsplan wird nicht gesperrt.
+* **Abschlagsrechnung** aus einer Zahlungsplanposition, mit laufender Nummer im Titel
+  („3. Abschlagsrechnung") wie in der bisherigen Word-Vorlage.
+* **Schlussrechnung** mit Absetzungsblock nach § 14 Abs. 5 UStG. Die Gesamtleistung wird aus
+  Auftragswert und beauftragten Nachträgen vorbelegt, jeder festgeschriebene Abschlag einzeln mit
+  Nummer, Datum, Netto und darauf entfallender Umsatzsteuer abgesetzt, der Restbetrag ausgewiesen.
+  Es gibt keinen Weg, sie ohne diesen Block zu erzeugen – eine fehlende Absetzung wäre ein
+  unrichtiger Steuerausweis (§ 14c UStG).
+* **Servicerechnung** mit freien Positionen, eigener Kreis `SR-JJJJ-NNNN`, mit oder ohne Projekt.
+* **Storno** als eigener Beleg mit eigener Nummer und Negativbeträgen; er setzt das Original auf
+  „storniert" und gibt dessen Zahlungsplanpositionen wieder frei. **Gutschrift** korrigiert
+  teilweise und lässt das Original gültig (PLAN §6.14).
+
+### Festschreibung (PLAN §6.4)
+
+* Die Nummer wird **erst** dabei vergeben, in derselben Schreibtransaktion. Ein verworfener
+  Entwurf hinterlässt keine Lücke, ein Fehler beim Rendern rollt die Nummer zurück. Der
+  Jahresbezug kommt aus dem Belegdatum: ein Beleg vom 31.12. gehört in den Kreis des alten Jahres.
+* Nummer, Summen, Steueraufteilung, Kundensnapshot, Ablagepfade, SHA-256-Hash und Zeitstempel
+  stehen in **einem** UPDATE – danach sperrt der Datenbank-Trigger jede weitere Änderung.
+* Zehn gleichzeitige Festschreibungen ergeben zehn lückenlose Nummern (Test mit Threads).
+* **Alles Fehlende auf einmal:** ein unvollständiger Beleg wird mit einer Aufzählung abgewiesen,
+  nicht Feld für Feld. Nach der Festschreibung kostet jede Nachbesserung einen Stornobeleg.
+* Scheitert nur die Ablage, bleibt der Beleg gültig; die Meldung sagt das, und
+  „Ablage wiederholen" holt sie nach. Der Hash deckt die Belegdaten ab, nicht die PDF-Bytes.
+
+### Rechnungs-PDF im ip³-Corporate-Design
+
+Wortmarke, 2-pt-Linie in ip³ Blau, Überschrift mit rotem Satzendpunkt, Positionstabelle mit
+blauem Kopf und Zebrastreifen, Beträge in Space Grotesk mit Tabellenziffern, dreispaltige Fußzeile
+mit den Pflichtangaben auf **jeder** Seite. Kein Zeichen 3 – die CD-Regel schließt das
+Wasserzeichen auf zahlenlastigen Flächen aus. Anschreiben, Zahlungsbedingung und Grußformel stehen
+als Textbausteine in `config.toml`, wörtlich aus der Word-Vorlage übernommen.
+
+### E-Rechnung (PLAN §6.3)
+
+Kunden mit `typ='b2b'` und einem Bruttobetrag über der Kleinbetragsgrenze bekommen ein PDF/A-3
+mit eingebettetem Factur-X-XML im Profil EN 16931, dazu dieselbe XML-Datei einzeln im
+Rechnungsordner. Der Absetzungsblock geht als Anzahlung (BT-113) ein, der Zahlbetrag (BT-115) ist
+damit der Restbetrag – dieselbe Zahl wie auf dem Papier. 0 % bekommt einen Befreiungsgrund
+(§ 12 Abs. 3 UStG als Kategorie Z, § 13b UStG als AE); ohne Grund weist EN 16931 einen Umsatz mit
+0 % zurück.
+
+### Oberfläche
+
+* **Belegliste** mit Filtern für Jahr, Belegart, Status und Suche; Netto und Zahlbetrag
+  nebeneinander, weil das bei einer Schlussrechnung zwei verschiedene Zahlen sind.
+* **Belegdetail** mit Kopfdaten, Positionen, Summenblock, Absetzungsblock, Steuerhinweisen und
+  PDF-Vorschau. Gerechnet wird dort nichts: die Anzeige ordnet die Werte des Servers an.
+* **Festschreiben-Dialog** nach `design/Festschreiben.dc.html`: Zusammenfassung, roter Hinweis auf
+  die Unumkehrbarkeit, Knopf erst nach dem Bestätigungshaken frei.
+* **Am Projekt** trägt jede Zahlungsplanposition den Weg zur Rechnung – Knopf oder Verweis auf den
+  Beleg – dazu „Schlussrechnung erzeugen" und die Belegliste des Projekts.
+* **Abschlagsvorschläge auf der Startseite** (PLAN §6.8): eine Position mit gesetztem Auslöser,
+  deren Meilenstein erledigt ist. Nur Vorschlag, nie Automatikversand.
+
+### Zwei Fehler, die der Abnahmelauf zutage brachte
+
+* Jinja escapte die eingebundenen CSS-Blöcke; WeasyPrint verwarf die `@font-face`-Regeln
+  stillschweigend und setzte den Beleg in DejaVu Serif. Ein Test liest jetzt die eingebetteten
+  Schriftnamen aus dem fertigen PDF.
+* Die Fußzeile stand als `running element` am Dokumentende und erschien nur auf der letzten Seite.
+  Ein mehrseitiger Beleg hätte seine Pflichtangaben auf Seite 1 verloren.
+
+### Vor der ersten Rechnung an einen Bestandskunden
+
+Die Teamliste führt **keine Anschriften**: von 484 übernommenen Kunden hat keiner Straße und PLZ,
+454 haben einen Ort. § 14 UStG verlangt die vollständige Anschrift, deshalb weist die
+Festschreibung einen solchen Beleg ab – mit einer Meldung, die sagt, was fehlt. Die Anschrift
+gehört vor der ersten Rechnung in die Kundenmaske. Ebenso das Kennzeichen Privat- oder
+Geschäftskunde: die Migration setzt `b2c`, und davon hängt ab, ob eine E-Rechnung entsteht.
+
+### Entscheidungen Svens
+
+* Neuer Nummernkreis `RE-JJJJ-NNNN` statt der Fortführung von `PV-ET JJ-NNNN`; der Wechsel steht
+  mit Datum und Grund in `VERFAHRENSDOKU.md`.
+* Für Projekte mit Abschlägen aus dem Altbestand erzeugt der Leitstand **keine** Schlussrechnung:
+  zu ihnen fehlen Nummer, Datum und Steuersatz, der Absetzungsblock wäre unvollständig. Im Bestand
+  sind das 28 der 87 laufenden Projekte. Abschlagsrechnungen bleiben dort möglich.
+* Rechnungslayout neu im ip³-CD, Texte aus der Word-Vorlage.
+
+### Korrektur
+
+§ 14 Abs. 4 Nr. 2 UStG verlangt die Steuernummer **oder** die USt-IdNr., nicht beides. Die
+Konfigurationsprüfung forderte bisher beides und hätte die Fakturierung ohne Rechtsgrund
+blockiert.
+
+### Grenze, die benannt gehört
+
+Das XML wird gegen das EN-16931-XSD geprüft – Struktur, nicht die Geschäftsregeln (BR-*, BR-DE-*).
+Eine vollständige Schematron-Prüfung braucht die KoSIT-Werkzeuge und damit Java; sie läuft nicht
+in der Testsuite. Die Abnahmeliste im RUNBOOK sieht dafür eine Prüfung von Hand vor.
+
+### Zahlen
+
+905 Pytests und 122 Vitests grün. Neue Abhängigkeiten: `weasyprint`, `jinja2`, `drafthorse`.
+
+---
+
 ## 0.3.0 – Phase 2: Umsatz und Forecast
 
 Aus 280 Zahlungsplanpositionen wird eine Aussage: was ist abgerechnet, was steht noch aus, was ist

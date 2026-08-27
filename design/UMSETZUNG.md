@@ -89,6 +89,32 @@ Mockups zum Ansehen einfach im Browser öffnen.
     der Legende („Nicht im Verlauf: 689.698,50 € ohne Planmonat"). Eine Fußnote unter dem
     Diagramm hätte dieselbe Information und würde nicht gelesen.
 
+16. **Für die Belegliste und das Belegdetail gibt es kein Mockup**, nur für den
+    Festschreiben-Dialog (`Festschreiben.dc.html`). Die Liste folgt der Projektliste
+    (Filterleiste über der Datentabelle, Zahlen rechtsbündig, Zeile öffnet das Detail), das
+    Detail dem Projektdetail (Kopfdaten als Beschreibungsliste, Abschnitte mit blauer
+    Zwischenüberschrift). **Netto und Zahlbetrag stehen nebeneinander**, weil das bei einer
+    Schlussrechnung zwei verschiedene Zahlen sind – die Gesamtleistung und der Restbetrag nach
+    Absetzung der Abschläge. Nur eine davon zu zeigen wäre je Belegart die falsche.
+
+17. **Der Summenblock steht rechts, wie auf dem Beleg.** Auf dem Bildschirm wäre eine Kachel
+    naheliegender; die Anordnung des Papiers macht den Vergleich mit der Vorschau daneben aber
+    unmittelbar. Die Endsumme trägt eine Linie darüber und Space Grotesk in Dialoggröße.
+
+18. **Das Rechnungs-PDF trägt kein Zeichen 3.** Die Corporate-Design-Regel schließt das
+    Wasserzeichen auf zahlen- und tabellenlastigen Flächen aus, und eine Rechnung ist genau das.
+    Die Marke trägt der Briefkopf mit der Wortmarke und der 2-pt-Linie in ip³ Blau.
+
+19. **Der Prozentsatz bekommt ein geschütztes Leerzeichen** (`19 %`), wie jede andere Einheit
+    (PLAN §6.10). Das vorhandene `prozent()` aus dem Formatmodul zeigt immer eine
+    Nachkommastelle („19,0 %"); auf einer Rechnung steht `19 %`. Deshalb ein eigenes `satzText`
+    für Steuersätze – dieselbe NBSP-Konstante, andere Nachkommaregel.
+
+20. **Die Menge einer Position wird formatiert, nicht durchgereicht.** Die Schnittstelle liefert
+    sie als Dezimaltext mit drei Nachkommastellen (`"1.000"`), und auf deutsch gelesen ist das
+    eintausend. Im Rundgang stand so bei einer Menge von 1 die Zahl 1.000 in der Tabelle;
+    `mengeText` schneidet die Nullen ab und setzt das Dezimalkomma.
+
 ## Prüfliste vor dem Abschluss einer Frontend-Änderung
 
 - Farben ausschließlich über die Token-Variablen, kein Grün, keine Verläufe.

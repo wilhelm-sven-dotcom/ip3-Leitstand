@@ -56,8 +56,8 @@ sofort, und die Verweise im Änderungsprotokoll bleiben auflösbar.
 
 ## 5. Belegfluss und Unveränderbarkeit
 
-Die Belegverarbeitung entsteht in Phase 3. Die **technische Absicherung der Unveränderbarkeit
-steht seit Phase 0**, damit sie nicht nachträglich aufgesetzt werden muss:
+Die Belegverarbeitung ist seit Phase 3 (Version 0.4.0) in Betrieb. Die **technische Absicherung
+der Unveränderbarkeit steht seit Phase 0**, damit sie nicht nachträglich aufgesetzt werden musste:
 
 Datenbank-Trigger verhindern jede Änderung und jedes Löschen an einem Beleg mit dem Status
 `festgeschrieben` – auch durch ein Importskript oder einen direkten Zugriff mit einem
@@ -67,10 +67,37 @@ Nummer, Beträge, Datum, Hash und Kundenstand unverändert bleiben. Ebenso gespe
 Rechnungspositionen festgeschriebener Belege und Zahlungsplanpositionen, die einem Beleg
 zugeordnet sind.
 
-Vorgesehener Ablauf ab Phase 3: Entwurf beliebig änderbar, danach Festschreibung mit Vergabe der
-Rechnungsnummer, Zeitstempel und SHA-256-Hash über die Belegdaten. Korrekturen erfolgen
-ausschließlich über Stornobeleg oder Gutschrift mit Verweis auf den Ursprungsbeleg und
-Neuausstellung.
+**Ablauf einer Rechnung.** Der Entwurf ist beliebig änderbar und trägt **keine** Nummer. Die
+Festschreibung ist ein einziger, unumkehrbarer Vorgang und läuft in dieser Reihenfolge:
+
+1. Prüfung der Pflichtangaben nach § 14 UStG (Firmenstammdaten, Anschrift des Empfängers,
+   Leistungszeitraum, mindestens eine Position, Steuersatz passend zum Kennzeichen). Fehlt etwas,
+   wird der Beleg abgewiesen und **alles** Fehlende genannt – nach der Festschreibung wäre jede
+   Nachbesserung ein Stornobeleg.
+2. Vergabe der Rechnungsnummer aus dem Nummernkreis des Belegjahres.
+3. Berechnung der Summen und der Umsatzsteuer je Steuersatz auf die Nettosumme des Belegs.
+4. Erzeugung von PDF und – bei Geschäftskunden – des EN-16931-XML im Arbeitsspeicher.
+5. Ein einziger Schreibvorgang mit Nummer, Summen, Steueraufteilung, Kundenstand, Ablagepfaden,
+   SHA-256-Hash über die Belegdaten und Zeitstempel; damit wechselt der Status auf
+   `festgeschrieben`, und der Trigger sperrt jede weitere Änderung.
+6. Ablage von PDF und XML im Rechnungsordner, nach dem Commit.
+
+Scheitert Schritt 4, rollt die Nummer mit zurück – es entsteht keine Lücke. Scheitert Schritt 6,
+ist der Beleg gültig und die Ablage fehlt; sie lässt sich nachholen, weil der Hash die Belegdaten
+abdeckt und nicht die Bytes der PDF-Datei. Dasselbe Dokument entsteht aus denselben Daten erneut.
+
+**Der Kundenstand wird als Kopie mitgeschrieben** (`kunde_snapshot`). Eine spätere Adressänderung
+beim Kunden verändert einen ausgestellten Beleg nicht; § 14 UStG verlangt die Angaben zum
+Ausstellungszeitpunkt.
+
+**Der Absetzungsblock der Schlussrechnung** (§ 14 Abs. 5 UStG) wird beim Erzeugen des Belegs
+gespeichert, nicht beim Anzeigen abgeleitet: ein später entstehender Abschlag darf eine
+festgeschriebene Schlussrechnung nicht rückwirkend verändern. Er ist Teil des Belegs und
+denselben Sperren unterworfen.
+
+Korrekturen erfolgen ausschließlich über Stornobeleg oder Gutschrift mit Verweis auf den
+Ursprungsbeleg und Neuausstellung. Der Storno ist ein eigener Beleg mit eigener Nummer und
+Negativbeträgen; das Original behält Nummer und Beträge und wechselt auf `storniert`.
 
 Rechnungsnummern sind je Nummernkreis lückenlos und fortlaufend. Die Vergabe läuft in derselben
 Transaktion wie die Festschreibung des Belegs – eine vorab geholte und dann nicht verwendete
@@ -123,6 +150,8 @@ betreffen, werden hier vermerkt.
 
 | Datum | Version | Änderung | Auswirkung auf die Buchführung |
 |---|---|---|---|
+| 27.08.2026 | 0.4.0 | **Fakturierung im Leitstand** (Phase 3) und **Wechsel des Rechnungsnummernkreises**. Bis zur Einführung liefen die Rechnungen als Word-Dokumente im Kreis `PV-ET JJ-NNNN`, zuletzt `PV-ET 25-1713`. Ab dem Stichtag vergibt der Leitstand die Nummern selbst, in den neuen Kreisen `RE-JJJJ-NNNN` (Projektrechnungen), `SR-JJJJ-NNNN` (Servicerechnungen) und `AB-JJJJ-NNNN` (Auftragsbestätigungen), je Jahr bei 1 beginnend. | Der alte Kreis wird nicht fortgeschrieben und endet mit der letzten von Hand geschriebenen Rechnung; die neuen Kreise beginnen lückenlos bei 1. Beide Nummernfolgen sind in sich vollständig und voneinander unterscheidbar. Der Grund für den Wechsel ist die maschinelle Vergabe: die Zählweise des alten Kreises ist aus den Dokumenten nicht eindeutig rekonstruierbar, eine Fortschreibung hätte das Risiko einer doppelt vergebenen Nummer getragen. Die Dokumente des alten Kreises bleiben in der bisherigen Ablage aufbewahrungspflichtig. |
+| 27.08.2026 | 0.4.0 | **Keine Schlussrechnung für Projekte mit Abschlägen aus dem Altbestand.** Zu den 150 Positionen, die die Auftragsliste als „gestellt" führte, sind Rechnungsnummer, Rechnungsdatum und Steuersatz im Leitstand nicht bekannt. | § 14 Abs. 5 UStG verlangt, dass eine Schlussrechnung alle vorher berechneten Abschläge einzeln mit Netto und darauf entfallender Umsatzsteuer absetzt. Da diese Angaben fehlen, wäre der Absetzungsblock unvollständig und der Steuerausweis unrichtig (§ 14c UStG). Der Leitstand verweigert die Erzeugung deshalb und nennt den Grund; die betroffenen 28 laufenden Projekte werden ein letztes Mal außerhalb abgerechnet. Abschlagsrechnungen sind dort weiter möglich, weil ein Abschlag keinen Absetzungsblock trägt. |
 | 27.08.2026 | 0.2.0 | **Übernahme der Bestandsdaten** (Phase 1). Kunden, Projekte, Termine und Zahlungsplan aus den beiden bisher geführten Excel-Dateien. Stichtag der Übernahme ist der Tag des Laufs; ab dann ist der Leitstand die führende Aufzeichnung, die Excel-Dateien werden schreibgeschützt aufbewahrt. | Keine Belege betroffen: die Übernahme schreibt **keine** Rechnungen. Die 150 Positionen, die die Auftragsliste als „gestellt" führte, werden als solche gekennzeichnet, aber ohne Beleg im Leitstand – die zugehörigen Rechnungen wurden vor der Einführung außerhalb erstellt und liegen als Ausgangsrechnungen der bisherigen Ablage vor. Ihr Betrag ist im Leitstand unveränderbar (Datenbank-Trigger); eine Korrektur verlangt die ausdrückliche Rücknahme des Kennzeichens und steht im Änderungsprotokoll. |
 
 ### Stichtag und Nachvollziehbarkeit der Übernahme

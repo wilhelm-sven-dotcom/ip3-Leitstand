@@ -24,21 +24,17 @@ Alle Daten bleiben lokal beziehungsweise im Firmen-OneDrive.
 
 ## Stand
 
-**Phase 2 – Umsatz und Forecast.** Neu: die Seite **Umsatz & Forecast** mit Jahresverlauf (Ist und
-Plan je Monat), unterminierten Positionen, offenem Auftragsbestand je Projekt und Filtern für
-Jahr, Status, Projektleiter und Gewerk. Die Monatssummen sind gegen eine unabhängig aus der
-Auftragsliste gerechnete Stichprobe geprüft (PLAN §7).
+**Phase 3 – Fakturierung.** Der Leitstand stellt Rechnungen: Auftragsbestätigung,
+Abschlagsrechnung aus einer Zahlungsplanposition, Schlussrechnung mit Absetzungsblock nach
+§ 14 Abs. 5 UStG, Servicerechnung, Storno und Gutschrift. Der Weg ist Entwurf → PDF-Vorschau →
+Festschreibung mit lückenloser Nummer, SHA-256-Hash und Datenbanksperre → Ablage von PDF und
+E-Rechnung (Factur-X, EN 16931) im Rechnungsordner. Das PDF entsteht im ip³-Corporate-Design mit
+eingebetteten Schriften. Auf der Startseite stehen Abschlagsvorschläge, sobald ein Projekt den
+Auslöser einer Zahlungsplanposition erreicht.
 
-**Phase 1 – Bestandsdaten und Stammdatenmasken.** Auf dem Fundament aus Phase 0 (Anmeldung,
-Berechtigungen, Datenbankschema, Systemstatus, nächtliches Backup, Designsystem) stehen jetzt die
-Übernahme der beiden bisher geführten Excel-Dateien mit Zuordnungsmaske und Importprotokoll sowie
-die Masken für Kunden, Ansprechpartner, Projekte, Termine, Zahlungsplan und Nachträge – alle mit
-Konfliktprüfung beim Speichern und serverseitiger Berechtigungsprüfung.
-
-Ein Abnahmelauf gegen die echten Dateien ergibt 484 Kunden, 539 Projekte, 5.848 Termine und 280
-Zahlungsplanpositionen mit 3.826.937,38 € netto; Kontrollsummen und Befunde stehen im
-Importprotokoll. Fakturierung, Umsatzübersicht, Nachkalkulation, Firmen-Cockpit und
-Service/Anlagen folgen in den Phasen 2 bis 6 (siehe PLAN §7).
+Davor gebaut: Phase 1 (Übernahme der Bestandsdaten, Projekte, Termine, Zahlungsplan) und Phase 2
+(Umsatz und Forecast mit Jahresverlauf und Auftragsbestand). Einzelheiten im
+[CHANGELOG](CHANGELOG.md).
 
 ## Schnellstart für die Entwicklung
 

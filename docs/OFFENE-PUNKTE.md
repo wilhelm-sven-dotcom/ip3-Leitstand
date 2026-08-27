@@ -49,6 +49,28 @@ eine Schlussrechnung ist der Rest eines größeren Auftrags, ihr Betrag wäre al
 Falschangabe. **Diese beiden und die 10 Teamlisten-Projekte mit unlesbarem Auftragswert stehen auf
 der Umsatzseite unter der Bestandstabelle und sind nachzutragen.**
 
+## Entschieden für Phase 3 (27.08.2026)
+
+| # | Frage | Entscheidung |
+|---|---|---|
+| 15 | Rechnungsnummernkreis: die Word-Vorlage nutzt `PV-ET 25-1713`, PLAN §3 legt `RE-JJJJ-NNNN` fest. | **Neuer Kreis `RE-JJJJ-NNNN`**, dazu `SR-JJJJ-NNNN` für Service und `AB-JJJJ-NNNN` für Auftragsbestätigungen, je Jahr bei 1 beginnend. Der Word-Kreis endet mit der letzten von Hand geschriebenen Rechnung. Der Wechsel steht mit Datum und Grund in `VERFAHRENSDOKU.md` §9 – ein Kreiswechsel ist zulässig, ein unerklärter nicht. |
+| 16 | § 14 Abs. 5 UStG verlangt, dass eine Schlussrechnung **alle** vorher gestellten Abschläge einzeln absetzt. Zu den 150 Altpositionen kennt der Leitstand nur das Netto – keine Rechnungsnummer, kein Datum, keinen Steuersatz. | **Schlussrechnung für diese Projekte gesperrt.** Der Leitstand nennt den Grund und die betroffenen Positionen. Im Bestand sind das **28 der 87 laufenden Projekte**; sie werden ein letztes Mal wie bisher abgerechnet. **Abschlagsrechnungen bleiben dort möglich** – ein Abschlag braucht keinen Absetzungsblock. |
+| 17 | Rechnungslayout: neu im ip³-CD oder die Word-Vorlage nachbauen? | **Neu im ip³-CD** (PLAN §11). Anschreiben, Zahlungsbedingung, Grußformel und Fußzeile sind wörtlich aus der Word-Vorlage übernommen und stehen als Textbausteine in `config.toml` unter `[fakturierung.texte]` – ohne Codeänderung anpassbar. |
+
+**Korrektur zu einer früheren Rückfrage:** die Steuernummer war als Pflichtangabe geführt. § 14
+Abs. 4 Nr. 2 UStG verlangt die Steuernummer **oder** die USt-IdNr.; die Vorlage führt
+`DE346672260`, das genügt. Beides zu fordern hätte die Fakturierung ohne Rechtsgrund blockiert.
+Die Steuernummer bleibt wünschenswert, ist aber keine Voraussetzung.
+
+## Was der Phase-3-Abnahmelauf zutage brachte – vor der ersten Rechnung zu erledigen
+
+| Was | Zahlen aus dem Abnahmelauf | Warum es zählt |
+|---|---|---|
+| **Anschriften der Bestandskunden fehlen** | von 484 Kunden hat **keiner** Straße und PLZ, 454 haben einen Ort | § 14 UStG verlangt die vollständige Anschrift des Empfängers. Der Leitstand weist einen Beleg ohne sie ab – mit einer Meldung, die sagt, was fehlt. Die Teamliste führte keine Anschriften; sie sind in der Kundenmaske nachzutragen, mindestens für die Kunden, die als Nächstes eine Rechnung bekommen. |
+| **Alle Kunden stehen auf „Privatkunde"** | 484 von 484 | Die Quelldateien sagen nichts über Privat oder Gewerbe, die Migration setzt deshalb `b2c`. Davon hängt ab, ob eine E-Rechnung entsteht: ab dem 1.1.2027 ist sie für inländische B2B-Umsätze Pflicht (PLAN §6.3). Umstellbar in der Kundenmaske. |
+| **Zahlungsziel und Skonto-Toleranz** | Vorbelegung 14 Tage, 3 % | Die Fälligkeit steht auf jedem Beleg. Wenn 14 Tage nicht stimmen, jetzt ändern – bei festgeschriebenen Belegen ist es zu spät. Abweichende Ziele lassen sich je Kunde hinterlegen. |
+| **12 laufende Projekte ohne Auftragswert** | davon 10 aus der Teamliste (unlesbare Zelle), 2 aus der Auftragsliste (bewusst leer) | Ohne Auftragswert lässt sich keine Schlussrechnung vorbelegen; sie ist dann von Hand zu füllen. Die Liste steht auf der Umsatzseite unter der Bestandstabelle. |
+
 ## Befunde in den Quelldateien, die Sven kennen sollte
 
 Beide Dateien rechnen an ihren Kopfzeilen falsch. Der Importer rechnet die Kontrollsummen selbst
@@ -116,12 +138,11 @@ Zahlungsplan" und lassen sich in der Zahlungsplanmaske umhängen.
 | Phase | Was fehlt | Wofür |
 |---|---|---|
 | 0/1 | Firmenstammdaten für den Rechnungskopf: USt-IdNr., Steuernummer, HRB, Geschäftsführer, Bankverbindung; Verrechnungssätze je Stunde; OneDrive-Pfade; Host-Rechner und Dienstkonto | `config.toml`. Solange die Pfade fehlen, zeigt der Systemstatus einen Konfigurationshinweis. |
-| 0/1 | **Steuernummer** der ip³ Energietechnik GmbH. Die Rechnungsvorlage nennt nur die USt-IdNr. | `config.toml`, Pflichtangabe nach § 14 UStG. Der Systemstatus zeigt sie bis dahin als fehlend. |
+| – | **Steuernummer** der ip³ Energietechnik GmbH – wünschenswert, nicht erforderlich: § 14 Abs. 4 Nr. 2 UStG verlangt Steuernummer **oder** USt-IdNr., und letztere liegt vor. | `config.toml`. Der Systemstatus meldet nur noch, wenn **beide** fehlen. |
 | 1 | Nach der Migration: Projektleiter-Namen den Nutzerkonten zuordnen (`pl_user_id`) | Sichtbarkeits-Scope `eigene` |
-| 3 | Beispiel-Kalkulationsblatt (PLAN §13.1). Die Rechnungsvorlage liegt vor. | Einleser für das Kalkulationsblatt in Phase 4 |
-| 3 | **Rechnungsnummernkreis:** die Vorlage nutzt `PV-ET 25-1713`, PLAN §3 legt `RE-JJJJ-NNNN` fest. Fortführen oder umstellen? | GoBD-relevant, weil die Nummernfolge lückenlos bleiben muss. Vor Phase 3 zu entscheiden, sonst wäre eine Umnummerierung nötig. |
-| 3 | Zahlungsziel-Standard und Skonto-Toleranz festlegen (PLAN §13.10) | Fälligkeit und Zahlungsabgleich; Vorbelegung: 14 Tage, 3 % |
-| 3 | Auf dem Windows-Host GTK/Pango-Bibliotheken für WeasyPrint bereitstellen | PDF-Erzeugung. Früh beschaffen, sonst blockiert es Phase 3. |
+| 4 | Beispiel-Kalkulationsblatt (PLAN §13.1). Die Rechnungsvorlage liegt vor und ist umgesetzt. | Einleser für das Kalkulationsblatt in Phase 4 |
+| **jetzt** | Zahlungsziel-Standard und Skonto-Toleranz bestätigen (PLAN §13.10) | Die Fälligkeit steht auf jedem festgeschriebenen Beleg; Vorbelegung 14 Tage und 3 %. Bei festgeschriebenen Belegen ist eine Änderung nicht mehr rückwirkend. |
+| **jetzt** | Auf dem Windows-Host GTK/Pango-Bibliotheken für WeasyPrint bereitstellen und den Ordner `01_Rechnungen` einrichten | Ohne GTK/Pango entsteht kein PDF; ohne Ordner wird der Beleg festgeschrieben, aber nicht abgelegt (nachholbar). In der Entwicklungsumgebung liegen die Bibliotheken vor. |
 | 4 | TimeTac: API-Freischaltung und Zugangsdaten (PLAN §13.3) | Stunden-Synchronisation; Ersatzweg ist der CSV-Berichtsexport |
 | 4/5 | Steuerberater-Abstimmung: KOST2 je Projektnummer, drei monatliche Exporte (Kostenträger, SuSa, OPOS), Review der Verfahrensdokumentation (PLAN §13.4) | Ist-Kosten, Firmen-Cockpit, GoBD |
 | 5 | Erstbefüllung des Konten-Mappings mit Buchhaltung und Steuerberater (PLAN §13.5) | Fixkostenblöcke im Cockpit |

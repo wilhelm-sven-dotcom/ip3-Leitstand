@@ -109,6 +109,78 @@ und später Rechnungen. Ansprechpartner dürfen entfernt werden.
 
 Die Kundennummer vergibt der Leitstand fortlaufend ab 10001.
 
+## Fakturierung
+
+**Menü → Fakturierung.** Sichtbar für Geschäftsführung und Buchhaltung.
+
+### Bevor die erste Rechnung an einen Bestandskunden geht
+
+Die Teamliste führte keine Anschriften. Von den 484 übernommenen Kunden hat keiner Straße und
+Postleitzahl. § 14 UStG verlangt die vollständige Anschrift des Empfängers, deshalb lässt sich ein
+Beleg ohne sie nicht festschreiben – die Meldung nennt dann genau, was fehlt. **Erster Schritt:**
+im Menü → Stammdaten den Kunden öffnen und Straße und PLZ nachtragen.
+
+Dort steht auch **Privatkunde oder Geschäftskunde**. Das ist mehr als eine Notiz: bei einem
+Geschäftskunden erzeugt der Leitstand eine E-Rechnung (PDF mit eingebetteten Rechnungsdaten), bei
+einem Privatkunden ein normales PDF. Die Übernahme hat alle Kunden als Privatkunde angelegt, weil
+in den Quelldateien nichts dazu steht.
+
+### Eine Abschlagsrechnung stellen
+
+Drei Wege führen dorthin, alle enden beim gleichen Entwurf:
+
+1. **Startseite.** Steht dort ein Rechnungsvorschlag, genügt „Abschlag stellen". Ein Vorschlag
+   erscheint, sobald eine Zahlungsplanposition einen Auslöser trägt und der Meilenstein dazu
+   erledigt ist.
+2. **Projekt → Zahlungsplan & Rechnungen.** In der Spalte „Rechnung" steht bei jeder offenen
+   Position „Abschlag stellen".
+3. **Fakturierung.** Die Liste zeigt alle Belege; ein Klick öffnet den Beleg.
+
+Der Beleg entsteht als **Entwurf** und ist frei änderbar: Datum, Leistungszeitraum, Betreff,
+Anschreiben, Positionen. Eine Rechnungsnummer hat er noch nicht – die kommt erst mit der
+Festschreibung, damit ein verworfener Entwurf keine Lücke in der Nummernfolge hinterlässt.
+
+**Der Leistungszeitraum ist Pflicht.** Ohne ihn ist die Rechnung nach § 14 UStG unvollständig.
+
+### Vorschau und Festschreiben
+
+„PDF-Vorschau" zeigt den Beleg, wie er beim Kunden ankommt. Passt alles, „Festschreiben":
+
+* Der Dialog zeigt noch einmal alle Zahlen. **Festschreiben ist unumkehrbar** – deshalb muss der
+  Haken gesetzt werden, bevor der Knopf freigeschaltet wird.
+* Danach hat der Beleg seine Nummer (`RE-2026-0001`), eine Prüfsumme und einen Zeitstempel; PDF und
+  gegebenenfalls XML liegen im Ordner `01_Rechnungen`. Beides steht am Beleg.
+* Eine Änderung ist ab dann nicht mehr möglich. Korrigiert wird über einen **Stornobeleg** – der
+  hebt die Rechnung auf und gibt die Zahlungsplanposition wieder frei – oder über eine
+  **Gutschrift**, wenn nur ein Teil zu korrigieren ist.
+
+Fehlt etwas, sagt die Meldung **alles** auf einmal, nicht Feld für Feld: nach der Festschreibung
+kostet jede Nachbesserung einen Stornobeleg.
+
+Scheitert nur die Ablage – etwa weil das OneDrive nicht verbunden ist –, bleibt die Rechnung
+gültig. Die Meldung sagt das, und „Ablage wiederholen" holt die Datei nach.
+
+### Schlussrechnung
+
+**Projekt → Zahlungsplan & Rechnungen → „Schlussrechnung erzeugen".** Der Leitstand belegt die
+Gesamtleistung mit dem Auftragswert und den beauftragten Nachträgen vor und setzt **jeden** bereits
+festgeschriebenen Abschlag einzeln ab, mit Nummer, Datum, Netto und der darauf entfallenden
+Umsatzsteuer. Ausgewiesen wird der Restbetrag. Das verlangt § 14 Abs. 5 UStG; einen Weg, die
+Schlussrechnung ohne diesen Block zu erzeugen, gibt es nicht.
+
+**Bei Projekten aus dem Altbestand geht das nicht** – der Leitstand nennt dann den Grund: zu den
+Abschlägen, die vor seiner Einführung gestellt wurden, kennt er nur den Betrag, nicht Nummer, Datum
+und Steuersatz. Ein Absetzungsblock daraus wäre unvollständig und die Rechnung damit falsch. Diese
+letzten Projekte werden ein Mal noch wie bisher abgerechnet. **Abschlagsrechnungen sind dort
+weiter möglich.**
+
+### Umsatzsteuer
+
+Der Satz kommt aus dem Steuerkennzeichen des Projekts: 19 % im Regelfall, 0 % nach § 12 Abs. 3
+UStG bei begünstigten Anlagen, § 13b UStG bei Bauleistungen mit Steuerschuldnerschaft des
+Leistungsempfängers. Bei „gemischt" wird der Satz je Position gesetzt. Der Beleg trägt dann
+automatisch den passenden Pflichthinweis – 0 % ohne Begründung wäre keine gültige Rechnung.
+
 ## Umsatz & Forecast
 
 **Menü → Umsatz & Forecast.** Sichtbar für Geschäftsführung und Buchhaltung.

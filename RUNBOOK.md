@@ -333,14 +333,30 @@ und fängt genau die Fehler, die niemand im Protokoll sucht.
 | 20 | Umsatz & Forecast öffnen | Vier Kacheln, Hinweis zum unvollständigen Ist über dem Diagramm, zwölf Monate im Verlauf – auch die leeren |
 | 21 | Ein Jahr ohne Daten wählen (z. B. das nächste) | Zwölf leere Monate, Kacheln auf 0,00 €, keine Fehlermeldung |
 | 22 | Als Rolle `team` `/umsatz` aufrufen | Kein Menüpunkt „Umsatz & Forecast"; `/api/umsatz/monate` antwortet 403 |
+| 23 | Bei einem Kunden ohne Straße einen Abschlag festschreiben wollen | Meldung „Anschrift des Empfängers" fehlt, mit Aufzählung **aller** fehlenden Angaben; der Beleg bleibt Entwurf und hat keine Nummer |
+| 24 | Anschrift nachtragen, Abschlag stellen, Vorschau ansehen, festschreiben | Nummer `RE-JJJJ-0001`, Prüfsumme und Ablagepfad am Beleg; PDF im Ordner `01_Rechnungen`; die Zahlungsplanposition ist gesperrt und verweist auf den Beleg |
+| 25 | Das abgelegte PDF öffnen | Wortmarke, blaue Linie, Positionstabelle mit blauem Kopf, Beträge in Space Grotesk; Fußzeile mit Anschrift, USt-IdNr., Handelsregister und Geschäftsführern auf **jeder** Seite |
+| 26 | Bei einem Geschäftskunden festschreiben | Zusätzlich eine XML-Datei gleichen Namens im Ordner; das PDF trägt sie eingebettet. Bei einem Privatkunden entsteht **kein** XML |
+| 27 | Diese XML-Datei beim KoSIT-Validator prüfen (von Hand, https://www.itb.ec.europa.eu/invoice/upload) | Keine Fehler. Die Testsuite prüft nur die Struktur gegen das XSD, nicht die Geschäftsregeln der EN 16931 – dieser Schritt gehört deshalb einmal je Release dazu |
+| 28 | „Schlussrechnung erzeugen" bei einem Projekt mit zwei festgeschriebenen Abschlägen | Absetzungsblock mit beiden Abschlägen, je Nummer, Datum, Netto, Satz und Steuer; Restbetrag = Gesamtbrutto minus abgesetztem Brutto, auf den Cent |
+| 29 | „Schlussrechnung erzeugen" bei einem Projekt mit Altabschlägen | Ablehnung mit Nennung der betroffenen Positionen und dem Hinweis, dass Abschlagsrechnungen dort weiter möglich sind |
+| 30 | Einen festgeschriebenen Beleg stornieren und den Storno festschreiben | Eigener Beleg mit eigener Nummer und Negativbeträgen; das Original steht auf „storniert" mit unveränderter Nummer und unverändertem Betrag; die Zahlungsplanposition ist wieder frei und lässt sich neu berechnen |
+| 31 | `pfade.rechnungen` auf einen nicht erreichbaren Ordner zeigen lassen und festschreiben | Der Beleg ist festgeschrieben und die Meldung sagt, dass nur die Ablage fehlt; „Ablage wiederholen" holt sie nach, sobald der Ordner erreichbar ist |
+| 32 | Als Rolle `team` `/fakturierung` aufrufen | Kein Menüpunkt „Fakturierung"; `/api/rechnungen` antwortet 403 |
+| 33 | Als Rolle `buchhaltung` einen festgeschriebenen Beleg stornieren wollen | 403 – Storno und Gutschrift sind der Geschäftsführung vorbehalten; Festschreiben darf die Buchhaltung |
 
 ## 11. Was in späteren Phasen dazukommt
 
-* **Vor Phase 3:** WeasyPrint braucht auf Windows die GTK/Pango-Bibliotheken. Rechtzeitig
-  beschaffen, sonst blockiert es die Fakturierung.
-* **Vor Phase 3:** Ordner `01_Rechnungen` einrichten und Schreibrechte für das Dienstkonto
-  prüfen.
+* **Vor der ersten Rechnung:** Die Anschriften der Bestandskunden nachtragen. Die Teamliste führte
+  keine: von 484 übernommenen Kunden hat keiner Straße und PLZ, 454 haben einen Ort. § 14 UStG
+  verlangt die vollständige Anschrift, deshalb weist die Festschreibung einen solchen Beleg ab.
+  Ebenso das Kennzeichen Privat- oder Geschäftskunde – davon hängt ab, ob eine E-Rechnung
+  entsteht (Pflicht ab 1.1.2027).
 * **Vor Phase 4:** TimeTac-Zugangsdaten, DATEV-Exportpfade im OneDrive (`02_DATEV`),
   Kalkulationsordner (`03_Kalkulation`).
-* **Ab Phase 3** kommen zur Abnahmeliste die Kernabläufe hinzu: Abschlag stellen,
-  festschreiben, stornieren.
+* **WeasyPrint braucht auf Windows die GTK/Pango-Bibliotheken.** Ohne sie startet die
+  PDF-Erzeugung nicht. Unter Linux liegen sie in der Regel schon vor; auf dem Windows-Host das
+  GTK-Runtime-Paket installieren und danach `uv run python -c "import weasyprint"` prüfen.
+* **Ordner `01_Rechnungen`** einrichten, in `config.toml` unter `[pfade] rechnungen` eintragen und
+  die Schreibrechte des Dienstkontos prüfen. Fehlt der Eintrag, lassen sich Belege festschreiben,
+  aber nicht ablegen – der Systemstatus weist darauf hin.
