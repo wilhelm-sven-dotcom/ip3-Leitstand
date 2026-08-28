@@ -266,3 +266,114 @@ def uebernehmen(
     )
     ergebnis.importlauf_id = lauf.id
     return ergebnis
+
+
+# ---------------------------------------------------------------------------
+# Rückfallebene: CSV-Berichtsexport
+# ---------------------------------------------------------------------------
+
+# Ohne diese Spalten ergibt der Bericht keine Zeitbuchung.
+CSV_PFLICHTSPALTEN: tuple[str, ...] = ("projekt", "mitarbeiter", "datum", "dauer")
+
+# 'Dauer' kommt im TimeTac-Bericht als Dezimalstunde (7,5) oder als Uhrzeit (07:30) vor.
+_DAUER_ALS_UHRZEIT = re.compile(r"^(\d{1,3}):([0-5]\d)(?::([0-5]\d))?$")
+
+MINUTEN_JE_STUNDE = 60
+
+
+def dauer_deuten(inhalt: str) -> Decimal | None:
+    """Dauer als Dezimalstunden – aus ``7,5`` ebenso wie aus ``07:30``.
+
+    Die beiden Formen sehen einander ähnlich genug, um verwechselt zu werden: ``7:30`` sind
+    siebeneinhalb Stunden, ``7,30`` sind sieben Stunden und achtzehn Minuten. Ein Doppelpunkt
+    entscheidet, kein Ratespiel.
+    """
+    from app.importe.csv_leser import deutsche_zahl
+
+    roh = inhalt.strip().removesuffix("h").strip()
+    if not roh:
+        return None
+    treffer = _DAUER_ALS_UHRZEIT.match(roh)
+    if treffer is not None:
+        stunden, minuten, sekunden = treffer.groups()
+        gesamt = (
+            Decimal(stunden)
+            + Decimal(minuten) / MINUTEN_JE_STUNDE
+            + Decimal(sekunden or 0) / SEKUNDEN_JE_STUNDE
+        )
+        return gesamt.quantize(Decimal("0.01"))
+    zahl = deutsche_zahl(roh)
+    return None if zahl is None else zahl.quantize(Decimal("0.01"))
+
+
+def bericht_lesen(pfad, einstellungen, *, monate: list[str] | None = None) -> Stundenlieferung:
+    """Liest einen TimeTac-Berichtsexport (CSV). Schreibt nichts.
+
+    Die Rückfallebene aus PLAN §8, die auch nach der Freischaltung ihren Zweck hat: sie trägt
+    bei einem Ausfall der Schnittstelle und lädt Monate nach, die die API nicht mehr hergibt.
+    Das Ergebnis hat dieselbe Form wie das der Schnittstelle, damit :func:`uebernehmen` beide
+    Wege ohne Unterschied bedient.
+
+    ``monate`` schränkt ein, welche Monate ersetzt werden. Ohne Angabe sind es die Monate, die
+    tatsächlich in der Datei vorkommen – ein Bericht bringt seinen Zeitraum selbst mit.
+    """
+    from app.importe import csv_leser
+
+    datei = csv_leser.lesen(pfad, einstellungen.spalten, pflicht=CSV_PFLICHTSPALTEN)
+    lieferung = Stundenlieferung(herkunft=pfad.name, monate=list(monate or []))
+
+    for zeile in datei.zeilen:
+        buchung = _csv_zeile_deuten(zeile, pfad.name, lieferung)
+        if buchung is not None:
+            lieferung.buchungen.append(buchung)
+
+    if not lieferung.monate:
+        lieferung.monate = sorted({b.monat for b in lieferung.buchungen})
+    return lieferung
+
+
+def _csv_zeile_deuten(zeile, dateiname: str, lieferung: Stundenlieferung) -> Zeitbuchung | None:
+    from app.importe import csv_leser
+
+    def befund(spalte: str, meldung: str) -> None:
+        lieferung.befunde.append(
+            Befund(
+                datei=dateiname,
+                zeile=zeile.nummer,
+                spalte=spalte,
+                wert=zeile.wert(spalte),
+                meldung=meldung,
+            )
+        )
+
+    projekt = zeile.wert("projekt")
+    if not projekt:
+        befund("projekt", "Zeile ohne Projekt – nicht übernommen")
+        return None
+
+    mitarbeiter = zeile.wert("mitarbeiter")
+    if not mitarbeiter:
+        befund("mitarbeiter", "Zeile ohne Mitarbeiter – nicht übernommen")
+        return None
+
+    tag = csv_leser.deutsches_datum(zeile.wert("datum"))
+    if tag is None:
+        befund("datum", "Kein lesbares Datum – Zeile nicht übernommen")
+        return None
+
+    stunden = dauer_deuten(zeile.wert("dauer"))
+    if stunden is None:
+        befund("dauer", "Keine lesbare Dauer – Zeile nicht übernommen")
+        return None
+    if stunden <= 0:
+        return None
+
+    return Zeitbuchung(
+        herkunft=dateiname,
+        zeile=zeile.nummer,
+        projekt_text=projekt,
+        mitarbeiter=mitarbeiter,
+        datum=tag,
+        stunden=stunden,
+        aufgabe=zeile.wert("aufgabe"),
+    )

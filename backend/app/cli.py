@@ -22,7 +22,17 @@ anwendung = typer.Typer(
 
 
 def _fehler_ausgeben(fehler: Exception) -> None:
-    typer.secho(f"\n{fehler}\n", fg=typer.colors.RED, err=True)
+    """Fehlermeldung mit nächstem Schritt (CLAUDE.md Regel 8).
+
+    Ein ``FachFehler`` trägt beides; ``str()`` gibt nur die Meldung zurück. Ohne den nächsten
+    Schritt stünde auf der Kommandozeile nur, was nicht geht, und nicht, was zu tun ist – genau
+    die Auskunft, die am Host fehlt.
+    """
+    typer.secho(f"\n{fehler}", fg=typer.colors.RED, err=True)
+    naechster_schritt = getattr(fehler, "naechster_schritt", "")
+    if naechster_schritt:
+        typer.secho(f"Nächster Schritt: {naechster_schritt}", fg=typer.colors.YELLOW, err=True)
+    typer.echo("", err=True)
 
 
 @anwendung.command("version")
@@ -460,6 +470,83 @@ def backup_ausfuehren() -> None:
                 fg=typer.colors.RED,
                 err=True,
             )
+
+
+@anwendung.command("timetac-test")
+def timetac_test(
+    monat: str = typer.Option(None, help="Monat 'JJJJ-MM' (Standard: laufender und voriger)"),
+    zeilen: int = typer.Option(5, help="Wie viele Buchungen im Klartext angezeigt werden"),
+) -> None:
+    """Die TimeTac-Schnittstelle prüfen, ohne etwas zu schreiben.
+
+    Der erste Schritt nach dem Eintragen der Zugangsdaten in die .env. Zeigt die aufgelöste
+    Adresse, die Anmeldung (**ohne Secret**), die gesendete Abfrage und die ersten Buchungen
+    mitsamt der erkannten Projektzuordnung. Weicht etwas ab, wird es in der config.toml unter
+    [timetac.felder] nachgezogen – die Datenbank bleibt dabei unberührt.
+    """
+    from app.importe.timetac import projektnummer_aus_text
+    from app.importe.timetac_api import (
+        RESSOURCE_ZEITEN,
+        TimeTacClient,
+        abfrage_bauen,
+        abholen,
+        monate_bestimmen,
+    )
+
+    werte = _konfiguration_holen()
+    monate = [monat] if monat else monate_bestimmen(werte.timetac)
+
+    try:
+        client = TimeTacClient(
+            werte.timetac,
+            client_id=werte.timetac_client_id,
+            client_secret=werte.timetac_client_secret,
+            konto=werte.timetac_konto,
+        )
+    except Exception as fehler:
+        _fehler_ausgeben(fehler)
+        raise typer.Exit(code=2) from fehler
+
+    typer.echo(f"Konto:     {client.konto}")
+    typer.echo(f"Anmeldung: POST {client.token_adresse()} (grant_type=client_credentials)")
+    typer.echo(f"Abfrage:   GET  {client.ressourcen_adresse(RESSOURCE_ZEITEN)}")
+    beispiel = abfrage_bauen(
+        {"date>=": f"{min(monate)}-01"}, grenze=werte.timetac.seitengroesse, versatz=0
+    )
+    typer.echo(f"Parameter: {beispiel}")
+    typer.echo(f"Monate:    {', '.join(monate)}\n")
+
+    try:
+        lieferung = abholen(client, monate)
+    except Exception as fehler:
+        _fehler_ausgeben(fehler)
+        raise typer.Exit(code=2) from fehler
+
+    typer.secho(
+        f"{len(lieferung.buchungen)} Buchungen, {lieferung.summe_stunden} Stunden",
+        fg=typer.colors.GREEN,
+    )
+    for buchung in lieferung.buchungen[:zeilen]:
+        nummer = projektnummer_aus_text(buchung.projekt_text)
+        satz, gruppe = werte.stundensaetze.satz_fuer(buchung.mitarbeiter)
+        typer.echo(
+            f"  {buchung.datum}  {buchung.stunden:>6} h  {buchung.mitarbeiter:<22} "
+            f"{buchung.projekt_text[:34]:<34} "
+            f"Projekt {nummer if nummer else '?'}  "
+            f"{satz / 100:.2f} €/h ({gruppe or 'Standardsatz'})"
+        )
+    if len(lieferung.buchungen) > zeilen:
+        typer.echo(f"  … und {len(lieferung.buchungen) - zeilen} weitere")
+
+    if lieferung.befunde:
+        typer.secho(f"\n{len(lieferung.befunde)} Befunde:", fg=typer.colors.YELLOW)
+        for befund in lieferung.befunde[:zeilen]:
+            typer.echo(f"  {befund.als_text()}")
+
+    typer.echo(
+        "\nEs wurde nichts geschrieben. Stimmen die Zahlen, den Lauf mit "
+        "'timetac_sync' im Systemstatus starten."
+    )
 
 
 @anwendung.command("kalkulationsblatt-vorlage")

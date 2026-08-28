@@ -344,3 +344,148 @@ def test_importprotokoll_haelt_kontrollsummen(projekte: dict[int, int]) -> None:
         assert lauf.status == "warnung", "ein nicht zugeordnetes Projekt ist kein Vollerfolg"
         assert lauf.ergebnis["kontrollsummen"]["buchungen"] == 2
         assert lauf.ergebnis["geschrieben"]["stundenzeilen"] == 1
+
+
+# ---------------------------------------------------------------------------
+# Rückfallebene: CSV-Berichtsexport
+# ---------------------------------------------------------------------------
+
+
+CSV_KOPF = "Datum;Mitarbeiter;Projekt;Aufgabe;Dauer"
+CSV_ZEILEN = [
+    "06.07.2026;Wilhelm, Sven;26001 Mustermann, Weiden;Planung;8,00",
+    "06.07.2026;Bäumler, Michael;26001 Mustermann, Weiden;Dachmontage;07:30",
+    "07.07.2026;Wilhelm, Sven;26002 Schmidt, Vohenstrauß;Inbetriebnahme;4,00",
+]
+
+
+def bericht_schreiben(pfad, zeilen: list[str] | None = None, kopf: str = CSV_KOPF):
+    pfad.write_text("\n".join([kopf, *(zeilen or CSV_ZEILEN)]) + "\n", encoding="cp1252")
+    return pfad
+
+
+@pytest.mark.parametrize(
+    ("eingabe", "erwartet"),
+    [
+        ("7,5", Decimal("7.50")),
+        ("7.5", Decimal("7.50")),
+        ("07:30", Decimal("7.50")),  # Uhrzeit: siebeneinhalb Stunden
+        ("7,30", Decimal("7.30")),  # Dezimal: sieben Stunden und achtzehn Minuten
+        ("07:30:00", Decimal("7.50")),
+        ("8 h", Decimal("8.00")),
+        ("0:45", Decimal("0.75")),
+        ("", None),
+        ("halbtags", None),
+    ],
+)
+def test_dauer_deuten(eingabe: str, erwartet: Decimal | None) -> None:
+    from app.importe.timetac import dauer_deuten
+
+    assert dauer_deuten(eingabe) == erwartet
+
+
+def test_bericht_lesen(tmp_path) -> None:
+    from app.importe.timetac import bericht_lesen
+    from app.konfiguration import TimeTacEinstellungen
+
+    pfad = bericht_schreiben(tmp_path / "timetac_2026-07.csv")
+    lieferung = bericht_lesen(pfad, TimeTacEinstellungen())
+
+    assert lieferung.monate == ["2026-07"], "der Bericht bringt seinen Zeitraum selbst mit"
+    assert [b.stunden for b in lieferung.buchungen] == [
+        Decimal("8.00"),
+        Decimal("7.50"),
+        Decimal("4.00"),
+    ]
+    assert lieferung.buchungen[1].aufgabe == "Dachmontage"
+
+
+def test_kaputte_zeile_im_bericht_haelt_den_lauf_nicht_auf(tmp_path) -> None:
+    from app.importe.timetac import bericht_lesen
+    from app.konfiguration import TimeTacEinstellungen
+
+    pfad = bericht_schreiben(
+        tmp_path / "timetac_2026-07.csv",
+        [
+            "06.07.2026;Wilhelm, Sven;26001 Mustermann;Planung;8,00",
+            "irgendwann;Wilhelm, Sven;26001 Mustermann;Planung;8,00",
+            "07.07.2026;;26001 Mustermann;Planung;8,00",
+            "08.07.2026;Wilhelm, Sven;26001 Mustermann;Planung;ganzer Tag",
+        ],
+    )
+    lieferung = bericht_lesen(pfad, TimeTacEinstellungen())
+
+    assert len(lieferung.buchungen) == 1
+    assert {b.spalte for b in lieferung.befunde} == {"datum", "mitarbeiter", "dauer"}
+
+
+def test_beide_wege_ergeben_dieselben_zeilen(projekte: dict[int, int], tmp_path) -> None:
+    """Der Kern der Rückfallebene: die Quelle darf an der Rechnung nichts ändern."""
+    import httpx
+
+    from app.importe.timetac import bericht_lesen
+    from app.importe.timetac_api import TimeTacClient, abholen
+    from app.konfiguration import TimeTacEinstellungen
+
+    # Weg 1: der CSV-Bericht.
+    pfad = bericht_schreiben(tmp_path / "timetac_2026-07.csv")
+    with schreib_sitzung() as sitzung:
+        ueber_csv = uebernehmen(sitzung, bericht_lesen(pfad, TimeTacEinstellungen()), SAETZE)
+    with lese_sitzung() as sitzung:
+        aus_csv = sorted((z.projekt_id, z.monat, z.betrag) for z in kostenzeilen(sitzung))
+        stunden_csv = sorted(
+            (z.mitarbeiter, str(z.stunden), z.satz) for z in stundenzeilen(sitzung)
+        )
+
+    # Weg 2: dieselbe Buchungslage über die Schnittstelle.
+    antwort = {
+        "Success": True,
+        "Results": [
+            {
+                "user_name": "Wilhelm, Sven",
+                "project_number": "26001",
+                "project_name": "Mustermann, Weiden",
+                "date": "2026-07-06",
+                "duration": 28800,
+            },
+            {
+                "user_name": "Bäumler, Michael",
+                "project_number": "26001",
+                "project_name": "Mustermann, Weiden",
+                "date": "2026-07-06",
+                "duration": 27000,
+            },
+            {
+                "user_name": "Wilhelm, Sven",
+                "project_number": "26002",
+                "project_name": "Schmidt, Vohenstrauß",
+                "date": "2026-07-07",
+                "duration": 14400,
+            },
+        ],
+    }
+
+    def transport(anfrage: httpx.Request) -> httpx.Response:
+        if anfrage.url.path.endswith("/token"):
+            return httpx.Response(200, json={"access_token": "x", "expires_in": 3600})
+        return httpx.Response(200, json=antwort)
+
+    client = TimeTacClient(
+        TimeTacEinstellungen(),
+        client_id="a",
+        client_secret="b",
+        konto="ip3energie",
+        transport=httpx.MockTransport(transport),
+    )
+    with schreib_sitzung() as sitzung:
+        ueber_api = uebernehmen(sitzung, abholen(client, ["2026-07"]), SAETZE)
+
+    with lese_sitzung() as sitzung:
+        aus_api = sorted((z.projekt_id, z.monat, z.betrag) for z in kostenzeilen(sitzung))
+        stunden_api = sorted(
+            (z.mitarbeiter, str(z.stunden), z.satz) for z in stundenzeilen(sitzung)
+        )
+
+    assert aus_csv == aus_api
+    assert stunden_csv == stunden_api
+    assert ueber_csv.summe_cent == ueber_api.summe_cent == 124250 + 34000

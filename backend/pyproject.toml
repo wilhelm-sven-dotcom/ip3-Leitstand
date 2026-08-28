@@ -27,10 +27,14 @@ dependencies = [
     # E-Rechnung nach EN 16931 (PLAN §6.3). drafthorse erzeugt das Factur-X/ZUGFeRD-XML und
     # bringt die XSD-Schemata mit; eingebettet wird es von WeasyPrint als PDF/A-3.
     "drafthorse>=2025.2",
+    # Phase 4: TimeTac-Schnittstelle (PLAN §8). httpx statt des früher vorgemerkten requests,
+    # weil es für FastAPIs TestClient ohnehin im Lockfile liegt – eine Bibliothek statt zwei –
+    # und einen einhängbaren Transport mitbringt, mit dem die Testsuite ohne Netz auskommt.
+    "httpx>=0.28",
 ]
 
 # Weitere Abhängigkeiten kommen erst in der Phase, in der sie gebraucht werden (PLAN §14):
-# pandas (Phase 4/5), requests (Phase 4, TimeTac), drafthorse (Phase 3, E-Rechnung).
+# pandas (Phase 4/5).
 
 [project.scripts]
 ip3-leitstand = "app.cli:main"
@@ -39,7 +43,6 @@ ip3-leitstand = "app.cli:main"
 dev = [
     "pytest>=8.3",
     "pytest-cov>=6.0",
-    "httpx>=0.28",
     "ruff>=0.9",
 ]
 
