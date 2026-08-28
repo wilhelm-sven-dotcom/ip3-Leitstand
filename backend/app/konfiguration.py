@@ -373,6 +373,17 @@ class TimeTacEinstellungen(BaseModel):
     )
 
 
+class NachkalkulationEinstellungen(BaseModel):
+    """Anzeige der Marge gegen die Sollmarge (PLAN §7 Phase 4).
+
+    ``ampel_gelb_promille`` ist der Abstand zur Sollmarge, ab dem eine Marge als „knapp" gilt –
+    50 Promille sind 5 Prozentpunkte. Konfigurierbar, weil das eine Einschätzung ist und keine
+    Rechengröße; die Marge selbst wird davon nicht berührt.
+    """
+
+    ampel_gelb_promille: int = Field(default=50, ge=0, le=1000)
+
+
 class JobEinstellungen(BaseModel):
     backup_uhrzeit: str = "01:30"
     backup_generationen: int = 30
@@ -467,6 +478,9 @@ class Einstellungen(BaseSettings):
     protokoll: ProtokollEinstellungen = Field(default_factory=ProtokollEinstellungen)
     stundensaetze: StundensaetzeEinstellungen = Field(default_factory=StundensaetzeEinstellungen)
     timetac: TimeTacEinstellungen = Field(default_factory=TimeTacEinstellungen)
+    nachkalkulation: NachkalkulationEinstellungen = Field(
+        default_factory=NachkalkulationEinstellungen
+    )
 
     # Geheimnisse kommen ausschließlich aus der Umgebung, nie aus der config.toml.
     sitzung_schluessel: str = ""
