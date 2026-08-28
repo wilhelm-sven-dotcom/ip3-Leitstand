@@ -727,6 +727,62 @@
         "title": "BelegAntwort",
         "type": "object"
       },
+      "BewertungAntwort": {
+        "properties": {
+          "betrag_cent": {
+            "title": "Betrag Cent",
+            "type": "integer"
+          },
+          "bewertet": {
+            "title": "Bewertet",
+            "type": "integer"
+          },
+          "lagerpositionen": {
+            "title": "Lagerpositionen",
+            "type": "integer"
+          },
+          "meldung": {
+            "title": "Meldung",
+            "type": "string"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "offene_mengen": {
+            "title": "Offene Mengen",
+            "type": "boolean"
+          },
+          "ohne_preis": {
+            "title": "Ohne Preis",
+            "type": "integer"
+          },
+          "positionen": {
+            "items": {
+              "$ref": "#/components/schemas/app__routen__stueckliste__PositionAntwort"
+            },
+            "title": "Positionen",
+            "type": "array"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "projekt_nr",
+          "monat",
+          "lagerpositionen",
+          "bewertet",
+          "ohne_preis",
+          "betrag_cent",
+          "offene_mengen",
+          "positionen",
+          "meldung"
+        ],
+        "title": "BewertungAntwort",
+        "type": "object"
+      },
       "ErzeugenEingabe": {
         "properties": {
           "datum": {
@@ -1809,6 +1865,57 @@
           "typ"
         ],
         "title": "MeilensteinEingabe",
+        "type": "object"
+      },
+      "MengeEingabe": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "menge_ist": {
+            "anyOf": [
+              {
+                "maximum": 999999999.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Menge Ist"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "menge_ist",
+          "stand"
+        ],
+        "title": "MengeEingabe",
+        "type": "object"
+      },
+      "MengenBestaetigen": {
+        "properties": {
+          "positionen": {
+            "items": {
+              "$ref": "#/components/schemas/MengeEingabe"
+            },
+            "minItems": 1,
+            "title": "Positionen",
+            "type": "array"
+          }
+        },
+        "required": [
+          "positionen"
+        ],
+        "title": "MengenBestaetigen",
         "type": "object"
       },
       "MonatAntwort": {
@@ -4326,6 +4433,102 @@
         "title": "PositionEingabe",
         "type": "object"
       },
+      "app__routen__stueckliste__PositionAntwort": {
+        "properties": {
+          "artikel_nr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artikel Nr"
+          },
+          "bewertet_betrag": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bewertet Betrag"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "ek_preis": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ek Preis"
+          },
+          "gewerk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gewerk"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "menge_ist": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Menge Ist"
+          },
+          "menge_soll": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Menge Soll",
+            "type": "string"
+          },
+          "quelle": {
+            "title": "Quelle",
+            "type": "string"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "artikel_nr",
+          "bezeichnung",
+          "menge_soll",
+          "menge_ist",
+          "ek_preis",
+          "quelle",
+          "gewerk",
+          "bewertet_betrag",
+          "stand"
+        ],
+        "title": "PositionAntwort",
+        "type": "object"
+      },
       "app__routen__zahlungsplan__PositionAntwort": {
         "properties": {
           "art": {
@@ -5868,6 +6071,71 @@
         ]
       }
     },
+    "/api/projekte/{projekt_nr}/mengen-ist": {
+      "post": {
+        "description": "Gezählte Mengen übernehmen und die Lagerentnahme bewerten (PLAN §6.5).\n\nBeides in einem Schritt: eine bestätigte Menge ohne Bewertung wäre eine Nachkalkulation, die\nzu gut aussieht. Bewertet werden ausschließlich Positionen mit ``quelle='lager'`` – die\nDoppelbelastungssperre sitzt im Dienst, nicht hier.",
+        "operationId": "mengenIstBestaetigen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projekt_nr",
+            "required": true,
+            "schema": {
+              "title": "Projekt Nr",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MengenBestaetigen"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BewertungAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung projekte.schreiben fehlt"
+          },
+          "404": {
+            "description": "Projekt oder Position nicht gefunden"
+          },
+          "409": {
+            "description": "Position zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mengen-Ist bestätigen und die Lagerpositionen bewerten",
+        "tags": [
+          "Stückliste"
+        ]
+      }
+    },
     "/api/projekte/{projekt_nr}/nachtraege": {
       "post": {
         "operationId": "nachtragAnlegen",
@@ -5929,6 +6197,58 @@
         "summary": "Nachtrag anlegen",
         "tags": [
           "Zahlungsplan"
+        ]
+      }
+    },
+    "/api/projekte/{projekt_nr}/stueckliste": {
+      "get": {
+        "operationId": "stuecklisteLesen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projekt_nr",
+            "required": true,
+            "schema": {
+              "title": "Projekt Nr",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/app__routen__stueckliste__PositionAntwort"
+                  },
+                  "title": "Response Stuecklistelesen",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "404": {
+            "description": "Nicht gefunden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Stückliste eines Projekts",
+        "tags": [
+          "Stückliste"
         ]
       }
     },

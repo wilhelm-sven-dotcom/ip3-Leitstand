@@ -403,6 +403,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projekte/{projekt_nr}/mengen-ist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mengen-Ist bestätigen und die Lagerpositionen bewerten
+         * @description Gezählte Mengen übernehmen und die Lagerentnahme bewerten (PLAN §6.5).
+         *
+         *     Beides in einem Schritt: eine bestätigte Menge ohne Bewertung wäre eine Nachkalkulation, die
+         *     zu gut aussieht. Bewertet werden ausschließlich Positionen mit ``quelle='lager'`` – die
+         *     Doppelbelastungssperre sitzt im Dienst, nicht hier.
+         */
+        post: operations["mengenIstBestaetigen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projekte/{projekt_nr}/nachtraege": {
         parameters: {
             query?: never;
@@ -414,6 +438,23 @@ export interface paths {
         put?: never;
         /** Nachtrag anlegen */
         post: operations["nachtragAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projekte/{projekt_nr}/stueckliste": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stückliste eines Projekts */
+        get: operations["stuecklisteLesen"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1089,6 +1130,27 @@ export interface components {
             /** Zahlbetrag */
             zahlbetrag: number;
         };
+        /** BewertungAntwort */
+        BewertungAntwort: {
+            /** Betrag Cent */
+            betrag_cent: number;
+            /** Bewertet */
+            bewertet: number;
+            /** Lagerpositionen */
+            lagerpositionen: number;
+            /** Meldung */
+            meldung: string;
+            /** Monat */
+            monat: string;
+            /** Offene Mengen */
+            offene_mengen: boolean;
+            /** Ohne Preis */
+            ohne_preis: number;
+            /** Positionen */
+            positionen: components["schemas"]["app__routen__stueckliste__PositionAntwort"][];
+            /** Projekt Nr */
+            projekt_nr: number;
+        };
         /** ErzeugenEingabe */
         ErzeugenEingabe: {
             /** Datum */
@@ -1400,6 +1462,23 @@ export interface components {
              * @enum {string}
              */
             typ: "uebergabetermin" | "freigabe_planung" | "plan_erstellt" | "anmeldung_nb" | "mastr" | "fertigmeldung" | "zaehler" | "abnahme" | "montage_uk" | "montage_elektro" | "zaehlerschrank" | "lieferung_uk" | "lieferung_wr_pv" | "lieferung_wr_speicher" | "lieferung_speicher" | "lieferung_wallbox" | "montage" | "lieferung" | "inbetriebnahme";
+        };
+        /** MengeEingabe */
+        MengeEingabe: {
+            /** Id */
+            id: number;
+            /** Menge Ist */
+            menge_ist: number | string;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+        };
+        /** MengenBestaetigen */
+        MengenBestaetigen: {
+            /** Positionen */
+            positionen: components["schemas"]["MengeEingabe"][];
         };
         /** MonatAntwort */
         MonatAntwort: {
@@ -2172,6 +2251,32 @@ export interface components {
              * @default 190
              */
             ust_satz: number;
+        };
+        /** PositionAntwort */
+        app__routen__stueckliste__PositionAntwort: {
+            /** Artikel Nr */
+            artikel_nr: string | null;
+            /** Bewertet Betrag */
+            bewertet_betrag: number | null;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Ek Preis */
+            ek_preis: number | null;
+            /** Gewerk */
+            gewerk: string | null;
+            /** Id */
+            id: number;
+            /** Menge Ist */
+            menge_ist: string | null;
+            /** Menge Soll */
+            menge_soll: string;
+            /** Quelle */
+            quelle: string;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
         };
         /** PositionAntwort */
         app__routen__zahlungsplan__PositionAntwort: {
@@ -3516,6 +3621,69 @@ export interface operations {
             };
         };
     };
+    mengenIstBestaetigen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projekt_nr: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MengenBestaetigen"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BewertungAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung projekte.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt oder Position nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Position zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     nachtragAnlegen: {
         parameters: {
             query?: never;
@@ -3563,6 +3731,51 @@ export interface operations {
             };
             /** @description Position gesperrt oder zwischenzeitlich geändert */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    stuecklisteLesen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projekt_nr: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__stueckliste__PositionAntwort"][];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Nicht gefunden */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
