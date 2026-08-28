@@ -1,0 +1,11 @@
+Datum;Mitarbeiter;Projekt;Aufgabe;Dauer
+06.07.2026;Wilhelm, Sven;26001 Grossdach Nord;Planung;08:00
+07.07.2026;Wilhelm, Sven;26001 Grossdach Nord;Planung;06:30
+07.07.2026;Baeumler, Michael;26001 Grossdach Nord;Dachmontage;09:30
+08.07.2026;Baeumler, Michael;26001 Grossdach Nord;Dachmontage;10,00
+09.07.2026;Baeumler, Michael;26001 Grossdach Nord;Dachmontage;09:45
+10.07.2026;Neu, Kollege;26001 Grossdach Nord;Dachmontage;08:00
+13.07.2026;Baeumler, Michael;26002 Halle Sued;Dachmontage;08:30
+14.07.2026;Baeumler, Michael;26002 Halle Sued;Dachmontage;09:00
+15.07.2026;Wilhelm, Sven;26002 Halle Sued;Inbetriebnahme;04:00
+16.07.2026;Wilhelm, Sven;Interne Besprechung;Besprechung;02:00

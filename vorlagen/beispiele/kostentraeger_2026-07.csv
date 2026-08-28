@@ -1,0 +1,14 @@
+Belegdatum;Konto;Kontobezeichnung;Buchungstext;Belegfeld 1;Umsatz;Soll/Haben-Kennzeichen;KOST2
+03.07.2026;3400;Wareneingang 19 % VSt;Module Trina 760 Stk;RE-88213;70.224,00;S;26001
+07.07.2026;3400;Wareneingang 19 % VSt;Wechselrichter SMA 3 Stk;RE-88410;12.540,00;S;26001
+09.07.2026;3400;Wareneingang 19 % VSt;Speicher BYD 4 Stk;RE-88455;35.600,00;S;26001
+11.07.2026;4830;Fremdleistungen;Kran Dachmontage;RE-2211;6.800,00;S;26001
+18.07.2026;3400;Wareneingang 19 % VSt;Gutschrift Bruchmodule;GS-991;1.108,80;H;26001
+05.07.2026;3400;Wareneingang 19 % VSt;Module 448 Stk;RE-88301;41.395,20;S;26002
+08.07.2026;3400;Wareneingang 19 % VSt;Wechselrichter 4 Stk;RE-88399;11.160,00;S;26002
+14.07.2026;4830;Fremdleistungen;Geruest und Kran;RE-2240;9.400,00;S;26002
+22.07.2026;3400;Wareneingang 19 % VSt;Unterkonstruktion;RE-88502;28.900,00;S;26002
+26.07.2026;4830;Fremdleistungen;Elektro Nachunternehmer;RE-2266;14.800,00;S;26002
+31.07.2026;8400;Erloese 19 % USt;Abschlag 1 Projekt 26001;RE-2026-0001;110.000,00;H;26001
+31.07.2026;4210;Miete Halle Theisseil;Juli 2026;;1.850,00;S;
+12.07.2026;3400;Wareneingang 19 % VSt;Material Fremdprojekt;RE-77;900,00;S;29999

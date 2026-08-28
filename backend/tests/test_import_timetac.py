@@ -489,3 +489,69 @@ def test_beide_wege_ergeben_dieselben_zeilen(projekte: dict[int, int], tmp_path)
     assert aus_csv == aus_api
     assert stunden_csv == stunden_api
     assert ueber_csv.summe_cent == ueber_api.summe_cent == 124250 + 34000
+
+
+# ---------------------------------------------------------------------------
+# Der Befehl, mit dem die Rückfallebene bedient wird
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def cli(test_einstellungen, monkeypatch):
+    """CLI gegen die Testdatenbank, mit den Sätzen aus diesem Modul."""
+    from typer.testing import CliRunner
+
+    test_einstellungen.stundensaetze = SAETZE
+    monkeypatch.setattr("app.cli.einstellungen", lambda: test_einstellungen)
+    return CliRunner()
+
+
+def test_befehl_liest_den_bericht_ein(cli, projekte: dict[int, int], tmp_path) -> None:
+    """Eine Rückfallebene, die nur aus Python erreichbar ist, hilft im Störfall niemandem."""
+    from app.cli import anwendung
+
+    pfad = bericht_schreiben(tmp_path / "timetac_2026-07.csv")
+    ergebnis = cli.invoke(anwendung, ["timetac-csv", str(pfad), "--ja"])
+
+    assert ergebnis.exit_code == 0, ergebnis.output
+    assert "3 Stundenzeilen übernommen" in ergebnis.output
+    with lese_sitzung() as sitzung:
+        assert sum(z.betrag for z in kostenzeilen(sitzung)) == 124250 + 34000
+
+
+def test_befehl_fragt_vor_dem_ersetzen_nach(cli, projekte: dict[int, int], tmp_path) -> None:
+    """Ohne --ja wird nichts geschrieben, denn der Lauf ersetzt einen ganzen Monat (PLAN §8)."""
+    from app.cli import anwendung
+
+    pfad = bericht_schreiben(tmp_path / "timetac_2026-07.csv")
+    ergebnis = cli.invoke(anwendung, ["timetac-csv", str(pfad)], input="n\n")
+
+    assert ergebnis.exit_code != 0
+    assert "2026-07" in ergebnis.output, "die Rückfrage muss nennen, welcher Monat ersetzt wird"
+    with lese_sitzung() as sitzung:
+        assert list(kostenzeilen(sitzung)) == []
+
+
+def test_befehl_nennt_die_fehlende_datei_statt_abzustuerzen(cli, tmp_path) -> None:
+    from app.cli import anwendung
+
+    ergebnis = cli.invoke(anwendung, ["timetac-csv", str(tmp_path / "gibt-es-nicht.csv"), "--ja"])
+
+    assert ergebnis.exit_code == 2
+    assert "gibt es nicht" in ergebnis.output
+    assert "Nächster Schritt" in ergebnis.output
+    assert "Traceback" not in ergebnis.output
+
+
+def test_befehl_meldet_fehlende_satzgruppe(cli, projekte: dict[int, int], tmp_path) -> None:
+    from app.cli import anwendung
+
+    pfad = bericht_schreiben(
+        tmp_path / "timetac_2026-07.csv",
+        ["06.07.2026;Neu, Kollege;26001 Mustermann, Weiden;Planung;8,00"],
+    )
+    ergebnis = cli.invoke(anwendung, ["timetac-csv", str(pfad), "--ja"])
+
+    assert ergebnis.exit_code == 0, ergebnis.output
+    assert "Neu, Kollege" in ergebnis.output
+    assert "stundensaetze.mitarbeiter" in ergebnis.output

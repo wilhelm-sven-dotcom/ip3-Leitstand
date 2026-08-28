@@ -396,6 +396,17 @@ ein fremdes Projekt zu buchen.
 **Verrechnungssätze** stehen in `config.toml` unter `[stundensaetze]`. Ein Mitarbeiter ohne
 Zuordnung rechnet mit dem Standardsatz und erscheint als Pflegehinweis im Importprotokoll.
 
+**Wenn die Schnittstelle nicht trägt** – sie ist gestört, oder der gesuchte Monat liegt vor der
+Freischaltung und wird von ihr nicht mehr geliefert – hilft der CSV-Berichtsexport aus TimeTac:
+
+```bash
+uv run ip3-leitstand timetac-csv "…/timetac_2026-07.csv"
+```
+
+Der Befehl zeigt erst die erkannten Buchungen mit Projektzuordnung und Satz und fragt dann nach,
+weil er die enthaltenen Monate **ersetzt**; `--ja` überspringt die Rückfrage, `--monat JJJJ-MM`
+grenzt auf einen Monat ein. Das Ergebnis ist dasselbe wie beim nächtlichen Abgleich.
+
 ## 12. Was in späteren Phasen dazukommt
 
 * **Vor der ersten Rechnung:** Die Anschriften der Bestandskunden nachtragen. Die Teamliste führte

@@ -549,6 +549,101 @@ def timetac_test(
     )
 
 
+@anwendung.command("timetac-csv")
+def timetac_csv(
+    datei: str = typer.Argument(..., help="TimeTac-Berichtsexport als CSV"),
+    monat: str = typer.Option(
+        None,
+        help="Nur diesen Monat 'JJJJ-MM' ersetzen (Standard: alle Monate, die in der Datei stehen)",
+    ),
+    zeilen: int = typer.Option(5, help="Wie viele Buchungen vor der Rückfrage angezeigt werden"),
+    ja: bool = typer.Option(False, "--ja", help="Ohne Rückfrage übernehmen"),
+) -> None:
+    """Stunden aus einem TimeTac-Berichtsexport einlesen – die Rückfallebene (PLAN §8).
+
+    Für die beiden Fälle, in denen die Schnittstelle nicht trägt: sie ist gestört, oder der
+    gesuchte Monat liegt vor der Freischaltung und wird von ihr nicht mehr geliefert. Das
+    Ergebnis ist dasselbe wie beim nächtlichen Abgleich – jeder gelieferte Monat wird ersetzt,
+    nicht ergänzt.
+    """
+    from pathlib import Path
+
+    from app.datenbank import schreib_sitzung
+    from app.fehler import FachFehler
+    from app.importe.timetac import bericht_lesen, projektnummer_aus_text, uebernehmen
+
+    werte = _konfiguration_holen()
+    pfad = Path(datei)
+    if not pfad.is_file():
+        typer.secho(
+            f"Die Datei {pfad} gibt es nicht.\n"
+            "Nächster Schritt: den Pfad zum TimeTac-Berichtsexport prüfen.",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=2)
+
+    try:
+        lieferung = bericht_lesen(pfad, werte.timetac, monate=[monat] if monat else None)
+    except FachFehler as fehler:
+        _fehler_ausgeben(fehler)
+        raise typer.Exit(code=2) from fehler
+
+    typer.echo(f"Datei:  {pfad}")
+    typer.echo(f"Monate: {', '.join(lieferung.monate) or '–'}")
+    typer.secho(
+        f"{len(lieferung.buchungen)} Buchungen, {lieferung.summe_stunden} Stunden",
+        fg=typer.colors.GREEN,
+    )
+    for buchung in lieferung.buchungen[:zeilen]:
+        nummer = projektnummer_aus_text(buchung.projekt_text)
+        satz, gruppe = werte.stundensaetze.satz_fuer(buchung.mitarbeiter)
+        typer.echo(
+            f"  {buchung.datum}  {buchung.stunden:>6} h  {buchung.mitarbeiter:<22} "
+            f"{buchung.projekt_text[:34]:<34} "
+            f"Projekt {nummer if nummer else '?'}  "
+            f"{satz / 100:.2f} €/h ({gruppe or 'Standardsatz'})"
+        )
+    if len(lieferung.buchungen) > zeilen:
+        typer.echo(f"  … und {len(lieferung.buchungen) - zeilen} weitere")
+
+    if lieferung.befunde:
+        typer.secho(f"\n{len(lieferung.befunde)} Befunde:", fg=typer.colors.YELLOW)
+        for befund in lieferung.befunde[:zeilen]:
+            typer.echo(f"  {befund.als_text()}")
+
+    if not lieferung.buchungen:
+        typer.secho(
+            "\nKeine übernehmbare Zeile. Es wurde nichts geschrieben.",
+            fg=typer.colors.YELLOW,
+            err=True,
+        )
+        raise typer.Exit(code=2)
+
+    if not ja:
+        typer.confirm(
+            f"\nDie Monate {', '.join(lieferung.monate)} werden ersetzt. Jetzt übernehmen?",
+            abort=True,
+        )
+
+    with schreib_sitzung() as sitzung:
+        ergebnis = uebernehmen(sitzung, lieferung, werte.stundensaetze)
+
+    typer.secho(
+        f"{ergebnis.stundenzeilen} Stundenzeilen übernommen "
+        f"({ergebnis.summe_stunden} Stunden, {ergebnis.summe_cent / 100:,.2f} €).",
+        fg=typer.colors.GREEN,
+    )
+    if ergebnis.ohne_satz:
+        typer.secho(
+            "Ohne Satzgruppe (gerechnet mit dem Standardsatz): "
+            + ", ".join(ergebnis.ohne_satz)
+            + "\nNächster Schritt: in der config.toml unter [stundensaetze.mitarbeiter] "
+            "eintragen und danach erneut einlesen.",
+            fg=typer.colors.YELLOW,
+        )
+
+
 @anwendung.command("kalkulationsblatt-vorlage")
 def kalkulationsblatt_vorlage(
     ziel: str = typer.Option(

@@ -14,7 +14,8 @@ mit `nachkalkulation.lesen`; dazu ein Reiter am Projekt und die Seite **Importe 
   auch Erlöse, und als Kosten gebucht würden sie die Marge ins Gegenteil drehen. Verdichtet auf
   Projekt, Monat und Konto; die Einzelbuchungen stehen im Importprotokoll.
 * **TimeTac-Stunden** über die Schnittstelle (OAuth2 Client Credentials) oder als
-  Rückfallebene über den CSV-Berichtsexport. Stunden mal Verrechnungssatz zählen als
+  Rückfallebene über den CSV-Berichtsexport (`ip3-leitstand timetac-csv`, zeigt die erkannten
+  Buchungen und fragt vor dem Ersetzen nach). Stunden mal Verrechnungssatz zählen als
   kalkulatorische Eigenleistung (PLAN §6.6); der Satz wird beim Import eingefroren, eine
   spätere Satzänderung bewegt abgeschlossene Monate nicht.
 * **Bewertete Stückliste** aus dem Kalkulationsblatt, mit der Maske „Mengen-Ist bestätigen".
@@ -30,6 +31,15 @@ liegt auch fertig unter `vorlagen/`. Gelesen wird über **benannte Zellen** (`ex
 `exp_material_soll`, …), nicht über Koordinaten: im eigenen Kalkulationsblatt darf jederzeit eine
 Zeile eingefügt werden. Ein erneutes Einlesen aktualisiert die Sollwerte, überschreibt aber
 **nie** eine bestätigte Ist-Menge.
+
+### Beispieldateien
+
+`vorlagen/beispiele/` enthält erfundene Daten, die auf die Demodaten passen: zwei
+Kalkulationsblätter, einen DATEV-Monat und einen TimeTac-Bericht. Damit zeigt die
+Nachkalkulation beim ersten Anschauen Zahlen statt leerer Tabellen. Die Dateien enthalten
+absichtliche Stolpersteine – ein Erlöskonto, eine Buchung ohne KOST2, einen unbekannten
+Kostenträger, einen Mitarbeiter ohne Satzgruppe –, damit sichtbar wird, was der Leitstand
+aussortiert und warum.
 
 ### Doppelbelastungssperre (PLAN §6.5)
 
