@@ -210,6 +210,73 @@ class FakturierungEinstellungen(BaseModel):
     texte: BelegtexteEinstellungen = Field(default_factory=BelegtexteEinstellungen)
 
 
+class KostentraegerEinstellungen(BaseModel):
+    """Der DATEV-Kostenträgerimport (PLAN §8).
+
+    Die Spaltennamen stehen hier und nicht im Code: sie weichen je Kanzlei-Export ab, und der
+    Leitstand soll dafür nicht geändert werden müssen. Je Feld sind mehrere Schreibweisen
+    erlaubt; die erste, die im Kopf der Datei vorkommt, gewinnt.
+    """
+
+    # Kontenbereiche, aus denen Kosten übernommen werden – als 'von-bis'. Vorbelegt mit dem
+    # Aufwandsbereich des SKR03 (3000 Wareneingang bis 4999 Betriebsausgaben). Erlöse (8000er)
+    # bleiben damit draußen: eine Kostenträgerauswertung führt sie mit, sie gehören aber nicht
+    # in die Ist-Kosten. Vor dem ersten echten Export mit der Buchhaltung abstimmen
+    # (PLAN §13.4, §13.5).
+    kostenkonten: list[str] = Field(default_factory=lambda: ["3000-4999"])
+
+    spalten: dict[str, list[str]] = Field(
+        default_factory=lambda: {
+            "kostentraeger": ["KOST2", "KOST2 - Kostenstelle", "Kostenträger", "Kostentraeger"],
+            "konto": ["Konto", "Sachkonto", "Kontonummer"],
+            "kontobezeichnung": ["Kontobezeichnung", "Kontenbeschriftung", "Konto-Bezeichnung"],
+            "betrag": ["Umsatz", "Umsatz (ohne Soll/Haben-Kz)", "Betrag", "Wert"],
+            "soll_haben": ["Soll/Haben-Kennzeichen", "S/H", "SH", "Soll/Haben"],
+            "datum": ["Belegdatum", "Datum", "Buchungsdatum"],
+            "beleg": ["Belegfeld 1", "Belegnummer", "Beleg"],
+            "buchungstext": ["Buchungstext", "Text", "Bezeichnung"],
+        }
+    )
+
+    @field_validator("kostenkonten")
+    @classmethod
+    def bereiche_pruefen(cls, werte: list[str]) -> list[str]:
+        for eintrag in werte:
+            von, _, bis = eintrag.partition("-")
+            if not (von.strip().isdigit() and bis.strip().isdigit()):
+                raise ValueError(
+                    f"'{eintrag}' ist kein Kontenbereich. Erwartet wird 'von-bis', z. B. "
+                    "'3000-4999'."
+                )
+            if int(von) > int(bis):
+                raise ValueError(f"Im Kontenbereich '{eintrag}' ist die Untergrenze die größere.")
+        return werte
+
+    def bereiche(self) -> list[tuple[int, int]]:
+        """Die Kontenbereiche als Zahlenpaare."""
+        paare = []
+        for eintrag in self.kostenkonten:
+            von, _, bis = eintrag.partition("-")
+            paare.append((int(von), int(bis)))
+        return paare
+
+    def ist_kostenkonto(self, konto: str) -> bool:
+        """Ob ein Konto in einem der Bereiche liegt.
+
+        Ein nicht rein numerisches Konto zählt nicht als Kostenkonto: es landet mit Begründung
+        in der Vorschau, statt stillschweigend zu verschwinden.
+        """
+        ziffern = konto.strip()
+        if not ziffern.isdigit():
+            return False
+        nummer = int(ziffern)
+        return any(von <= nummer <= bis for von, bis in self.bereiche())
+
+
+class DatevEinstellungen(BaseModel):
+    kostentraeger: KostentraegerEinstellungen = Field(default_factory=KostentraegerEinstellungen)
+
+
 class JobEinstellungen(BaseModel):
     backup_uhrzeit: str = "01:30"
     backup_generationen: int = 30
@@ -299,6 +366,7 @@ class Einstellungen(BaseSettings):
     sitzung: SitzungEinstellungen = Field(default_factory=SitzungEinstellungen)
     anmeldung: AnmeldungEinstellungen = Field(default_factory=AnmeldungEinstellungen)
     fakturierung: FakturierungEinstellungen = Field(default_factory=FakturierungEinstellungen)
+    datev: DatevEinstellungen = Field(default_factory=DatevEinstellungen)
     jobs: JobEinstellungen = Field(default_factory=JobEinstellungen)
     protokoll: ProtokollEinstellungen = Field(default_factory=ProtokollEinstellungen)
     stundensaetze: dict[str, int] = Field(default_factory=dict)

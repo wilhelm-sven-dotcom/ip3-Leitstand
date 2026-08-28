@@ -16,7 +16,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, Numeric, String
+from sqlalchemy import ForeignKey, Integer, Numeric, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.modelle.basis import (
@@ -100,7 +100,22 @@ class IstKosten(ZeitstempelMixin, Base):
     """
 
     __tablename__ = "ist_kosten"
-    __table_args__ = (in_werten("quelle", IST_QUELLEN), monat_check("monat"))
+    __table_args__ = (
+        # Ein Lauf ersetzt seinen Zeitraum (PLAN §8) – das leistet der Import. Die Eindeutigkeit
+        # hier ist das Fangnetz: ein vergessenes Löschen ergäbe doppelte Beträge, und eine
+        # doppelte Zahl in der Nachkalkulation sieht aus wie ein teures Projekt statt wie ein
+        # Fehler. Die Referenz gehört dazu, weil je Projekt und Monat mehrere Zeilen entstehen:
+        # aus DATEV eine je Konto, aus der Stückliste die Lagerbewertung, aus TimeTac die Stunden.
+        UniqueConstraint(
+            "projekt_id",
+            "quelle",
+            "monat",
+            "referenz",
+            name="uq_ist_kosten_projekt_id_quelle_monat_referenz",
+        ),
+        in_werten("quelle", IST_QUELLEN),
+        monat_check("monat"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     projekt_id: Mapped[int] = mapped_column(

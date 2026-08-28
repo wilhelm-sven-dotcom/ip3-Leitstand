@@ -90,6 +90,27 @@ einleitung_ab = "wir danken fuer Ihren Auftrag und bestaetigen Ihnen den Umfang 
 zahlungsbedingung = "Wir bitten Sie, den Rechnungsbetrag ohne Abzug bis zum {faellig_am} ({zahlungsziel_tage} Tage) auf das unten genannte Konto zu leisten."
 grussformel = "Mit freundlichen Gruessen"
 
+[datev.kostentraeger]
+# Import der Kostentraegerauswertung aus 02_DATEV (Phase 4, PLAN §8).
+# Uebernommen wird nur, was in diesen Kontenbereichen liegt. Vorbelegt mit dem Aufwandsbereich
+# des SKR03; Erloese (8000er) bleiben damit draussen. Bei SKR04 auf ["5000-7999"] aendern.
+# Vor dem ersten echten Export mit der Buchhaltung abstimmen.
+kostenkonten = ["3000-4999"]
+
+# Spaltennamen des Kanzlei-Exports. Je Feld sind mehrere Schreibweisen erlaubt; die erste, die
+# im Kopf der Datei vorkommt, gewinnt. Gross- und Kleinschreibung, Leerzeichen und Bindestriche
+# spielen beim Vergleich keine Rolle. Wenn der echte Export abweichende Namen traegt, hier
+# ergaenzen -- der Leitstand muss dafuer nicht geaendert werden.
+[datev.kostentraeger.spalten]
+kostentraeger = ["KOST2", "KOST2 - Kostenstelle", "Kostentraeger", "Kostenträger"]
+konto = ["Konto", "Sachkonto", "Kontonummer"]
+kontobezeichnung = ["Kontobezeichnung", "Kontenbeschriftung", "Konto-Bezeichnung"]
+betrag = ["Umsatz", "Umsatz (ohne Soll/Haben-Kz)", "Betrag", "Wert"]
+soll_haben = ["Soll/Haben-Kennzeichen", "S/H", "SH", "Soll/Haben"]
+datum = ["Belegdatum", "Datum", "Buchungsdatum"]
+beleg = ["Belegfeld 1", "Belegnummer", "Beleg"]
+buchungstext = ["Buchungstext", "Text", "Bezeichnung"]
+
 [stundensaetze]
 # Verrechnungssätze in Cent je Stunde für die kalkulatorische Eigenleistung (Phase 4).
 monteur = 6500
