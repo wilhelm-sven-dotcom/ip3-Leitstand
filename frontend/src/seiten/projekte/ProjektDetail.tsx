@@ -18,6 +18,7 @@ import { Knopf } from "@/komponenten/Knopf";
 import { Meldung } from "@/komponenten/Meldung";
 import { ProjektStatusBadge } from "@/komponenten/ProjektStatusBadge";
 import { Tabs } from "@/komponenten/Tabs";
+import { ProjektNachkalkulation } from "@/seiten/nachkalkulation/ProjektNachkalkulation";
 import { api, fehlerAuslesen } from "@/api/client";
 import type { ApiFehler } from "@/api/client";
 import {
@@ -202,11 +203,7 @@ export function ProjektDetail() {
             schluessel: "zahlungsplan",
             beschriftung: "Zahlungsplan & Rechnungen",
           },
-          {
-            schluessel: "nachkalkulation",
-            beschriftung: "Nachkalkulation",
-            spaeter: "ab Phase 4",
-          },
+          { schluessel: "nachkalkulation", beschriftung: "Nachkalkulation" },
           {
             schluessel: "dokumente",
             beschriftung: "Dokumente & Fristen",
@@ -323,6 +320,23 @@ export function ProjektDetail() {
         )
       ) : null}
 
+      {reiter === "nachkalkulation" ? (
+        darf("nachkalkulation.lesen") ? (
+          <ProjektNachkalkulation
+            projektNr={nummer}
+            darfSchreiben={darf("projekte.schreiben")}
+          />
+        ) : (
+          // Die Trennung von Projektsicht und Finanzsicht ist Absicht (PLAN §4): wer Projekte
+          // pflegen darf, muss deswegen keine Margen sehen. Die API weist ihn ohnehin ab.
+          <Meldung
+            art="hinweis"
+            text="Für die Nachkalkulation fehlt die Berechtigung."
+            naechsterSchritt="Finanzdaten sind bewusst von der Projektsicht getrennt. Sven kann die Berechtigung „nachkalkulation.lesen“ vergeben."
+          />
+        )
+      ) : null}
+
       <DetailPanel
         offen={bearbeiten}
         titel={`Projekt ${p.projekt_nr}`}
@@ -344,8 +358,8 @@ export function ProjektDetail() {
       </DetailPanel>
 
       {/* Gelöscht wird nicht: Projekte wechseln auf 'storniert' (CLAUDE.md Regel 5), und der
-          Status steht im Formular. Die Reiter für Phase 4 und 6 sind gesperrt und können
-          deshalb nie aktiv werden – sie brauchen hier keinen Zweig. */}
+          Status steht im Formular. Der Reiter für Phase 6 ist gesperrt und kann deshalb nie
+          aktiv werden – er braucht hier keinen Zweig. */}
     </>
   );
 }

@@ -23,6 +23,7 @@ import { ProjektNeu } from "@/seiten/projekte/ProjektNeu";
 import { Projektleiter } from "@/seiten/projekte/Projektleiter";
 import { Rechnungen } from "@/seiten/rechnungen/Rechnungen";
 import { RechnungDetail } from "@/seiten/rechnungen/RechnungDetail";
+import { Nachkalkulation } from "@/seiten/nachkalkulation/Nachkalkulation";
 import { Umsatz } from "@/seiten/umsatz/Umsatz";
 import { useSitzung } from "@/sitzung/SitzungKontext";
 
@@ -141,6 +142,15 @@ export function AppRouten() {
         element={
           <GeschuetzteRoute>
             <RechnungDetail />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/nachkalkulation"
+        element={
+          <GeschuetzteRoute>
+            <Nachkalkulation />
           </GeschuetzteRoute>
         }
       />
