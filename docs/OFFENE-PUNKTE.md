@@ -94,6 +94,13 @@ Die Steuernummer bleibt wünschenswert, ist aber keine Voraussetzung.
 | **Projektnummer in den TimeTac-Projektnamen** aufnehmen | Sonst versucht der Leitstand einen Abgleich über Kundenname und Standort und nimmt nur einen eindeutigen Treffer – der Rest bleibt liegen, statt auf ein fremdes Projekt gebucht zu werden. |
 | **Erster echter TimeTac-Lauf** mit `ip3-leitstand timetac-test` auf dem Windows-Host | Endpunkte und Feldnamen sind nach der v3-Dokumentation vorbelegt, aber nicht am lebenden Objekt bestätigt (Entscheidung 24). |
 
+**Beim Aufsetzen der Probeinstallation aufgefallen (28.08.2026), noch offen:**
+
+| Was | Warum es zählt |
+|---|---|
+| `IP3_SITZUNG_SCHLUESSEL` wird in der Umgebung `produktion` beim Start **verlangt**, aber von keiner Zeile Code gelesen. Die Sitzungskennungen sind Zufallswerte in der Datenbank und werden nicht signiert. | Der Wert schadet nicht und ist vorgemerkt, falls die Sitzungen später signiert werden. Die Beschreibung in `.env.example` war aber falsch – sie behauptete, ein Verlust melde alle Nutzer ab. Der Text ist korrigiert; zu entscheiden bleibt, ob die harte Startsperre bestehen bleibt oder erst wieder eingeführt wird, wenn der Schlüssel wirklich etwas tut. |
+| Die TimeTac-Rückfallebene war gebaut und getestet, aber von außen nicht erreichbar – nur aus Python. | Behoben mit `ip3-leitstand timetac-csv`. Eine Rückfallebene, die im Störfall erst programmiert werden muss, ist keine. |
+
 ## Was der Phase-3-Abnahmelauf zutage brachte – vor der ersten Rechnung zu erledigen
 
 | Was | Zahlen aus dem Abnahmelauf | Warum es zählt |

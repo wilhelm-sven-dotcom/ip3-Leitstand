@@ -16,6 +16,7 @@ Alle Daten bleiben lokal beziehungsweise im Firmen-OneDrive.
 | [PLAN.md](PLAN.md) | Verbindliche Bauvorlage: Architektur, Datenmodell, Geschäftsregeln, Phasenplan |
 | [CLAUDE.md](CLAUDE.md) | Arbeitsregeln und Befehle für die Entwicklung |
 | [RUNBOOK.md](RUNBOOK.md) | Betrieb: Installation, Start und Stopp, Update, Backup, Restore, Störungen |
+| [docs/AUF-DEN-EIGENEN-PC.md](docs/AUF-DEN-EIGENEN-PC.md) | Den Leitstand mit Demodaten auf einem Windows-PC ansehen (ohne Server, zum Wegwerfen) |
 | [NUTZERHANDBUCH.md](NUTZERHANDBUCH.md) | Bedienung je Rolle |
 | [VERFAHRENSDOKU.md](VERFAHRENSDOKU.md) | Verfahrensdokumentation nach GoBD (Grundgerüst, Abstimmung mit dem Steuerberater offen) |
 | [CHANGELOG.md](CHANGELOG.md) | Was in welcher Phase entstanden ist |
@@ -24,16 +25,16 @@ Alle Daten bleiben lokal beziehungsweise im Firmen-OneDrive.
 
 ## Stand
 
-**Phase 3 – Fakturierung.** Der Leitstand stellt Rechnungen: Auftragsbestätigung,
-Abschlagsrechnung aus einer Zahlungsplanposition, Schlussrechnung mit Absetzungsblock nach
-§ 14 Abs. 5 UStG, Servicerechnung, Storno und Gutschrift. Der Weg ist Entwurf → PDF-Vorschau →
-Festschreibung mit lückenloser Nummer, SHA-256-Hash und Datenbanksperre → Ablage von PDF und
-E-Rechnung (Factur-X, EN 16931) im Rechnungsordner. Das PDF entsteht im ip³-Corporate-Design mit
-eingebetteten Schriften. Auf der Startseite stehen Abschlagsvorschläge, sobald ein Projekt den
-Auslöser einer Zahlungsplanposition erreicht.
+**Phase 4 – Ist-Kosten und Nachkalkulation.** Der Leitstand weiß jetzt auch, was ein Projekt
+gekostet hat. Drei Ist-Quellen laufen zusammen: die DATEV-Kostenträgerauswertung (Schlüssel
+KOST2 = Projektnummer), die TimeTac-Stunden mal Verrechnungssatz als kalkulatorische
+Eigenleistung und die bewertete Stückliste aus dem Kalkulationsblatt. Dagegen stehen Erlös und
+Sollwerte; heraus kommt die Marge in € und Prozent mit Ampel gegen die Sollmarge. Jeder
+Importlauf ersetzt seinen Zeitraum, ein nachgelieferter Monat ist damit der Normalfall.
 
-Davor gebaut: Phase 1 (Übernahme der Bestandsdaten, Projekte, Termine, Zahlungsplan) und Phase 2
-(Umsatz und Forecast mit Jahresverlauf und Auftragsbestand). Einzelheiten im
+Davor gebaut: Phase 1 (Übernahme der Bestandsdaten, Projekte, Termine, Zahlungsplan), Phase 2
+(Umsatz und Forecast mit Jahresverlauf und Auftragsbestand) und Phase 3 (Fakturierung von der
+Auftragsbestätigung bis zur festgeschriebenen Schlussrechnung mit E-Rechnung). Einzelheiten im
 [CHANGELOG](CHANGELOG.md).
 
 ## Schnellstart für die Entwicklung
