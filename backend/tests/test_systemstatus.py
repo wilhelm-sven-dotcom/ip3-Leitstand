@@ -52,9 +52,13 @@ class TestKatalog:
     def test_backup_gibt_es_in_phase_null(self):
         assert katalog.ist_eingerichtet(katalog.definition("backup"))
 
+    def test_jobs_dieser_phase_sind_eingerichtet(self):
+        for schluessel in ("backup", "datev_import", "timetac_sync", "kalkulation_scan"):
+            assert katalog.ist_eingerichtet(katalog.definition(schluessel))
+
     def test_spaetere_jobs_sind_noch_nicht_eingerichtet(self):
-        for schluessel in ("datev_import", "timetac_sync", "fristen"):
-            assert not katalog.ist_eingerichtet(katalog.definition(schluessel))
+        # Die Fristenprüfung kommt mit Phase 6.
+        assert not katalog.ist_eingerichtet(katalog.definition("fristen"))
 
     def test_unbekannter_job_nennt_die_bekannten(self):
         with pytest.raises(KeyError) as fehler:
@@ -141,10 +145,16 @@ class TestAlleJobsSindSichtbar:
     def test_spaetere_jobs_nennen_ihre_phase(self, client: TestClient, admin):
         anmelden(client, "chef@ip3-energie.de")
         jobs = client.get("/api/systemstatus").json()["jobs"]
+        fristen = next(j for j in jobs if j["schluessel"] == "fristen")
+        assert fristen["eingerichtet"] is False
+        assert fristen["ab_phase"] == 6
+        assert "ab Phase 6" in fristen["text"]
+
+    def test_jobs_dieser_phase_gelten_als_eingerichtet(self, client: TestClient, admin):
+        anmelden(client, "chef@ip3-energie.de")
+        jobs = client.get("/api/systemstatus").json()["jobs"]
         datev = next(j for j in jobs if j["schluessel"] == "datev_import")
-        assert datev["eingerichtet"] is False
-        assert datev["ab_phase"] == 4
-        assert "ab Phase 4" in datev["text"]
+        assert datev["eingerichtet"] is True
 
     def test_spaetere_jobs_faerben_den_gesamtstatus_nicht_rot(
         self, client: TestClient, admin, test_einstellungen, tmp_path
@@ -158,7 +168,11 @@ class TestAlleJobsSindSichtbar:
         test_einstellungen.firma.geschaeftsfuehrer = "Sven Wilhelm"
         test_einstellungen.firma.bank.iban = "DE02120300000000202051"
         test_einstellungen.pfade.rechnungen = tmp_path / "01_Rechnungen"
-        _lauf_anlegen("backup", "erfolg", vor_stunden=2)
+        test_einstellungen.pfade.datev = tmp_path / "02_DATEV"
+        test_einstellungen.pfade.kalkulation = tmp_path / "03_Kalkulation"
+        test_einstellungen.timetac.aktiv = False
+        for job in ("backup", "datev_import", "timetac_sync", "kalkulation_scan"):
+            _lauf_anlegen(job, "erfolg", vor_stunden=2)
 
         anmelden(client, "chef@ip3-energie.de")
         koerper = client.get("/api/systemstatus").json()
@@ -262,11 +276,26 @@ class TestJobVonHandStarten:
 
     def test_noch_nicht_eingerichteter_job_409(self, client: TestClient, admin):
         angemeldet = anmelden(client, "chef@ip3-energie.de")
-        antwort = angemeldet.schreiben("POST", "/api/systemstatus/jobs/datev_import/starten")
+        antwort = angemeldet.schreiben("POST", "/api/systemstatus/jobs/fristen/starten")
         assert antwort.status_code == 409
         koerper = antwort.json()
         assert koerper["code"] == "job_nicht_eingerichtet"
-        assert "Phase 4" in koerper["meldung"]
+        assert "Phase 6" in koerper["meldung"]
+
+    def test_importlauf_ohne_eingerichteten_ordner_warnt_statt_zu_scheitern(
+        self, client: TestClient, admin, test_einstellungen
+    ):
+        """Ein fehlender Ordner ist ein Einrichtungsmangel, kein Absturz."""
+        test_einstellungen.pfade.datev = None
+        angemeldet = anmelden(client, "chef@ip3-energie.de")
+        antwort = angemeldet.schreiben("POST", "/api/systemstatus/jobs/datev_import/starten")
+        assert antwort.status_code == 200
+        assert antwort.json()["gestartet"] is True
+
+        jobs = client.get("/api/systemstatus").json()["jobs"]
+        datev = next(j for j in jobs if j["schluessel"] == "datev_import")
+        assert datev["status"] == "warnung"
+        assert "02_DATEV" in datev["meldung"], "die Meldung sagt, was einzurichten ist"
 
 
 class TestZeitplan:
@@ -287,14 +316,32 @@ class TestZeitplan:
         finally:
             scheduler.beenden()
 
-    def test_ohne_backupziel_kein_zeitplan(self, test_einstellungen, gesäte_db, caplog):
+    def test_ohne_jede_voraussetzung_kein_zeitplan(self, test_einstellungen, gesäte_db, caplog):
         from app.jobs import scheduler
 
         test_einstellungen.pfade.backup = None
+        test_einstellungen.pfade.datev = None
+        test_einstellungen.pfade.kalkulation = None
+        test_einstellungen.timetac.aktiv = False
         try:
             with caplog.at_level("WARNING"):
                 assert scheduler.starten(test_einstellungen) is None
-            assert "Backup-Ziel" in caplog.text
+            assert "Kein Hintergrundlauf ist eingerichtet" in caplog.text
+        finally:
+            scheduler.beenden()
+
+    def test_ohne_backupziel_laufen_die_uebrigen_trotzdem(
+        self, test_einstellungen, gesäte_db, tmp_path, caplog
+    ):
+        """Ein Haus ohne Backup-Ordner soll trotzdem nachts seine Stunden holen."""
+        from app.jobs import scheduler
+
+        test_einstellungen.pfade.backup = None
+        test_einstellungen.pfade.datev = tmp_path / "02_DATEV"
+        try:
+            with caplog.at_level("WARNING"):
+                assert scheduler.starten(test_einstellungen) is not None
+            assert "backup ist nicht gesetzt" in caplog.text
         finally:
             scheduler.beenden()
 

@@ -634,6 +634,25 @@ def pruefe_betriebsbereit(werte: Einstellungen) -> list[str]:
             "Kein Backup-Ziel gesetzt: In config.toml unter [pfade] backup den "
             "OneDrive-Ordner 04_Backup eintragen. Ohne Ziel läuft keine Sicherung."
         )
+    if not werte.pfade.datev:
+        hinweise.append(
+            "Kein DATEV-Ordner gesetzt: In config.toml unter [pfade] datev den OneDrive-Ordner "
+            "02_DATEV eintragen. Ohne ihn bleiben die Ist-Kosten der Projekte leer und jede "
+            "Marge ist zu gut."
+        )
+    if not werte.pfade.kalkulation:
+        hinweise.append(
+            "Kein Kalkulationsordner gesetzt: In config.toml unter [pfade] kalkulation den "
+            "OneDrive-Ordner 03_Kalkulation eintragen. Ohne ihn gibt es keine Sollwerte und "
+            "damit keinen Soll-Ist-Vergleich."
+        )
+    if werte.timetac.aktiv and not (werte.timetac_client_id and werte.timetac_konto):
+        hinweise.append(
+            "TimeTac-Zugangsdaten fehlen: IP3_TIMETAC_CLIENT_ID, IP3_TIMETAC_CLIENT_SECRET und "
+            "IP3_TIMETAC_KONTO in die .env auf dem Host eintragen (nicht in die config.toml). "
+            "Ohne sie fehlt die Eigenleistung im Projekt-Ist. Prüfen mit "
+            "'ip3-leitstand timetac-test'."
+        )
     if not werte.pfade.rechnungen:
         hinweise.append(
             "Kein Rechnungsordner gesetzt: In config.toml unter [pfade] rechnungen den "

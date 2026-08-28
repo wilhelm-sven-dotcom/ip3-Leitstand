@@ -250,14 +250,23 @@ def job_starten(
     )
     db.commit()
 
-    if job == "backup":
-        backup_job("manuell", werte)
-    else:  # pragma: no cover – erst ab Phase 4 erreichbar
+    from app.jobs.importe import datev_job, kalkulation_job, timetac_job
+
+    laeufe = {
+        "backup": backup_job,
+        "datev_import": datev_job,
+        "timetac_sync": timetac_job,
+        "kalkulation_scan": kalkulation_job,
+    }
+    starten = laeufe.get(job)
+    if starten is None:  # pragma: no cover – ein Job im Katalog ohne Funktion dahinter
         raise Konflikt(
             f"{eintrag.bezeichnung} lässt sich noch nicht von Hand starten.",
             "Dieser Lauf kommt mit einer späteren Erweiterung des Leitstands.",
             code="job_nicht_eingerichtet",
         )
+    # Die Läufe werfen nicht: eine fehlende Voraussetzung wird zur Warnung im Protokoll.
+    starten("manuell", werte)
 
     return JobStartErgebnis(
         gestartet=True,

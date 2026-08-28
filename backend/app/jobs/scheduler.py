@@ -16,6 +16,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from app.jobs.backup import backup_job, sitzungen_aufraeumen_job
+from app.jobs.importe import datev_job, kalkulation_job, timetac_job
 from app.konfiguration import Einstellungen
 from app.protokoll import logger
 from app.zeit import ORTSZEIT
@@ -26,23 +27,42 @@ _scheduler: BackgroundScheduler | None = None
 
 
 def _naechtlicher_lauf(werte: Einstellungen) -> None:
-    """Alles, was nachts passiert – in einer Funktion, damit die Reihenfolge feststeht."""
+    """Alles, was nachts passiert – in einer Funktion, damit die Reihenfolge feststeht.
+
+    Erst sichern, dann einlesen: geht beim Import etwas schief, liegt die Sicherung des
+    vorigen Standes bereits daneben. Jeder Lauf prüft seine eigene Voraussetzung und
+    protokolliert eine Warnung, wenn sie fehlt – keiner wirft.
+    """
     backup_job("zeitplan", werte)
     sitzungen_aufraeumen_job("zeitplan")
+    kalkulation_job("zeitplan", werte)
+    datev_job("zeitplan", werte)
+    # TimeTac zuletzt: der Lauf hängt am Netz und dauert am längsten.
+    timetac_job("zeitplan", werte)
 
 
 def starten(werte: Einstellungen) -> BackgroundScheduler | None:
-    """Zeitplan starten. Gibt ``None`` zurück, wenn keine Jobs eingerichtet sind."""
+    """Zeitplan starten.
+
+    Der Plan startet, sobald **ein** Lauf etwas zu tun hat. Bis Phase 3 hing das allein am
+    Backup-Ziel; seit die Importe dazugekommen sind, wäre das falsch: ein Haus ohne
+    Backup-Ordner soll trotzdem nachts seine Stunden holen. Jeder Lauf prüft seine eigene
+    Voraussetzung und meldet sie im Systemstatus, wenn sie fehlt.
+    """
     global _scheduler
     if _scheduler is not None:
         return _scheduler
 
-    if werte.pfade.backup is None:
+    fehlend = _fehlende_voraussetzungen(werte)
+    if len(fehlend) == len(_VORAUSSETZUNGEN):
         log.warning(
-            "Kein Backup-Ziel eingerichtet – der nächtliche Zeitplan wird nicht gestartet. "
-            "Nächster Schritt: in config.toml unter [pfade] backup setzen."
+            "Kein Hintergrundlauf ist eingerichtet – der nächtliche Zeitplan wird nicht "
+            "gestartet. Nächster Schritt: in config.toml unter [pfade] mindestens backup, "
+            "datev oder kalkulation setzen, oder in der .env die TimeTac-Zugangsdaten."
         )
         return None
+    for hinweis in fehlend:
+        log.warning("Nächtlicher Lauf ohne Voraussetzung: %s", hinweis)
 
     # Zeitplan in Ortszeit: „01:30" soll auch nach der Zeitumstellung 01:30 Uhr im Büro bedeuten.
     ausloeser = CronTrigger(
@@ -72,6 +92,25 @@ def starten(werte: Einstellungen) -> BackgroundScheduler | None:
     )
     _auf_mehrere_prozesse_pruefen()
     return scheduler
+
+
+# Was ein Lauf braucht, um überhaupt etwas tun zu können. Der Zeitplan startet, sobald eine
+# dieser Voraussetzungen erfüllt ist.
+_VORAUSSETZUNGEN = ("Datensicherung", "DATEV-Import", "Kalkulationsblätter", "TimeTac-Stunden")
+
+
+def _fehlende_voraussetzungen(werte: Einstellungen) -> list[str]:
+    """Läufe, die mangels Einrichtung nichts tun können – als lesbare Hinweise."""
+    fehlend = []
+    if werte.pfade.backup is None:
+        fehlend.append("Datensicherung: [pfade] backup ist nicht gesetzt")
+    if werte.pfade.datev is None:
+        fehlend.append("DATEV-Import: [pfade] datev ist nicht gesetzt")
+    if werte.pfade.kalkulation is None:
+        fehlend.append("Kalkulationsblätter: [pfade] kalkulation ist nicht gesetzt")
+    if not (werte.timetac.aktiv and werte.timetac_client_id and werte.timetac_konto):
+        fehlend.append("TimeTac-Stunden: Zugangsdaten fehlen in der .env")
+    return fehlend
 
 
 def beenden() -> None:

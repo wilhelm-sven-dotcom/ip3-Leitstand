@@ -181,9 +181,16 @@ def test_steuernummer_oder_ust_id_genuegt():
 
 
 def test_vollstaendige_firmenstammdaten_ohne_hinweis():
+    """Vollständig eingerichtet heißt seit Phase 4 auch: alle vier Datenquellen stehen."""
     werte = Einstellungen(
         app={"umgebung": "test"},
-        pfade={"backup": "/tmp/backup", "rechnungen": "/tmp/01_Rechnungen"},
+        pfade={
+            "backup": "/tmp/backup",
+            "rechnungen": "/tmp/01_Rechnungen",
+            "datev": "/tmp/02_DATEV",
+            "kalkulation": "/tmp/03_Kalkulation",
+        },
+        timetac={"aktiv": False},
         firma={
             "strasse": "Industriestraße 1",
             "plz": "92637",
@@ -199,6 +206,24 @@ def test_vollstaendige_firmenstammdaten_ohne_hinweis():
         },
     )
     assert konfiguration.pruefe_betriebsbereit(werte) == []
+
+
+def test_fehlende_datenquellen_erscheinen_als_hinweis():
+    """Ohne DATEV bleiben die Ist-Kosten leer und jede Marge sieht zu gut aus (PLAN §7)."""
+    hinweise = konfiguration.pruefe_betriebsbereit(
+        Einstellungen(app={"umgebung": "test"}, timetac={"aktiv": True})
+    )
+    zusammen = " ".join(hinweise)
+    assert "02_DATEV" in zusammen
+    assert "03_Kalkulation" in zusammen
+    assert "IP3_TIMETAC_CLIENT_ID" in zusammen
+
+
+def test_abgeschaltetes_timetac_ergibt_keinen_hinweis():
+    hinweise = konfiguration.pruefe_betriebsbereit(
+        Einstellungen(app={"umgebung": "test"}, timetac={"aktiv": False})
+    )
+    assert not any("TimeTac" in h for h in hinweise)
 
 
 def test_relative_pfade_beziehen_sich_auf_die_projektwurzel(

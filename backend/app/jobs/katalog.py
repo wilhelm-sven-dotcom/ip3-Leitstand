@@ -62,8 +62,9 @@ KATALOG: tuple[JobDefinition, ...] = (
 
 SCHLUESSEL: frozenset[str] = frozenset(eintrag.schluessel for eintrag in KATALOG)
 
-# Jobs, die es in Phase 0 schon gibt.
-AKTIVE_PHASE = 0
+# Bis zu welcher Phase die Jobs im Katalog tatsächlich laufen. Alles darüber zeigt der
+# Systemstatus als „ab Phase n" an, statt es stillschweigend wegzulassen.
+AKTIVE_PHASE = 4
 
 
 def definition(schluessel: str) -> JobDefinition:
