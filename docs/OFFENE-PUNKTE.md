@@ -100,6 +100,7 @@ Die Steuernummer bleibt wünschenswert, ist aber keine Voraussetzung.
 |---|---|
 | `IP3_SITZUNG_SCHLUESSEL` wird in der Umgebung `produktion` beim Start **verlangt**, aber von keiner Zeile Code gelesen. Die Sitzungskennungen sind Zufallswerte in der Datenbank und werden nicht signiert. | Der Wert schadet nicht und ist vorgemerkt, falls die Sitzungen später signiert werden. Die Beschreibung in `.env.example` war aber falsch – sie behauptete, ein Verlust melde alle Nutzer ab. Der Text ist korrigiert; zu entscheiden bleibt, ob die harte Startsperre bestehen bleibt oder erst wieder eingeführt wird, wenn der Schlüssel wirklich etwas tut. |
 | Die TimeTac-Rückfallebene war gebaut und getestet, aber von außen nicht erreichbar – nur aus Python. | Behoben mit `ip3-leitstand timetac-csv`. Eine Rückfallebene, die im Störfall erst programmiert werden muss, ist keine. |
+| Der Riegel gegen Datenbanken in Sync-Ordnern kannte `icloud`, aber nicht die macOS-Schreibweise `~/Library/Mobile Documents/com~apple~CloudDocs`. | Auf einem Mac mit synchronisiertem Dokumentenordner zeigt `~/Documents` genau dorthin – der übliche Ablageort wäre also durchgerutscht und die Datenbank irgendwann beschädigt worden. Beide Namen sind ergänzt; weil der Pfad vor der Prüfung aufgelöst wird, greift der Riegel auch über die Verknüpfung. |
 
 ## Was der Phase-3-Abnahmelauf zutage brachte – vor der ersten Rechnung zu erledigen
 

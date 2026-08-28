@@ -16,7 +16,7 @@ Alle Daten bleiben lokal beziehungsweise im Firmen-OneDrive.
 | [PLAN.md](PLAN.md) | Verbindliche Bauvorlage: Architektur, Datenmodell, Geschäftsregeln, Phasenplan |
 | [CLAUDE.md](CLAUDE.md) | Arbeitsregeln und Befehle für die Entwicklung |
 | [RUNBOOK.md](RUNBOOK.md) | Betrieb: Installation, Start und Stopp, Update, Backup, Restore, Störungen |
-| [docs/AUF-DEN-EIGENEN-PC.md](docs/AUF-DEN-EIGENEN-PC.md) | Den Leitstand mit Demodaten auf einem Windows-PC ansehen (ohne Server, zum Wegwerfen) |
+| [docs/AUF-DEN-EIGENEN-RECHNER.md](docs/AUF-DEN-EIGENEN-RECHNER.md) | Den Leitstand mit Demodaten auf dem eigenen Mac oder Windows-Rechner ansehen (ohne Server, zum Wegwerfen) |
 | [NUTZERHANDBUCH.md](NUTZERHANDBUCH.md) | Bedienung je Rolle |
 | [VERFAHRENSDOKU.md](VERFAHRENSDOKU.md) | Verfahrensdokumentation nach GoBD (Grundgerüst, Abstimmung mit dem Steuerberater offen) |
 | [CHANGELOG.md](CHANGELOG.md) | Was in welcher Phase entstanden ist |

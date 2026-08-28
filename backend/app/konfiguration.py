@@ -32,6 +32,12 @@ SYNC_ORDNER_KENNZEICHEN = (
     "owncloud",
     "sharepoint",
     "icloud",
+    # Der macOS-Pfad von iCloud Drive heißt nicht 'iCloud': mit synchronisiertem Schreibtisch
+    # und Dokumentenordner liegen beide unter ~/Library/Mobile Documents/com~apple~CloudDocs,
+    # und ~/Documents ist nur noch eine Verknüpfung dorthin. Weil der Pfad vor der Prüfung
+    # aufgelöst wird, greift der Riegel damit auch für einen Mac.
+    "mobile documents",
+    "com~apple~clouddocs",
     "magentacloud",
     "sync",
 )

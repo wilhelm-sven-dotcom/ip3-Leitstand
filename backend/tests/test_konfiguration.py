@@ -85,6 +85,9 @@ def test_uhrzeit_wird_geprueft(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
         "/home/sven/Dropbox/ip3/leitstand.sqlite3",
         "/mnt/c/Users/sven/OneDrive/leitstand.sqlite3",
         "/srv/Nextcloud/ip3/db.sqlite3",
+        # macOS: so heißt iCloud Drive auf der Platte. Mit synchronisiertem Dokumentenordner
+        # zeigt ~/Documents dorthin, und genau dort legt man auf einem Mac aus Gewohnheit ab.
+        "/Users/sven/Library/Mobile Documents/com~apple~CloudDocs/ip3/leitstand.sqlite3",
     ],
 )
 def test_datenbank_im_sync_ordner_wird_abgelehnt(pfad: str):
@@ -103,6 +106,7 @@ def test_datenbank_im_sync_ordner_wird_abgelehnt(pfad: str):
         r"D:\ip3-leitstand\daten\leitstand.sqlite3",
         "/opt/ip3-leitstand/daten/leitstand.sqlite3",
         "/var/lib/ip3/asynchron/db.sqlite3",  # 'sync' im Wortinneren ist kein Sync-Ordner
+        "/Users/sven/ip3-probe/daten/leitstand.sqlite3",  # macOS, aber nicht synchronisiert
     ],
 )
 def test_lokaler_datenbankpfad_ist_in_ordnung(pfad: str):
