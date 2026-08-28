@@ -1,0 +1,220 @@
+/**
+ * Importe und Daten (PLAN §8, §11).
+ *
+ * Karten statt einer Tabelle: die vier Quellen sind unterschiedlich genug, dass eine Zeile je
+ * Quelle mehr verstecken als zeigen würde.
+ */
+
+.import-karten {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--abstand-4);
+  margin-bottom: var(--abstand-6);
+}
+
+.import-karte {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: var(--abstand-4);
+  background: var(--weiss);
+}
+
+.import-karte h3 {
+  font-size: var(--text-l);
+  color: var(--ip3-blau);
+  margin-bottom: 2px;
+}
+
+.import-karte__herkunft {
+  font-family: var(--font-zahl);
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  margin-bottom: var(--abstand-3);
+}
+
+.import-karte__text {
+  font-size: var(--text-m);
+  color: var(--text);
+  margin-bottom: var(--abstand-4);
+}
+
+.import-karte__fuss {
+  margin-top: auto;
+  padding-top: var(--abstand-3);
+  display: flex;
+  gap: var(--abstand-2);
+  flex-wrap: wrap;
+}
+
+/* --- Vorschau --------------------------------------------------------- */
+
+.vorschau {
+  background: var(--flaeche-info);
+  border-radius: var(--radius-m);
+  padding: var(--abstand-3);
+  margin-bottom: var(--abstand-3);
+  font-size: var(--text-s);
+}
+
+.vorschau__dateien {
+  font-family: var(--font-zahl);
+  color: var(--text);
+  margin-bottom: var(--abstand-3);
+  word-break: break-word;
+}
+
+.vorschau__zeitraum {
+  margin-left: var(--abstand-2);
+  padding: 1px 6px;
+  border-radius: var(--radius-s);
+  background: var(--ip3-blau);
+  color: var(--weiss);
+  font-size: var(--text-xs);
+}
+
+.vorschau__summen,
+.lauf__summen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--abstand-2) var(--abstand-4);
+  margin: 0;
+}
+
+.vorschau__summen dt,
+.lauf__summen dt {
+  color: var(--text-sekundaer);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vorschau__summen dd,
+.lauf__summen dd {
+  margin: 0;
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.vorschau__hinweis {
+  margin-top: var(--abstand-3);
+  color: var(--text-sekundaer);
+}
+
+.vorschau__befunde {
+  margin-top: var(--abstand-3);
+  border-top: 1px solid var(--linie);
+  padding-top: var(--abstand-3);
+}
+
+.vorschau__befunde strong {
+  color: var(--akzent-rot);
+}
+
+.vorschau__befunde ul {
+  margin: var(--abstand-2) 0 0;
+  padding-left: var(--abstand-4);
+}
+
+.vorschau__befunde li {
+  margin-bottom: 2px;
+  color: var(--text-sekundaer);
+}
+
+.vorschau__befunde code {
+  font-family: var(--font-zahl);
+  color: var(--text);
+}
+
+.vorschau__mehr {
+  margin-top: var(--abstand-2);
+  color: var(--text-sekundaer);
+}
+
+/* --- Protokolle ------------------------------------------------------- */
+
+.import-ueberschrift {
+  font-size: var(--text-l);
+  color: var(--ip3-blau);
+  margin-bottom: var(--abstand-2);
+}
+
+.import-fuss {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  margin-bottom: var(--abstand-4);
+  max-width: 70ch;
+}
+
+.lauf-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-3);
+}
+
+.lauf {
+  border: 1px solid var(--linie);
+  border-left: 3px solid var(--linie);
+  border-radius: 0 var(--radius-m) var(--radius-m) 0;
+  padding: var(--abstand-3) var(--abstand-4);
+  background: var(--weiss);
+}
+
+.lauf--erfolg {
+  border-left-color: var(--ip3-blau);
+}
+
+.lauf--warnung,
+.lauf--fehler {
+  border-left-color: var(--akzent-rot);
+}
+
+.lauf__kopf {
+  display: flex;
+  align-items: baseline;
+  gap: var(--abstand-3);
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.lauf__status {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 6px;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--linie-badge);
+  color: var(--text-sekundaer);
+}
+
+.lauf__status--erfolg {
+  background: var(--ip3-blau);
+  border-color: var(--ip3-blau);
+  color: var(--weiss);
+}
+
+.lauf__status--warnung,
+.lauf__status--fehler {
+  background: var(--akzent-rot);
+  border-color: var(--akzent-rot);
+  color: var(--weiss);
+}
+
+.lauf__zeit,
+.lauf__zeitraum {
+  font-family: var(--font-zahl);
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.lauf__datei {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  margin-bottom: var(--abstand-3);
+  word-break: break-word;
+}

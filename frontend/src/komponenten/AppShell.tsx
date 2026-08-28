@@ -74,7 +74,7 @@ export const MENUE: Menuepunkt[] = [
     abPhase: 6,
   },
   {
-    pfad: "/importe/migration",
+    pfad: "/importe",
     beschriftung: "Importe & Daten",
     recht: "importe.ausfuehren",
     abPhase: 1,

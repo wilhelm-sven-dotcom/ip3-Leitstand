@@ -15,6 +15,7 @@ import { Start } from "@/seiten/Start";
 import { PasswortAendern } from "@/seiten/PasswortAendern";
 import { NichtGefunden } from "@/seiten/Fehlerseite";
 import { KomponentenGalerie } from "@/seiten/KomponentenGalerie";
+import { Importe } from "@/seiten/importe/Importe";
 import { MigrationZuordnung } from "@/seiten/migration/Zuordnung";
 import { Kunden } from "@/seiten/stammdaten/Kunden";
 import { Projekte } from "@/seiten/projekte/Projekte";
@@ -160,6 +161,15 @@ export function AppRouten() {
         element={
           <GeschuetzteRoute>
             <Umsatz />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/importe"
+        element={
+          <GeschuetzteRoute>
+            <Importe />
           </GeschuetzteRoute>
         }
       />
