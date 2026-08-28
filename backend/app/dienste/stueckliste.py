@@ -113,17 +113,22 @@ def bewerten(sitzung: Session, projekt: Projekt, *, monat: str | None = None) ->
 
 
 def _als_ist_kosten_schreiben(sitzung: Session, projekt: Projekt, ergebnis: Bewertung) -> None:
-    """Eine Zeile je Projekt und Monat; eine frühere desselben Monats wird ersetzt.
+    """**Eine** Zeile je Projekt – über alle Monate hinweg.
 
-    Bewertungen anderer Monate bleiben stehen. Anders als bei DATEV und TimeTac liefert hier
-    niemand einen Zeitraum – der Monat entsteht beim Bestätigen, und ein früherer Monat gehört
-    zu einer früheren Bestätigung, die stattgefunden hat.
+    Anders als DATEV und TimeTac ist die Lagerbewertung keine periodische Größe, sondern der
+    aktuelle Wertansatz: sie sagt, was an Lagermaterial in diesem Projekt steckt. Es gibt davon
+    genau einen, nicht eine Reihe je Bestätigung.
+
+    Deshalb wird beim Neubewerten der **ganze** Bestand dieses Projekts gelöscht und nicht nur
+    der Monat. Andernfalls stünde nach einer zweiten Bestätigung im Folgemonat die Lagerentnahme
+    zweimal im Ist – und eine verdoppelte Zahl sieht in der Nachkalkulation aus wie ein teures
+    Projekt, nicht wie ein Fehler. Der Monat der Zeile ist der der letzten Bestätigung; er
+    ordnet den Wertansatz zeitlich ein, teilt ihn aber nicht auf.
     """
     sitzung.execute(
         delete(IstKosten).where(
             IstKosten.projekt_id == projekt.id,
             IstKosten.quelle == QUELLE,
-            IstKosten.monat == ergebnis.monat,
         )
     )
     if ergebnis.betrag_cent == 0 and ergebnis.bewertet == 0:

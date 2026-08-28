@@ -219,6 +219,78 @@ die Auftragsliste nur die offenen Abschläge führte. Zwei Hinweise unter der Ta
 Projekte, bei denen etwas nachzutragen ist – ohne Auftragswert, oder mehr abgerechnet als
 beauftragt.
 
+## Nachkalkulation
+
+Die Seite beantwortet die Frage, die nach jedem Projekt offen bleibt: hat sich das gelohnt.
+Sie ist nur mit der Berechtigung `nachkalkulation.lesen` sichtbar – wer Projekte pflegt, muss
+deswegen keine Margen sehen dürfen.
+
+### Was die Zahlen bedeuten
+
+| Größe | Woher sie kommt |
+|---|---|
+| **Erlös** | Auftragswert plus beauftragte und berechnete Nachträge. Der tatsächlich fakturierte Betrag steht daneben – bei laufenden Projekten ist er kleiner. |
+| **Soll** | Material und Dienstleistung aus dem Kalkulationsblatt. |
+| **Ist** | DATEV-Kostenträger, bewertete Lagerentnahmen und Arbeitsstunden mal Verrechnungssatz. |
+| **Marge** | Erlös minus Ist, in Euro und in Prozent **vom Erlös**: 18 % heißt, von 100.000 € Auftrag bleiben 18.000 € übrig. |
+
+Die Ampel vergleicht die Marge mit der Sollmarge aus dem Kalkulationsblatt. „Im Soll" heißt: auf
+oder über dem Soll. „Knapp" heißt: bis 5 Prozentpunkte darunter. Gibt es kein Kalkulationsblatt,
+gibt es keine Ampel – bei den übernommenen Bestandsprojekten ist das der Normalfall.
+
+**Anmerkungen sind Teil der Zahl.** Steht in der Spalte „Anmerkung" etwas, ist die Marge weniger
+wert, als sie aussieht: fehlender Auftragswert, fehlendes Kalkulationsblatt, ungezählte
+Lagerpositionen oder der Verdacht, dass Material doppelt oder gar nicht im Ist steht.
+
+### Kalkulationsblatt vorbereiten
+
+Einmal je Kalkulationsblatt:
+
+1. Die Vorlage unter `vorlagen/Kalkulationsblatt-Vorlage.xlsx` öffnen.
+2. Das Blatt **EXPORT** in die eigene Kalkulationsdatei kopieren.
+3. In Spalte B die Zellen mit der eigenen Kalkulation verknüpfen (Formeln sind erlaubt, gelesen
+   wird das Ergebnis). Die Zellen tragen Namen – `exp_projekt_nr`, `exp_material_soll` und so
+   weiter. Beim Kopieren in eine andere Mappe den Namensmanager prüfen: gehen die Namen verloren,
+   sagt der Leitstand beim Einlesen, welcher fehlt.
+4. Die Stückliste ab der markierten Zeile ausfüllen. **Quelle** entscheidet, wie das Material ins
+   Ist kommt: `projektbestellt` über die DATEV-Buchungen, `lager` über den Einkaufspreis.
+   Beides zusammen gäbe es doppelt.
+5. Die Datei in `03_Kalkulation` ablegen, Dateiname beginnt mit der Projektnummer
+   (`26001_Mustermann.xlsx`).
+
+### Mengen-Ist bestätigen
+
+Wenn ein Projekt fertig ist: im Reiter **Nachkalkulation** auf „Mengen-Ist bestätigen". Die Maske
+zeigt nur die Lagerpositionen – bei projektbestelltem Material sagt die Rechnung der Kanzlei, was
+es gekostet hat.
+
+Vorbelegt ist die kalkulierte Menge. Wer sie so bestätigt, sagt damit: es wurde verbaut wie
+kalkuliert. Mit dem Speichern rechnet der Leitstand den Wert sofort und bucht ihn als Ist-Kosten.
+
+Solange nichts bestätigt ist, fehlt die Lagerentnahme im Ist und die Marge sieht besser aus, als
+sie ist. Das steht als Anmerkung am Projekt.
+
+## Importe & Daten
+
+Hier laufen die drei monatlichen Quellen zusammen. Nachts holt der Leitstand sie von selbst; die
+Seite ist für den Fall, dass es schneller gehen soll oder dass etwas nachzusehen ist.
+
+**Erst ansehen, dann übernehmen.** Die Vorschau liest die Datei und schreibt nichts. Sie zeigt
+Kontrollsummen und alles, was nicht gedeutet werden konnte. Erst „Übernehmen" schreibt. Ändert
+sich die Datei dazwischen, wird der Lauf abgewiesen – sonst stünde am Ende etwas anderes in der
+Datenbank als auf dem Schirm.
+
+**Ein Monat wird ersetzt, nicht ergänzt.** Liefert die Kanzlei einen Monat korrigiert nach, wird
+er einfach noch einmal eingelesen. Nichts verdoppelt sich.
+
+Was nicht übernommen wird, steht mit Grund in der Vorschau: Erlöskonten, Buchungen ohne
+Kostenträger, Kostenträger ohne Projekt im Leitstand. Das ist keine Fehlermeldung, sondern eine
+Auskunft – meistens steckt dahinter ein Tippfehler in der Buchhaltung oder ein Projekt, das im
+Leitstand fehlt.
+
+Unter den Karten stehen die Importprotokolle. Ein Lauf „mit Anmerkung" ist kein Fehler, aber auch
+kein glatter Erfolg: irgendetwas ist liegen geblieben.
+
 ## Bestandsdaten übernehmen
 
 **Menü → Importe & Daten.** Einmaliger Vorgang, in der Regel von der Geschäftsführung. Der Ablauf

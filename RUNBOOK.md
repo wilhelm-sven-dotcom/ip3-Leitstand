@@ -344,8 +344,59 @@ und fängt genau die Fehler, die niemand im Protokoll sucht.
 | 31 | `pfade.rechnungen` auf einen nicht erreichbaren Ordner zeigen lassen und festschreiben | Der Beleg ist festgeschrieben und die Meldung sagt, dass nur die Ablage fehlt; „Ablage wiederholen" holt sie nach, sobald der Ordner erreichbar ist |
 | 32 | Als Rolle `team` `/fakturierung` aufrufen | Kein Menüpunkt „Fakturierung"; `/api/rechnungen` antwortet 403 |
 | 33 | Als Rolle `buchhaltung` einen festgeschriebenen Beleg stornieren wollen | 403 – Storno und Gutschrift sind der Geschäftsführung vorbehalten; Festschreiben darf die Buchhaltung |
+| 34 | Kalkulationsblatt aus `vorlagen/` in `03_Kalkulation` legen, Vorschau ansehen | Blattzahl, Positionen und Soll-Summe stimmen; ein Blatt ohne `EXPORT` erscheint als Befund und hält die übrigen nicht auf |
+| 35 | Kalkulationsblatt übernehmen, dann die Sollwerte im Blatt ändern und erneut übernehmen | Die Sollwerte folgen dem Blatt; eine bereits bestätigte Ist-Menge bleibt unverändert |
+| 36 | DATEV-Datei nach `02_DATEV` legen, Vorschau ansehen | Erlöskonten und Buchungen ohne Kostenträger stehen unter „nicht übernommen" mit Grund; Kostenträger ohne Projekt erscheinen als Befund |
+| 37 | Denselben DATEV-Monat zweimal übernehmen | Gleiche Summe, zwei Einträge im Importprotokoll, keine doppelten Zeilen. Der zweite Lauf meldet, wie viele Zeilen er ersetzt hat |
+| 38 | Zwischen Vorschau und Übernahme die Datei ändern | Ablehnung mit dem Hinweis, die Vorschau neu zu laden – es wird nichts geschrieben |
+| 39 | `ip3-leitstand timetac-test` auf dem Host ausführen | URL, Abfrage und die ersten Buchungen mit erkannter Projektzuordnung und Satz; es wird **nichts** geschrieben. Weicht ein Feldname ab, in `config.toml` unter `[timetac.felder]` nachziehen |
+| 40 | TimeTac-Stunden holen | Stundenzeilen am Projekt, dazu eine Ist-Kosten-Zeile je Projekt und Monat. Mitarbeiter ohne Satzgruppe erscheinen als Pflegehinweis |
+| 41 | Netzstecker ziehen und `timetac_sync` starten | Warnung im Systemstatus mit nächstem Schritt; die vorhandenen Stunden stehen unverändert da |
+| 42 | „Mengen-Ist bestätigen" bei einem Projekt mit gemischter Stückliste | Nur Lagerpositionen sind eingabebereit; nach dem Speichern tragen genau sie einen Wertansatz, projektbestellte nicht |
+| 43 | Dieselbe Bestätigung im Folgemonat wiederholen | Der Wertansatz bleibt gleich – die Lagerentnahme ist der aktuelle Stand, keine Reihe je Bestätigung |
+| 44 | Nachkalkulation eines Projekts mit allen drei Ist-Quellen öffnen | Rechenweg von Auftragswert bis Marge, Ist nach Quelle aufgegliedert, Ampel gegen die Sollmarge; die drei Quellen ergeben zusammen genau den Ist |
+| 45 | Als Rolle `buchhaltung` `/nachkalkulation` aufrufen | Kein Menüpunkt; `/api/nachkalkulation` antwortet 403. Importe darf die Buchhaltung, Margen nicht |
+| 46 | `pfade.datev` leeren und `datev_import` von Hand starten | Warnung im Systemstatus mit dem config-Eintrag als nächstem Schritt – kein Fehler, kein Stacktrace |
 
-## 11. Was in späteren Phasen dazukommt
+## 11. Monatslauf ab Phase 4
+
+Ab Phase 4 lebt der Leitstand von drei Ordnern im Firmen-OneDrive. Sie werden in `config.toml`
+unter `[pfade]` eingetragen; ohne sie bleiben die Ist-Kosten leer und **jede Marge sieht zu gut
+aus**. Der Systemstatus sagt es, solange einer fehlt.
+
+| Ordner | Inhalt | Wer legt ab |
+|---|---|---|
+| `02_DATEV` | `kostentraeger_JJJJ-MM.csv` – Kostenträgerauswertung mit Einzelbuchungen, KOST2 = Projektnummer | die Kanzlei, monatlich |
+| `03_Kalkulation` | ein Kalkulationsblatt je Projekt, Dateiname beginnt mit der Projektnummer | Sven bzw. die Projektleitung |
+| `01_Rechnungen` | Ausgangsrechnungen (seit Phase 3) | der Leitstand |
+
+**Was mit der Kanzlei abzustimmen ist:** KOST2 muss die Projektnummer tragen, und der Export
+braucht mindestens die Spalten Kostenträger, Konto, Betrag und Soll/Haben-Kennzeichen. Weichen
+die Spaltennamen ab, werden sie in `config.toml` unter `[datev.kostentraeger.spalten]`
+nachgetragen – der Leitstand muss dafür nicht geändert werden. Ebenso die Kontenbereiche unter
+`kostenkonten`: vorbelegt ist der SKR03-Aufwandsbereich, alles außerhalb bleibt draußen, damit
+kein Erlös als Kosten gebucht wird.
+
+**TimeTac einrichten:**
+
+1. Client-ID, Secret und Kontoname in die `.env` auf dem Host eintragen
+   (`IP3_TIMETAC_CLIENT_ID`, `IP3_TIMETAC_CLIENT_SECRET`, `IP3_TIMETAC_KONTO`). Nie in die
+   `config.toml` – die liegt im Repository-Umfeld.
+2. `ip3-leitstand timetac-test` ausführen. Der Befehl zeigt Adresse, Anmeldung (ohne Secret),
+   Abfrage und die ersten Buchungen mit erkannter Projektzuordnung – und schreibt nichts.
+3. Weicht ein Feldname ab, in `config.toml` unter `[timetac.felder]` nachziehen und erneut
+   prüfen.
+4. Erst dann `timetac_sync` starten.
+
+**Damit die Zuordnung greift:** die Projektnummer gehört in den TimeTac-Projektnamen (führend
+oder in Klammern). Ohne sie versucht der Leitstand einen Abgleich über Kundenname und Standort
+und nimmt nur einen eindeutigen Treffer – alles andere erscheint als Befund, statt Stunden auf
+ein fremdes Projekt zu buchen.
+
+**Verrechnungssätze** stehen in `config.toml` unter `[stundensaetze]`. Ein Mitarbeiter ohne
+Zuordnung rechnet mit dem Standardsatz und erscheint als Pflegehinweis im Importprotokoll.
+
+## 12. Was in späteren Phasen dazukommt
 
 * **Vor der ersten Rechnung:** Die Anschriften der Bestandskunden nachtragen. Die Teamliste führte
   keine: von 484 übernommenen Kunden hat keiner Straße und PLZ, 454 haben einen Ort. § 14 UStG

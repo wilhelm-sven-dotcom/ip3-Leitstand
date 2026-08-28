@@ -219,20 +219,31 @@ def test_zweite_bestaetigung_ersetzt_statt_zu_verdoppeln(
         assert zeilen[0].betrag == 65700 + 36250
 
 
-def test_bewertung_in_einem_anderen_monat_laesst_die_erste_stehen(
+def test_bewertung_in_einem_anderen_monat_ersetzt_die_erste(
     projekt_mit_stueckliste: dict[str, int],
 ) -> None:
-    """Ein früherer Monat gehört zu einer Bestätigung, die stattgefunden hat."""
+    """Die Lagerbewertung ist der aktuelle Wertansatz, keine Reihe je Bestätigung.
+
+    Der Fehler, den dieser Test verhindert, ist in der Abnahme aufgefallen: bestätigt jemand im
+    August erneut, stünde die Lagerentnahme sonst zweimal im Ist – und eine verdoppelte Zahl
+    sieht in der Nachkalkulation aus wie ein teures Projekt, nicht wie ein Fehler.
+    """
     with schreib_sitzung() as sitzung:
         dienst.bewerten(
             sitzung, sitzung.get(Projekt, projekt_mit_stueckliste["projekt"]), monat="2026-07"
         )
     with schreib_sitzung() as sitzung:
+        positionen(sitzung)["SCH-44"].menge_ist = Decimal("30.000")
+    with schreib_sitzung() as sitzung:
         dienst.bewerten(
             sitzung, sitzung.get(Projekt, projekt_mit_stueckliste["projekt"]), monat="2026-08"
         )
+
     with lese_sitzung() as sitzung:
-        assert sorted(z.monat for z in ist_kosten(sitzung)) == ["2026-07", "2026-08"]
+        zeilen = ist_kosten(sitzung)
+        assert len(zeilen) == 1, "es gibt genau einen Wertansatz je Projekt"
+        assert zeilen[0].monat == "2026-08", "der Monat der letzten Bestätigung"
+        assert zeilen[0].betrag == 65700 + 36250
 
 
 def test_projekt_ohne_lagerpositionen_erzeugt_keine_zeile(gesäte_db) -> None:

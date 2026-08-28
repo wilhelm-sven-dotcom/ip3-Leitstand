@@ -427,8 +427,9 @@ def hinweise_sammeln(zeile: Nachkalkulation, stueckliste: tuple[int, int, int]) 
         hinweise.append(
             Hinweis(
                 "mengen_ist_offen",
-                f"{offene_mengen} Lagerpositionen sind noch nicht gezählt. Bis dahin ist die "
-                "Bewertung mit der kalkulierten Menge gerechnet.",
+                f"{offene_mengen} Lagerpositionen sind noch nicht gezählt. Solange fehlt die "
+                "Lagerentnahme im Ist – die Marge sieht dadurch besser aus, als sie ist "
+                "(Maske „Mengen-Ist bestätigen“).",
             )
         )
 

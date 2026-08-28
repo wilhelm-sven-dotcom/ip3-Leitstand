@@ -123,6 +123,38 @@ Zusätzlich hält die Anwendung jeden Lauf eines Hintergrundjobs (`job_laeufe`) 
 Ergebnis und Meldung fest. Die Startseite zeigt daraus den Datenstand, damit ein ausgefallener
 nächtlicher Lauf auffällt.
 
+## 6a. Externe Datenquellen (ab Phase 4)
+
+Der Leitstand liest drei externe Quellen. **Er schreibt in keine von ihnen zurück** – weder in
+die DATEV-Exporte, noch in TimeTac, noch in die Kalkulationsblätter. Sie bleiben in der Hand
+ihrer jeweiligen Herkunft; der Leitstand nimmt Kopien ihrer Werte in die eigene Datenbank auf.
+
+| Quelle | Herkunft | Was übernommen wird |
+|---|---|---|
+| Kostenträgerauswertung | Steuerkanzlei, monatlich in `02_DATEV` | Einzelbuchungen mit KOST2 = Projektnummer, verdichtet auf Projekt, Monat und Konto |
+| TimeTac | REST-Schnittstelle v3 bzw. Berichtsexport | Arbeitsstunden je Projekt, Monat und Mitarbeiter |
+| Kalkulationsblatt | Projektleitung, in `03_Kalkulation` | Sollwerte und Stückliste je Projekt |
+
+**Jeder Lauf ist protokolliert.** Neben dem Joblauf (`job_laeufe`) entsteht je Import ein
+Eintrag in `importlaeufe` mit Quelle, Datei, Zeitraum, Kontrollsummen, Einzelbuchungen und allen
+Werten, die sich nicht deuten ließen. Damit ist jede Zahl im Ist bis in die Quelldatei
+zurückverfolgbar.
+
+**Jeder Lauf ersetzt seinen Zeitraum, statt anzuhängen.** Wird ein Monat nachgeliefert oder
+korrigiert, wird er einfach erneut eingelesen; das Löschen des alten Standes und das Einfügen des
+neuen stehen in derselben Transaktion. Ein abgebrochener Lauf lässt den vorigen Stand stehen.
+Eine Eindeutigkeitsbedingung auf `ist_kosten` fängt den Fall ab, dass ein künftiger Importweg das
+Löschen vergisst – doppelte Beträge fielen in einer Auswertung sonst nicht auf.
+
+**Zugangsdaten** zu TimeTac liegen ausschließlich in der Umgebung des Dienstkontos auf dem Host
+(`.env`), nie in der Konfigurationsdatei und nie im Quelltext. Zugangstoken werden im Speicher
+gehalten und erscheinen weder im Protokoll noch im Änderungsprotokoll.
+
+**Zweckbindung der Arbeitsstunden:** Die aus TimeTac übernommenen Stunden dienen ausschließlich
+der Kostenrechnung je Projekt, nicht der Leistungskontrolle einzelner Beschäftigter. Sie werden
+je Projekt und Monat verdichtet ausgewertet; die Mitarbeiterangabe bleibt nur zur Zuordnung des
+Verrechnungssatzes erhalten.
+
 ## 7. Datensicherung und Wiederherstellung
 
 Nächtlich erstellt die Anwendung eine in sich geschlossene Kopie der Datenbank im

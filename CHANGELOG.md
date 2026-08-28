@@ -2,6 +2,84 @@
 
 Format: neueste Phase oben. Jede Phase endet lauffähig mit grüner Testsuite (PLAN §7).
 
+## 0.5.0 – Phase 4: Ist-Kosten und Nachkalkulation
+
+Der Leitstand weiß jetzt, was ein Projekt gekostet hat. Menüpunkt **Nachkalkulation**, sichtbar
+mit `nachkalkulation.lesen`; dazu ein Reiter am Projekt und die Seite **Importe & Daten**.
+
+### Die drei Ist-Quellen (PLAN §8)
+
+* **DATEV-Kostenträgerauswertung** aus `02_DATEV`, Schlüssel KOST2 = Projektnummer. Übernommen
+  wird nur, was in den konfigurierten Kontenbereichen liegt – eine Kostenträgerauswertung führt
+  auch Erlöse, und als Kosten gebucht würden sie die Marge ins Gegenteil drehen. Verdichtet auf
+  Projekt, Monat und Konto; die Einzelbuchungen stehen im Importprotokoll.
+* **TimeTac-Stunden** über die Schnittstelle (OAuth2 Client Credentials) oder als
+  Rückfallebene über den CSV-Berichtsexport. Stunden mal Verrechnungssatz zählen als
+  kalkulatorische Eigenleistung (PLAN §6.6); der Satz wird beim Import eingefroren, eine
+  spätere Satzänderung bewegt abgeschlossene Monate nicht.
+* **Bewertete Stückliste** aus dem Kalkulationsblatt, mit der Maske „Mengen-Ist bestätigen".
+
+**Jeder Lauf ersetzt seinen Zeitraum** (PLAN §8) – ein nachgelieferter oder korrigierter Monat
+ist der Normalfall, kein Sonderfall. Anders als bei der einmaligen Migration gibt es keinen
+Erstlauf-Riegel.
+
+### Kalkulationsblatt
+
+`ip3-leitstand kalkulationsblatt-vorlage` erzeugt die Excel-Vorlage mit dem Blatt `EXPORT`; sie
+liegt auch fertig unter `vorlagen/`. Gelesen wird über **benannte Zellen** (`exp_projekt_nr`,
+`exp_material_soll`, …), nicht über Koordinaten: im eigenen Kalkulationsblatt darf jederzeit eine
+Zeile eingefügt werden. Ein erneutes Einlesen aktualisiert die Sollwerte, überschreibt aber
+**nie** eine bestätigte Ist-Menge.
+
+### Doppelbelastungssperre (PLAN §6.5)
+
+Material kommt entweder über die DATEV-Kostenträger (`projektbestellt`) oder über die bewertete
+Stückliste (`lager`) ins Projekt-Ist, nie über beide Wege. Nur Lagerpositionen bekommen einen
+Wertansatz; die Bewertungsfunktion hat keinen Weg daran vorbei. Dazu die Plausibilitätsprüfung in
+**beiden** Richtungen: DATEV-Kosten ohne eine einzige projektbestellte Position (Material könnte
+doppelt drinstehen) und projektbestellte Positionen ohne DATEV-Kosten (das Ist ist zu niedrig).
+
+### Nachkalkulation
+
+Erlös (Auftragswert plus beauftragte Nachträge) | Soll aus der Kalkulation | Ist je Quelle |
+Marge in € und %. Die Marge rechnet **auf den Erlös**: 18 % heißt, von 100.000 € Auftrag bleiben
+18.000 € übrig. Ampel gegen die Sollmarge – „im Soll" ab der Sollmarge, „knapp" bis 5
+Prozentpunkte darunter. **Kein Ampelgrün**: das Corporate Design verbietet es (PLAN §11), die
+Zustände tragen ip³ Blau und Akzent-Rot.
+
+Geschätzt wird nichts. Ohne Auftragswert keine Marge, ohne Kalkulationsblatt keine Ampel – für
+die 539 migrierten Bestandsprojekte ist das der Regelfall, und die Übersicht sagt es, statt eine
+Null als Sollwert zu behaupten.
+
+### Nächtliche Läufe
+
+`datev_import`, `timetac_sync` und `kalkulation_scan` laufen mit der nächtlichen Sicherung. Eine
+fehlende Voraussetzung ist eine Warnung im Systemstatus, kein Absturz; ein Netzfehler bei TimeTac
+schreibt nichts und lässt die vorhandenen Stunden stehen. Der Zeitplan startet jetzt, sobald ein
+Lauf etwas zu tun hat – bis Phase 3 hing er allein am Backup-Ziel.
+
+### Abnahme
+
+Die Bestandsdatenbank wurde neu aufgesetzt und die Phase-1- bis Phase-3-Zahlen bestätigt: 484
+Kunden, 539 Projekte, 280 Zahlungsplanpositionen, 3.826.937,38 €, 150 gestellt, Auftragsbestand
+4.661.559,76 €. Auf Projekt 22141 wurden alle drei Ist-Quellen live eingelesen; die Marge rechnet
+auf den Cent nach. Zwei Fehler hat die Abnahme aufgedeckt und sie sind behoben: eine zweite
+Mengenbestätigung in einem anderen Monat hätte die Lagerentnahme addiert, und ein Hinweistext
+versprach eine Bewertung, die es noch nicht gab.
+
+### Offen
+
+* **Der erste echte TimeTac-Lauf steht aus.** Die Entwicklungsumgebung erreicht
+  `api.timetac.com` nicht; Basis-URL, Abfrageparameter und Feldnamen sind Vorbelegungen nach der
+  v3-Dokumentation. `ip3-leitstand timetac-test` macht den ersten Lauf auf dem Windows-Host
+  nachvollziehbar, ohne etwas zu schreiben.
+* **Das DATEV-Format** ist gegen eine selbst erzeugte Beispieldatei entwickelt. Weicht der echte
+  Kanzlei-Export ab, ändert sich die `config.toml`, nicht der Code.
+* **Verrechnungssätze und Kontenbereiche** sind Platzhalter und mit Sven bzw. der Buchhaltung
+  abzustimmen (PLAN §13.4, §13.5, §13.6).
+
+---
+
 ## 0.4.0 – Phase 3: Fakturierung
 
 Der Leitstand stellt Rechnungen. Menüpunkt **Fakturierung**, sichtbar mit `rechnungen.lesen`.

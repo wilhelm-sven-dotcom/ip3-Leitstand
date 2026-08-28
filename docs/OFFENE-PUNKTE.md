@@ -62,6 +62,38 @@ Abs. 4 Nr. 2 UStG verlangt die Steuernummer **oder** die USt-IdNr.; die Vorlage 
 `DE346672260`, das genügt. Beides zu fordern hätte die Fakturierung ohne Rechtsgrund blockiert.
 Die Steuernummer bleibt wünschenswert, ist aber keine Voraussetzung.
 
+## Entschieden für Phase 4 (28.08.2026)
+
+| # | Frage | Entscheidung |
+|---|---|---|
+| 18 | Wie ist die Marge zu rechnen – auf den Erlös oder als Aufschlag auf die Kosten? Der Wert muss zu dem passen, was das Kalkulationsblatt als `exp_marge_soll` ausgibt. | **Marge auf den Erlös.** `Marge € = Erlös − Ist`, `Marge % = Marge € / Erlös`. 18 % heißt: von 100.000 € Auftrag bleiben 18.000 € übrig. Gespeichert wird in Promille, damit der Vergleich mit `marge_soll` ohne Gleitkomma auskommt. |
+| 19 | Wo steht die Nachkalkulation? PLAN §7 nennt nur die Ansicht je Projekt. | **Beides:** Reiter im Projektdetail **und** Übersichtsliste `/nachkalkulation` über alle Projekte, sortiert nach der schwächsten Marge. Dort fällt ein kippendes Projekt auf, ohne dass man jedes einzeln öffnet. |
+| 20 | Wie kommt eine TimeTac-Stunde zu ihrem Verrechnungssatz? | **Zuordnung je Mitarbeiter.** In `config.toml` steht je Name eine Satzgruppe (`[stundensaetze.mitarbeiter]`), die Gruppen tragen den Satz (`[stundensaetze.saetze]`). Ein Name ohne Zuordnung rechnet mit dem Standardsatz und erscheint als Pflegehinweis im Importprotokoll – die Stunde wegzulassen wäre schlimmer, dann fehlte sie im Ist und die Marge sähe besser aus. |
+| 21 | Ampelschwellen gegen die Sollmarge | **„Im Soll" ab der Sollmarge, „knapp" bis 5 Prozentpunkte darunter, sonst „unter Soll".** Ohne Sollmarge keine Ampel. Die Schwelle steht in `config.toml` unter `[nachkalkulation] ampel_gelb_promille` – sie ist eine Einschätzung, keine Rechengröße. *(technisch entschieden)* |
+| 22 | Farbe der Ampel | **Kein Ampelgrün.** Das Corporate Design verbietet Grün ausdrücklich (PLAN §11). „Im Soll" trägt ip³ Blau, „knapp" Akzent-Rot als Kontur, „unter Soll" Akzent-Rot gefüllt, ohne Sollmarge grau. *(technisch entschieden)* |
+| 23 | TimeTac-Anmeldung: welcher OAuth2-Weg? | **Client Credentials.** Sven hat eine Client-ID (`CLIENT__API_USER_…`) und ein Secret, kein Dienstkonto mit Passwort. Die Zugangsdaten kommen ausschließlich aus der `.env` auf dem Host, nie aus der `config.toml` und nie ins Repository. |
+| 24 | Die Entwicklungsumgebung erreicht `api.timetac.com` nicht (Netzwerkrichtlinie, 403). | **Gegen aufgezeichnete Antworten bauen, auf dem Host prüfen.** Basis-URL, Abfrageparameter und Feldnamen sind konfigurierbar; die Testsuite läuft ohne Netz. `ip3-leitstand timetac-test` macht den ersten echten Lauf nachvollziehbar, ohne etwas zu schreiben. |
+| 25 | Bleibt der CSV-Weg, nachdem die API da ist? | **Ja, als Rückfallebene** (PLAN §8). Er kostet über den DATEV-CSV-Leser hinaus wenig, trägt bei einem Ausfall der Schnittstelle und lädt alte Monate nach, die die API nicht mehr hergibt. |
+
+## Was der Phase-4-Abnahmelauf zutage brachte
+
+**Zwei Fehler im eigenen Code, behoben:**
+
+| Was | Warum es zählt |
+|---|---|
+| Eine zweite Mengenbestätigung in einem anderen Monat hätte die Lagerentnahme **addiert** statt ersetzt. | Die Lagerbewertung ist der aktuelle Wertansatz, keine Reihe je Bestätigung. Eine verdoppelte Zahl sieht in der Nachkalkulation aus wie ein teures Projekt, nicht wie ein Fehler. Jetzt gibt es genau eine Zeile je Projekt. |
+| Der Hinweis „Mengen-Ist offen" versprach eine Bewertung mit der kalkulierten Menge – tatsächlich stand dort 0 €. | Der Hinweis sagt jetzt, was wirklich gilt: solange nichts bestätigt ist, fehlt die Lagerentnahme im Ist und die Marge sieht besser aus, als sie ist. |
+
+**Für Sven, vor dem ersten echten Monatslauf:**
+
+| Was | Warum |
+|---|---|
+| **Verrechnungssätze bestätigen** (65/75/78/85 € je Stunde) und die Mitarbeiter den Gruppen zuordnen | Es sind Platzhalter. Ohne sie ist die Eigenleistung – und damit die Marge – nur so gut wie die Vorbelegung (PLAN §13.6). |
+| **Kontenbereiche mit der Buchhaltung abstimmen** (vorbelegt SKR03-Aufwand 3000–4999) | Was außerhalb liegt, bleibt draußen. Stimmt der Bereich nicht, fehlen Kosten im Ist oder es rutscht ein Erlös hinein (PLAN §13.4, §13.5). |
+| **KOST2 = Projektnummer** mit der Kanzlei vereinbaren | Ohne sie lässt sich keine Buchung einem Projekt zuordnen; sie erscheinen dann sämtlich als Befund. |
+| **Projektnummer in den TimeTac-Projektnamen** aufnehmen | Sonst versucht der Leitstand einen Abgleich über Kundenname und Standort und nimmt nur einen eindeutigen Treffer – der Rest bleibt liegen, statt auf ein fremdes Projekt gebucht zu werden. |
+| **Erster echter TimeTac-Lauf** mit `ip3-leitstand timetac-test` auf dem Windows-Host | Endpunkte und Feldnamen sind nach der v3-Dokumentation vorbelegt, aber nicht am lebenden Objekt bestätigt (Entscheidung 24). |
+
 ## Was der Phase-3-Abnahmelauf zutage brachte – vor der ersten Rechnung zu erledigen
 
 | Was | Zahlen aus dem Abnahmelauf | Warum es zählt |
@@ -140,10 +172,14 @@ Zahlungsplan" und lassen sich in der Zahlungsplanmaske umhängen.
 | 0/1 | Firmenstammdaten für den Rechnungskopf: USt-IdNr., Steuernummer, HRB, Geschäftsführer, Bankverbindung; Verrechnungssätze je Stunde; OneDrive-Pfade; Host-Rechner und Dienstkonto | `config.toml`. Solange die Pfade fehlen, zeigt der Systemstatus einen Konfigurationshinweis. |
 | – | **Steuernummer** der ip³ Energietechnik GmbH – wünschenswert, nicht erforderlich: § 14 Abs. 4 Nr. 2 UStG verlangt Steuernummer **oder** USt-IdNr., und letztere liegt vor. | `config.toml`. Der Systemstatus meldet nur noch, wenn **beide** fehlen. |
 | 1 | Nach der Migration: Projektleiter-Namen den Nutzerkonten zuordnen (`pl_user_id`) | Sichtbarkeits-Scope `eigene` |
-| 4 | Beispiel-Kalkulationsblatt (PLAN §13.1). Die Rechnungsvorlage liegt vor und ist umgesetzt. | Einleser für das Kalkulationsblatt in Phase 4 |
+| ~~4~~ | ~~Beispiel-Kalkulationsblatt (PLAN §13.1)~~ – **erledigt auf anderem Weg:** der Leitstand gibt die Vorlage vor (`vorlagen/Kalkulationsblatt-Vorlage.xlsx`, PLAN §8). Sven passt sein Blatt einmalig daran an. | – |
 | **jetzt** | Zahlungsziel-Standard und Skonto-Toleranz bestätigen (PLAN §13.10) | Die Fälligkeit steht auf jedem festgeschriebenen Beleg; Vorbelegung 14 Tage und 3 %. Bei festgeschriebenen Belegen ist eine Änderung nicht mehr rückwirkend. |
 | **jetzt** | Auf dem Windows-Host GTK/Pango-Bibliotheken für WeasyPrint bereitstellen und den Ordner `01_Rechnungen` einrichten | Ohne GTK/Pango entsteht kein PDF; ohne Ordner wird der Beleg festgeschrieben, aber nicht abgelegt (nachholbar). In der Entwicklungsumgebung liegen die Bibliotheken vor. |
-| 4 | TimeTac: API-Freischaltung und Zugangsdaten (PLAN §13.3) | Stunden-Synchronisation; Ersatzweg ist der CSV-Berichtsexport |
-| 4/5 | Steuerberater-Abstimmung: KOST2 je Projektnummer, drei monatliche Exporte (Kostenträger, SuSa, OPOS), Review der Verfahrensdokumentation (PLAN §13.4) | Ist-Kosten, Firmen-Cockpit, GoBD |
+| ~~4~~ | ~~TimeTac: API-Freischaltung~~ – **erledigt**, Client-ID und Secret liegen vor (28.08.2026). | – |
+| **jetzt** | TimeTac-Zugangsdaten in die `.env` auf dem Host eintragen und `ip3-leitstand timetac-test` ausführen | Der erste echte Lauf ist noch nicht gefahren: die Entwicklungsumgebung erreicht `api.timetac.com` nicht. Endpunkte und Feldnamen sind nach der v3-Dokumentation vorbelegt und in `config.toml` nachziehbar. |
+| **jetzt** | Verrechnungssätze bestätigen und die Mitarbeiter den Satzgruppen zuordnen (PLAN §13.6) | `[stundensaetze]`. Die vier Sätze sind Platzhalter; ohne sie ist die Eigenleistung und damit die Marge nur so gut wie die Vorbelegung. |
+| **jetzt** | Kontenbereiche des Kostenträgerexports mit der Buchhaltung abstimmen | `[datev.kostentraeger] kostenkonten`, vorbelegt mit dem SKR03-Aufwandsbereich. Was außerhalb liegt, bleibt draußen – stimmt der Bereich nicht, fehlen Kosten im Ist. |
+| **jetzt** | Steuerberater-Abstimmung: **KOST2 = Projektnummer** und der monatliche Kostenträgerexport nach `02_DATEV` (PLAN §13.4) | Ohne KOST2 lässt sich keine Buchung einem Projekt zuordnen. Der Import ist gebaut und wartet auf die erste echte Datei; abweichende Spaltennamen werden in `config.toml` nachgetragen. |
+| 5 | SuSa und OPOS als monatliche Exporte, Review der Verfahrensdokumentation (PLAN §13.4) | Firmen-Cockpit, Zahlungsstatus, GoBD |
 | 5 | Erstbefüllung des Konten-Mappings mit Buchhaltung und Steuerberater (PLAN §13.5) | Fixkostenblöcke im Cockpit |
 | – | Das Werkzeug als Verarbeitungstätigkeit ins Verzeichnis nach Art. 30 DSGVO aufnehmen (PLAN §13.11) | Datenschutz. Zweck der TimeTac-Stunden ist Kostenrechnung, keine Leistungskontrolle. |

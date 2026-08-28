@@ -115,6 +115,24 @@ Mockups zum Ansehen einfach im Browser öffnen.
     eintausend. Im Rundgang stand so bei einer Menge von 1 die Zahl 1.000 in der Tabelle;
     `mengeText` schneidet die Nullen ab und setzt das Dezimalkomma.
 
+21. **Die Ampel der Nachkalkulation ist keine Ampel.** PLAN §7 nennt sie so, PLAN §11 verbietet
+    Grün ausdrücklich („bewusst ohne Ampelgrün"). Aufgelöst über die Markenfarben: „im Soll" in
+    ip³ Blau, „knapp" als Akzent-Rot-Kontur, „unter Soll" in Akzent-Rot gefüllt, ohne Sollmarge
+    grau. Damit bleibt der Zustand auf einen Blick lesbar, ohne dass eine fremde Farbe ins
+    Erscheinungsbild kommt.
+
+22. **`MargenAmpel` statt `StatusBadge`.** Die acht Zustände des Badges sind absichtlich
+    abgeschlossen (design/README.md), und „im Soll" ist kein Belegzustand. Die Form ist dieselbe
+    – dieselbe Höhe, dasselbe Versalienformat –, damit die Seite ruhig bleibt.
+
+23. **Kein Mockup für Nachkalkulation und Importe.** Beide Seiten gibt es im Designsystem nicht.
+    Die Nachkalkulation folgt dem Duktus der Projekt- und Umsatzliste (Kachelreihe, Filterleiste,
+    `DataTable`), die Importseite dem der Zuordnungsmaske (Karten, Kontrollsummen, Befundliste).
+
+24. **Der Rechenweg steht als vier Zeilen da, nicht als Kachel.** Auftragswert, Nachträge, Erlös,
+    Ist, Marge – untereinander mit Trennlinie vor der Summe. Eine große Margenkachel wäre eine
+    Behauptung; wer die Zahl in Frage stellt, soll den Weg dorthin ohne Nachfrage sehen.
+
 ## Prüfliste vor dem Abschluss einer Frontend-Änderung
 
 - Farben ausschließlich über die Token-Variablen, kein Grün, keine Verläufe.
