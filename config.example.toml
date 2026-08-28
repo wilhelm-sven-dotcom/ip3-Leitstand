@@ -112,11 +112,55 @@ beleg = ["Belegfeld 1", "Belegnummer", "Beleg"]
 buchungstext = ["Buchungstext", "Text", "Bezeichnung"]
 
 [stundensaetze]
-# Verrechnungssätze in Cent je Stunde für die kalkulatorische Eigenleistung (Phase 4).
+# Verrechnungssaetze fuer die kalkulatorische Eigenleistung (Phase 4, PLAN §6.6).
+# ACHTUNG: die Betraege unten sind Platzhalter und noch nicht bestaetigt (PLAN §13.6).
+# Satz fuer Mitarbeiter ohne Zuordnung, in Cent je Stunde.
+standard = 6500
+
+[stundensaetze.saetze]
+# Satzgruppen, in Cent je Stunde.
 monteur = 6500
 obermonteur = 7500
 elektriker = 7800
 planung = 8500
+
+[stundensaetze.mitarbeiter]
+# Zuordnung Mitarbeitername (wie in TimeTac) zu Satzgruppe. Ein Name, der hier fehlt, rechnet
+# mit dem Standardsatz und erscheint als Pflegehinweis im Importprotokoll -- nichts faellt
+# still unter den Tisch. Gross-/Kleinschreibung und Leerzeichen spielen keine Rolle.
+# "Wilhelm, Sven" = "planung"
+# "Baeumler, Michael" = "obermonteur"
+
+[timetac]
+# Schnittstelle zu TimeTac (Phase 4, PLAN §8).
+# Zugangsdaten stehen NICHT hier, sondern in der .env auf dem Host:
+# IP3_TIMETAC_CLIENT_ID, IP3_TIMETAC_CLIENT_SECRET, IP3_TIMETAC_KONTO.
+aktiv = true
+basis_url = "https://api.timetac.com"
+zeitlimit_sekunden = 30.0
+seitengroesse = 200
+# Wie viele Monate rueckwirkend der naechtliche Lauf holt (0 = nur der laufende Monat).
+monate_rueckwirkend = 1
+
+# Feldnamen der API-Antwort. Vorbelegt nach der v3-Dokumentation; der erste echte Lauf findet
+# auf dem Windows-Host statt (die Entwicklungsumgebung erreicht api.timetac.com nicht). Weicht
+# die Antwort ab, wird hier nachgezogen -- 'ip3-leitstand timetac-test' zeigt, was ankommt.
+[timetac.felder]
+projekt = ["project_name", "projectName", "project"]
+projekt_nr = ["project_number", "projectNumber", "external_id"]
+mitarbeiter = ["user_name", "userName", "employee", "user"]
+datum = ["date", "start_time", "startTime"]
+dauer_sekunden = ["duration", "duration_seconds", "worked_time"]
+dauer_stunden = ["hours", "duration_hours"]
+
+# Spaltennamen des CSV-Berichtsexports (Rueckfallebene, wenn die Schnittstelle ausfaellt oder
+# alte Monate nachzuladen sind).
+[timetac.spalten]
+projekt = ["Projekt", "Project", "Projektname"]
+mitarbeiter = ["Mitarbeiter", "Benutzer", "Name", "User"]
+datum = ["Datum", "Date", "Tag"]
+dauer = ["Dauer", "Stunden", "Arbeitszeit", "Duration"]
+aufgabe = ["Aufgabe", "Task", "Taetigkeit", "Tätigkeit"]
 
 [jobs]
 # Nächtliche Läufe in Ortszeit (Europe/Berlin).

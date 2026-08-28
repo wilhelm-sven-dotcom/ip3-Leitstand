@@ -17,7 +17,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, Field, ValidationError, field_validator
+from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
 # Ordnernamen, die auf eine Ordnersynchronisation hindeuten. Eine SQLite-Datei in einem solchen
@@ -277,6 +277,102 @@ class DatevEinstellungen(BaseModel):
     kostentraeger: KostentraegerEinstellungen = Field(default_factory=KostentraegerEinstellungen)
 
 
+class StundensaetzeEinstellungen(BaseModel):
+    """Verrechnungssätze für die kalkulatorische Eigenleistung (PLAN §6.6, Entscheidung 20).
+
+    Zwei Ebenen, damit ein neuer Mitarbeiter keine neue Satzgruppe braucht: ``saetze`` führt die
+    Gruppen mit ihrem Satz in Cent je Stunde, ``mitarbeiter`` ordnet Namen den Gruppen zu.
+
+    Ein Name ohne Zuordnung rechnet mit ``standard`` und erscheint als Pflegehinweis im
+    Importprotokoll. Die Stunde fällt damit nicht unter den Tisch – sie wäre sonst im Ist des
+    Projekts nicht enthalten, und die Marge sähe besser aus, als sie ist.
+    """
+
+    standard: int = 6500
+    saetze: dict[str, int] = Field(
+        default_factory=lambda: {
+            "monteur": 6500,
+            "obermonteur": 7500,
+            "elektriker": 7800,
+            "planung": 8500,
+        }
+    )
+    mitarbeiter: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("saetze", "mitarbeiter")
+    @classmethod
+    def nicht_leer(cls, werte: dict[str, object]) -> dict[str, object]:
+        for schluessel in werte:
+            if not schluessel.strip():
+                raise ValueError("Ein Eintrag ohne Namen ist keine Zuordnung.")
+        return werte
+
+    @model_validator(mode="after")
+    def gruppen_pruefen(self) -> StundensaetzeEinstellungen:
+        unbekannt = sorted({g for g in self.mitarbeiter.values() if g not in self.saetze})
+        if unbekannt:
+            raise ValueError(
+                "In [stundensaetze.mitarbeiter] stehen Gruppen, die es in [stundensaetze.saetze] "
+                f"nicht gibt: {', '.join(unbekannt)}. Entweder die Gruppe anlegen oder den "
+                "Mitarbeiter einer vorhandenen zuordnen."
+            )
+        return self
+
+    def satz_fuer(self, mitarbeiter: str) -> tuple[int, str | None]:
+        """``(Satz in Cent, Gruppe)``. Ohne Zuordnung der Standardsatz und ``None``.
+
+        Verglichen wird ohne Rücksicht auf Groß-/Kleinschreibung und Leerzeichen: TimeTac
+        schreibt „Wilhelm, Sven", die config vielleicht „Wilhelm,Sven".
+        """
+        gesucht = " ".join(mitarbeiter.casefold().split())
+        for name, gruppe in self.mitarbeiter.items():
+            if " ".join(name.casefold().split()) == gesucht:
+                return self.saetze.get(gruppe, self.standard), gruppe
+        return self.standard, None
+
+
+class TimeTacEinstellungen(BaseModel):
+    """Schnittstelle zu TimeTac (PLAN §8).
+
+    Zugangsdaten stehen **nicht hier**, sondern in der Umgebung: ``IP3_TIMETAC_CLIENT_ID``,
+    ``IP3_TIMETAC_CLIENT_SECRET`` und ``IP3_TIMETAC_KONTO`` (Felder auf :class:`Einstellungen`).
+    Die config.toml liegt im Repository-Umfeld, Geheimnisse haben dort nichts zu suchen.
+
+    ``basis_url`` und ``felder`` sind konfigurierbar, weil der erste echte Lauf erst auf dem
+    Windows-Host stattfinden kann – die Entwicklungsumgebung erreicht api.timetac.com nicht.
+    Weicht die Antwort ab, wird hier nachgezogen und nicht im Code.
+    """
+
+    aktiv: bool = True
+    basis_url: str = "https://api.timetac.com"
+    zeitlimit_sekunden: float = 30.0
+    seitengroesse: int = 200
+    # Monate, die der nächtliche Lauf holt: der laufende und der vorige (PLAN §8).
+    monate_rueckwirkend: int = 1
+
+    felder: dict[str, list[str]] = Field(
+        default_factory=lambda: {
+            "projekt": ["project_name", "projectName", "project"],
+            "projekt_nr": ["project_number", "projectNumber", "external_id"],
+            "mitarbeiter": ["user_name", "userName", "employee", "user"],
+            "datum": ["date", "start_time", "startTime"],
+            "dauer_sekunden": ["duration", "duration_seconds", "worked_time"],
+            "dauer_stunden": ["hours", "duration_hours"],
+        }
+    )
+
+    # Spaltennamen des CSV-Berichtsexports (Rückfallebene, PLAN §8, Entscheidung 25).
+    spalten: dict[str, list[str]] = Field(
+        default_factory=lambda: {
+            "projekt": ["Projekt", "Project", "Projektname"],
+            "mitarbeiter": ["Mitarbeiter", "Benutzer", "Name", "User"],
+            "datum": ["Datum", "Date", "Tag"],
+            "dauer": ["Dauer", "Stunden", "Arbeitszeit", "Duration"],
+            "aufgabe": ["Aufgabe", "Task", "Taetigkeit", "Tätigkeit"],
+        }
+    )
+
+
 class JobEinstellungen(BaseModel):
     backup_uhrzeit: str = "01:30"
     backup_generationen: int = 30
@@ -369,10 +465,16 @@ class Einstellungen(BaseSettings):
     datev: DatevEinstellungen = Field(default_factory=DatevEinstellungen)
     jobs: JobEinstellungen = Field(default_factory=JobEinstellungen)
     protokoll: ProtokollEinstellungen = Field(default_factory=ProtokollEinstellungen)
-    stundensaetze: dict[str, int] = Field(default_factory=dict)
+    stundensaetze: StundensaetzeEinstellungen = Field(default_factory=StundensaetzeEinstellungen)
+    timetac: TimeTacEinstellungen = Field(default_factory=TimeTacEinstellungen)
 
     # Geheimnisse kommen ausschließlich aus der Umgebung, nie aus der config.toml.
     sitzung_schluessel: str = ""
+    # TimeTac-Zugangsdaten: ausschließlich aus der Umgebung (.env auf dem Host), nie aus
+    # der config.toml und nie ins Repository. Client-Credentials-Flow (Entscheidung 23).
+    timetac_client_id: str = ""
+    timetac_client_secret: str = ""
+    timetac_konto: str = ""
 
     @property
     def ist_produktion(self) -> bool:
