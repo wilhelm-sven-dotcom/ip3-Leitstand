@@ -783,6 +783,34 @@
         "title": "BewertungAntwort",
         "type": "object"
       },
+      "DetailAntwort": {
+        "properties": {
+          "projekt": {
+            "$ref": "#/components/schemas/app__routen__nachkalkulation__ProjektAntwort"
+          },
+          "stueckliste": {
+            "items": {
+              "$ref": "#/components/schemas/StuecklistenzeileAntwort"
+            },
+            "title": "Stueckliste",
+            "type": "array"
+          },
+          "stunden": {
+            "items": {
+              "$ref": "#/components/schemas/StundenzeileAntwort"
+            },
+            "title": "Stunden",
+            "type": "array"
+          }
+        },
+        "required": [
+          "projekt",
+          "stunden",
+          "stueckliste"
+        ],
+        "title": "DetailAntwort",
+        "type": "object"
+      },
       "ErzeugenEingabe": {
         "properties": {
           "datum": {
@@ -884,6 +912,24 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HinweisAntwort": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "text"
+        ],
+        "title": "HinweisAntwort",
         "type": "object"
       },
       "JobStartErgebnis": {
@@ -1684,6 +1730,83 @@
         "title": "KundenSeite",
         "type": "object"
       },
+      "LaufAntwort": {
+        "properties": {
+          "beendet": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Beendet"
+          },
+          "datei": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datei"
+          },
+          "ergebnis": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ergebnis"
+          },
+          "gestartet": {
+            "title": "Gestartet",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "quelle": {
+            "title": "Quelle",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "zeitraum": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zeitraum"
+          }
+        },
+        "required": [
+          "id",
+          "quelle",
+          "datei",
+          "zeitraum",
+          "gestartet",
+          "beendet",
+          "status",
+          "ergebnis"
+        ],
+        "title": "LaufAntwort",
+        "type": "object"
+      },
       "ListeAntwort": {
         "properties": {
           "anzahl": {
@@ -2209,6 +2332,51 @@
         "title": "NachtragZeile",
         "type": "object"
       },
+      "OffeneMengeAntwort": {
+        "properties": {
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "offen": {
+            "title": "Offen",
+            "type": "integer"
+          },
+          "positionen": {
+            "title": "Positionen",
+            "type": "integer"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "projekt_nr",
+          "bezeichnung",
+          "kunde",
+          "status",
+          "positionen",
+          "offen"
+        ],
+        "title": "OffeneMengeAntwort",
+        "type": "object"
+      },
       "PasswortDaten": {
         "properties": {
           "altes_passwort": {
@@ -2548,302 +2716,6 @@
           "stand"
         ],
         "title": "ProjektAendern",
-        "type": "object"
-      },
-      "ProjektAntwort": {
-        "properties": {
-          "ab_wert_netto": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ab Wert Netto"
-          },
-          "anlagenart": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Anlagenart"
-          },
-          "auftrag_vom": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Auftrag Vom"
-          },
-          "bemerkung": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bemerkung"
-          },
-          "bezeichnung": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bezeichnung"
-          },
-          "darf_werte_sehen": {
-            "default": false,
-            "title": "Darf Werte Sehen",
-            "type": "boolean"
-          },
-          "deckung_differenz": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Deckung Differenz"
-          },
-          "id": {
-            "title": "Id",
-            "type": "integer"
-          },
-          "kunde": {
-            "title": "Kunde",
-            "type": "string"
-          },
-          "kunde_id": {
-            "title": "Kunde Id",
-            "type": "integer"
-          },
-          "ladestation": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ladestation"
-          },
-          "meilensteine": {
-            "items": {
-              "$ref": "#/components/schemas/MeilensteinAntwort"
-            },
-            "title": "Meilensteine",
-            "type": "array"
-          },
-          "nachtraege": {
-            "items": {
-              "$ref": "#/components/schemas/NachtragZeile"
-            },
-            "title": "Nachtraege",
-            "type": "array"
-          },
-          "nachtraege_summe": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Nachtraege Summe"
-          },
-          "pl_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Pl Name"
-          },
-          "pl_user_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Pl User Id"
-          },
-          "projekt_nr": {
-            "title": "Projekt Nr",
-            "type": "integer"
-          },
-          "pv_kwp": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Pv Kwp"
-          },
-          "quelle_migration": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Quelle Migration"
-          },
-          "soll_netto": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Soll Netto"
-          },
-          "speicher_kwh": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Speicher Kwh"
-          },
-          "speicher_typ": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Speicher Typ"
-          },
-          "stand": {
-            "format": "date-time",
-            "title": "Stand",
-            "type": "string"
-          },
-          "standort": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Standort"
-          },
-          "status": {
-            "title": "Status",
-            "type": "string"
-          },
-          "typ": {
-            "title": "Typ",
-            "type": "string"
-          },
-          "ust_kz": {
-            "title": "Ust Kz",
-            "type": "string"
-          },
-          "vertriebsweg": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Vertriebsweg"
-          },
-          "wr_typ": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Wr Typ"
-          },
-          "zahlungsplan": {
-            "items": {
-              "$ref": "#/components/schemas/ZahlungsplanZeile"
-            },
-            "title": "Zahlungsplan",
-            "type": "array"
-          },
-          "zahlungsplan_gestellt_summe": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Zahlungsplan Gestellt Summe"
-          },
-          "zahlungsplan_summe": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Zahlungsplan Summe"
-          }
-        },
-        "required": [
-          "id",
-          "projekt_nr",
-          "kunde",
-          "kunde_id",
-          "typ",
-          "ust_kz",
-          "status",
-          "stand"
-        ],
-        "title": "ProjektAntwort",
         "type": "object"
       },
       "ProjektEingabe": {
@@ -3674,6 +3546,125 @@
         "title": "StandAntwort",
         "type": "object"
       },
+      "StuecklistenzeileAntwort": {
+        "properties": {
+          "artikel_nr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artikel Nr"
+          },
+          "bewertet_betrag": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bewertet Betrag"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "ek_preis": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ek Preis"
+          },
+          "gewerk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gewerk"
+          },
+          "menge_ist": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Menge Ist"
+          },
+          "menge_soll": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Menge Soll",
+            "type": "string"
+          },
+          "quelle": {
+            "title": "Quelle",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artikel_nr",
+          "bezeichnung",
+          "menge_soll",
+          "menge_ist",
+          "ek_preis",
+          "quelle",
+          "gewerk",
+          "bewertet_betrag"
+        ],
+        "title": "StuecklistenzeileAntwort",
+        "type": "object"
+      },
+      "StundenzeileAntwort": {
+        "properties": {
+          "betrag": {
+            "title": "Betrag",
+            "type": "integer"
+          },
+          "mitarbeiter": {
+            "title": "Mitarbeiter",
+            "type": "string"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "satz": {
+            "title": "Satz",
+            "type": "integer"
+          },
+          "stunden": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Stunden",
+            "type": "string"
+          }
+        },
+        "required": [
+          "monat",
+          "mitarbeiter",
+          "stunden",
+          "satz",
+          "betrag"
+        ],
+        "title": "StundenzeileAntwort",
+        "type": "object"
+      },
       "Systemstatus": {
         "description": "Der „Datenstand\"-Block der Startseite.",
         "properties": {
@@ -3720,57 +3711,29 @@
         "title": "Systemstatus",
         "type": "object"
       },
-      "UebernahmeAnfrage": {
+      "UebersichtAntwort": {
         "properties": {
-          "entscheidungen": {
-            "additionalProperties": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "title": "Entscheidungen",
-            "type": "object"
+          "ampel_gelb_promille": {
+            "title": "Ampel Gelb Promille",
+            "type": "integer"
           },
-          "kennung": {
-            "title": "Kennung",
-            "type": "string"
+          "anzahl": {
+            "title": "Anzahl",
+            "type": "integer"
           },
-          "offene_zulassen": {
-            "default": false,
-            "title": "Offene Zulassen",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "kennung"
-        ],
-        "title": "UebernahmeAnfrage",
-        "type": "object"
-      },
-      "UebernahmeAntwort": {
-        "properties": {
-          "ab_luecken": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Ab Luecken",
-            "type": "array"
+          "erloes_netto": {
+            "title": "Erloes Netto",
+            "type": "integer"
           },
-          "gewerk_abgeleitet": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Gewerk Abgeleitet",
-            "type": "array"
+          "ist_netto": {
+            "title": "Ist Netto",
+            "type": "integer"
           },
-          "importlauf_id": {
+          "marge_netto": {
+            "title": "Marge Netto",
+            "type": "integer"
+          },
+          "marge_promille": {
             "anyOf": [
               {
                 "type": "integer"
@@ -3779,64 +3742,36 @@
                 "type": "null"
               }
             ],
-            "title": "Importlauf Id"
+            "title": "Marge Promille"
           },
-          "kunden": {
-            "title": "Kunden",
+          "mit_hinweis": {
+            "title": "Mit Hinweis",
             "type": "integer"
           },
-          "meilensteine": {
-            "title": "Meilensteine",
+          "ohne_kalkulation": {
+            "title": "Ohne Kalkulation",
             "type": "integer"
-          },
-          "meldung": {
-            "title": "Meldung",
-            "type": "string"
-          },
-          "nicht_uebernommen": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Nicht Uebernommen",
-            "type": "array"
           },
           "projekte": {
+            "items": {
+              "$ref": "#/components/schemas/app__routen__nachkalkulation__ProjektAntwort"
+            },
             "title": "Projekte",
-            "type": "integer"
-          },
-          "projekte_ohne_auftragsjahr": {
-            "title": "Projekte Ohne Auftragsjahr",
-            "type": "integer"
-          },
-          "zahlungsplan": {
-            "title": "Zahlungsplan",
-            "type": "integer"
-          },
-          "zahlungsplan_gestellt": {
-            "title": "Zahlungsplan Gestellt",
-            "type": "integer"
-          },
-          "zahlungsplan_summe_netto": {
-            "title": "Zahlungsplan Summe Netto",
-            "type": "integer"
+            "type": "array"
           }
         },
         "required": [
-          "importlauf_id",
-          "kunden",
           "projekte",
-          "zahlungsplan",
-          "zahlungsplan_gestellt",
-          "zahlungsplan_summe_netto",
-          "meilensteine",
-          "projekte_ohne_auftragsjahr",
-          "ab_luecken",
-          "gewerk_abgeleitet",
-          "nicht_uebernommen",
-          "meldung"
+          "erloes_netto",
+          "ist_netto",
+          "marge_netto",
+          "marge_promille",
+          "anzahl",
+          "ohne_kalkulation",
+          "mit_hinweis",
+          "ampel_gelb_promille"
         ],
-        "title": "UebernahmeAntwort",
+        "title": "UebersichtAntwort",
         "type": "object"
       },
       "UnterminiertAntwort": {
@@ -3916,49 +3851,6 @@
           "type"
         ],
         "title": "ValidationError",
-        "type": "object"
-      },
-      "VorschauAntwort": {
-        "properties": {
-          "befunde": {
-            "items": {
-              "$ref": "#/components/schemas/BefundAntwort"
-            },
-            "title": "Befunde",
-            "type": "array"
-          },
-          "kandidaten": {
-            "items": {
-              "$ref": "#/components/schemas/ProjektKandidat"
-            },
-            "title": "Kandidaten",
-            "type": "array"
-          },
-          "kennung": {
-            "title": "Kennung",
-            "type": "string"
-          },
-          "kontrollsummen": {
-            "additionalProperties": true,
-            "title": "Kontrollsummen",
-            "type": "object"
-          },
-          "zuordnungen": {
-            "items": {
-              "$ref": "#/components/schemas/ZuordnungAntwort"
-            },
-            "title": "Zuordnungen",
-            "type": "array"
-          }
-        },
-        "required": [
-          "kennung",
-          "kontrollsummen",
-          "zuordnungen",
-          "kandidaten",
-          "befunde"
-        ],
-        "title": "VorschauAntwort",
         "type": "object"
       },
       "Vorschlag": {
@@ -4313,6 +4205,827 @@
           "offen"
         ],
         "title": "ZuordnungAntwort",
+        "type": "object"
+      },
+      "app__routen__importe__UebernahmeAnfrage": {
+        "properties": {
+          "kennung": {
+            "title": "Kennung",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kennung"
+        ],
+        "title": "UebernahmeAnfrage",
+        "type": "object"
+      },
+      "app__routen__importe__UebernahmeAntwort": {
+        "properties": {
+          "ergebnis": {
+            "additionalProperties": true,
+            "title": "Ergebnis",
+            "type": "object"
+          },
+          "importlauf_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importlauf Id"
+          },
+          "meldung": {
+            "title": "Meldung",
+            "type": "string"
+          },
+          "quelle": {
+            "title": "Quelle",
+            "type": "string"
+          },
+          "zeitraum": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zeitraum"
+          }
+        },
+        "required": [
+          "quelle",
+          "importlauf_id",
+          "zeitraum",
+          "meldung",
+          "ergebnis"
+        ],
+        "title": "UebernahmeAntwort",
+        "type": "object"
+      },
+      "app__routen__importe__VorschauAntwort": {
+        "properties": {
+          "befunde": {
+            "items": {
+              "$ref": "#/components/schemas/BefundAntwort"
+            },
+            "title": "Befunde",
+            "type": "array"
+          },
+          "dateien": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Dateien",
+            "type": "array"
+          },
+          "hinweise": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hinweise",
+            "type": "array"
+          },
+          "kennung": {
+            "title": "Kennung",
+            "type": "string"
+          },
+          "kontrollsummen": {
+            "additionalProperties": true,
+            "title": "Kontrollsummen",
+            "type": "object"
+          },
+          "quelle": {
+            "title": "Quelle",
+            "type": "string"
+          },
+          "zeitraum": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zeitraum"
+          }
+        },
+        "required": [
+          "quelle",
+          "kennung",
+          "dateien",
+          "zeitraum",
+          "kontrollsummen",
+          "befunde",
+          "hinweise"
+        ],
+        "title": "VorschauAntwort",
+        "type": "object"
+      },
+      "app__routen__migration__UebernahmeAnfrage": {
+        "properties": {
+          "entscheidungen": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Entscheidungen",
+            "type": "object"
+          },
+          "kennung": {
+            "title": "Kennung",
+            "type": "string"
+          },
+          "offene_zulassen": {
+            "default": false,
+            "title": "Offene Zulassen",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kennung"
+        ],
+        "title": "UebernahmeAnfrage",
+        "type": "object"
+      },
+      "app__routen__migration__UebernahmeAntwort": {
+        "properties": {
+          "ab_luecken": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Ab Luecken",
+            "type": "array"
+          },
+          "gewerk_abgeleitet": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Gewerk Abgeleitet",
+            "type": "array"
+          },
+          "importlauf_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importlauf Id"
+          },
+          "kunden": {
+            "title": "Kunden",
+            "type": "integer"
+          },
+          "meilensteine": {
+            "title": "Meilensteine",
+            "type": "integer"
+          },
+          "meldung": {
+            "title": "Meldung",
+            "type": "string"
+          },
+          "nicht_uebernommen": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Nicht Uebernommen",
+            "type": "array"
+          },
+          "projekte": {
+            "title": "Projekte",
+            "type": "integer"
+          },
+          "projekte_ohne_auftragsjahr": {
+            "title": "Projekte Ohne Auftragsjahr",
+            "type": "integer"
+          },
+          "zahlungsplan": {
+            "title": "Zahlungsplan",
+            "type": "integer"
+          },
+          "zahlungsplan_gestellt": {
+            "title": "Zahlungsplan Gestellt",
+            "type": "integer"
+          },
+          "zahlungsplan_summe_netto": {
+            "title": "Zahlungsplan Summe Netto",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "importlauf_id",
+          "kunden",
+          "projekte",
+          "zahlungsplan",
+          "zahlungsplan_gestellt",
+          "zahlungsplan_summe_netto",
+          "meilensteine",
+          "projekte_ohne_auftragsjahr",
+          "ab_luecken",
+          "gewerk_abgeleitet",
+          "nicht_uebernommen",
+          "meldung"
+        ],
+        "title": "UebernahmeAntwort",
+        "type": "object"
+      },
+      "app__routen__migration__VorschauAntwort": {
+        "properties": {
+          "befunde": {
+            "items": {
+              "$ref": "#/components/schemas/BefundAntwort"
+            },
+            "title": "Befunde",
+            "type": "array"
+          },
+          "kandidaten": {
+            "items": {
+              "$ref": "#/components/schemas/ProjektKandidat"
+            },
+            "title": "Kandidaten",
+            "type": "array"
+          },
+          "kennung": {
+            "title": "Kennung",
+            "type": "string"
+          },
+          "kontrollsummen": {
+            "additionalProperties": true,
+            "title": "Kontrollsummen",
+            "type": "object"
+          },
+          "zuordnungen": {
+            "items": {
+              "$ref": "#/components/schemas/ZuordnungAntwort"
+            },
+            "title": "Zuordnungen",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kennung",
+          "kontrollsummen",
+          "zuordnungen",
+          "kandidaten",
+          "befunde"
+        ],
+        "title": "VorschauAntwort",
+        "type": "object"
+      },
+      "app__routen__nachkalkulation__ProjektAntwort": {
+        "properties": {
+          "ab_wert_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ab Wert Netto"
+          },
+          "abweichung_promille": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abweichung Promille"
+          },
+          "ampel": {
+            "title": "Ampel",
+            "type": "string"
+          },
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "erloes_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erloes Netto"
+          },
+          "fakturiert_netto": {
+            "title": "Fakturiert Netto",
+            "type": "integer"
+          },
+          "hinweise": {
+            "items": {
+              "$ref": "#/components/schemas/HinweisAntwort"
+            },
+            "title": "Hinweise",
+            "type": "array"
+          },
+          "ist_datev": {
+            "title": "Ist Datev",
+            "type": "integer"
+          },
+          "ist_gesamt": {
+            "title": "Ist Gesamt",
+            "type": "integer"
+          },
+          "ist_stueckliste": {
+            "title": "Ist Stueckliste",
+            "type": "integer"
+          },
+          "ist_timetac": {
+            "title": "Ist Timetac",
+            "type": "integer"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "marge_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marge Netto"
+          },
+          "marge_promille": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marge Promille"
+          },
+          "marge_soll_promille": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marge Soll Promille"
+          },
+          "nachtraege_netto": {
+            "title": "Nachtraege Netto",
+            "type": "integer"
+          },
+          "pl_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl Name"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          },
+          "soll_dl": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soll Dl"
+          },
+          "soll_gesamt": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soll Gesamt"
+          },
+          "soll_ist_abweichung": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soll Ist Abweichung"
+          },
+          "soll_material": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soll Material"
+          },
+          "soll_stunden": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soll Stunden"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "stunden_abweichung": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stunden Abweichung"
+          },
+          "stunden_ist": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Stunden Ist",
+            "type": "string"
+          }
+        },
+        "required": [
+          "projekt_nr",
+          "bezeichnung",
+          "kunde",
+          "status",
+          "pl_name",
+          "ab_wert_netto",
+          "nachtraege_netto",
+          "erloes_netto",
+          "fakturiert_netto",
+          "soll_material",
+          "soll_dl",
+          "soll_gesamt",
+          "soll_stunden",
+          "marge_soll_promille",
+          "ist_datev",
+          "ist_stueckliste",
+          "ist_timetac",
+          "ist_gesamt",
+          "stunden_ist",
+          "marge_netto",
+          "marge_promille",
+          "abweichung_promille",
+          "soll_ist_abweichung",
+          "stunden_abweichung",
+          "ampel",
+          "hinweise"
+        ],
+        "title": "ProjektAntwort",
+        "type": "object"
+      },
+      "app__routen__projekte__ProjektAntwort": {
+        "properties": {
+          "ab_wert_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ab Wert Netto"
+          },
+          "anlagenart": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anlagenart"
+          },
+          "auftrag_vom": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auftrag Vom"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "darf_werte_sehen": {
+            "default": false,
+            "title": "Darf Werte Sehen",
+            "type": "boolean"
+          },
+          "deckung_differenz": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deckung Differenz"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "ladestation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ladestation"
+          },
+          "meilensteine": {
+            "items": {
+              "$ref": "#/components/schemas/MeilensteinAntwort"
+            },
+            "title": "Meilensteine",
+            "type": "array"
+          },
+          "nachtraege": {
+            "items": {
+              "$ref": "#/components/schemas/NachtragZeile"
+            },
+            "title": "Nachtraege",
+            "type": "array"
+          },
+          "nachtraege_summe": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nachtraege Summe"
+          },
+          "pl_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl Name"
+          },
+          "pl_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pl User Id"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "quelle_migration": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quelle Migration"
+          },
+          "soll_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soll Netto"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "speicher_typ": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Typ"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "typ": {
+            "title": "Typ",
+            "type": "string"
+          },
+          "ust_kz": {
+            "title": "Ust Kz",
+            "type": "string"
+          },
+          "vertriebsweg": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertriebsweg"
+          },
+          "wr_typ": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wr Typ"
+          },
+          "zahlungsplan": {
+            "items": {
+              "$ref": "#/components/schemas/ZahlungsplanZeile"
+            },
+            "title": "Zahlungsplan",
+            "type": "array"
+          },
+          "zahlungsplan_gestellt_summe": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zahlungsplan Gestellt Summe"
+          },
+          "zahlungsplan_summe": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zahlungsplan Summe"
+          }
+        },
+        "required": [
+          "id",
+          "projekt_nr",
+          "kunde",
+          "kunde_id",
+          "typ",
+          "ust_kz",
+          "status",
+          "stand"
+        ],
+        "title": "ProjektAntwort",
         "type": "object"
       },
       "app__routen__rechnungen__PositionAntwort": {
@@ -5040,6 +5753,346 @@
         ]
       }
     },
+    "/api/importe/datev/uebernehmen": {
+      "post": {
+        "operationId": "importDatevUebernehmen",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "monat",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Monat"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__routen__importe__UebernahmeAnfrage"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__importe__UebernahmeAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "Datei zwischenzeitlich geändert oder Ordner nicht eingerichtet"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "DATEV-Kostenträger übernehmen (ersetzt den Monat)",
+        "tags": [
+          "Importe"
+        ]
+      }
+    },
+    "/api/importe/datev/vorschau": {
+      "get": {
+        "operationId": "importDatevVorschau",
+        "parameters": [
+          {
+            "description": "Monat 'JJJJ-MM'; ohne Angabe der jüngste",
+            "in": "query",
+            "name": "monat",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Monat 'JJJJ-MM'; ohne Angabe der jüngste",
+              "title": "Monat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__importe__VorschauAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "Ordner oder Datei fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "DATEV-Kostenträger ansehen, ohne zu schreiben",
+        "tags": [
+          "Importe"
+        ]
+      }
+    },
+    "/api/importe/kalkulation/uebernehmen": {
+      "post": {
+        "operationId": "importKalkulationUebernehmen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__routen__importe__UebernahmeAnfrage"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__importe__UebernahmeAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "Datei zwischenzeitlich geändert oder Ordner nicht eingerichtet"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Sollwerte aus den Kalkulationsblättern übernehmen",
+        "tags": [
+          "Importe"
+        ]
+      }
+    },
+    "/api/importe/kalkulation/vorschau": {
+      "get": {
+        "operationId": "importKalkulationVorschau",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__importe__VorschauAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "Ordner fehlt"
+          }
+        },
+        "summary": "Kalkulationsblätter ansehen, ohne zu schreiben",
+        "tags": [
+          "Importe"
+        ]
+      }
+    },
+    "/api/importe/laeufe": {
+      "get": {
+        "operationId": "importLaeufe",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "quelle",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Quelle"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anzahl",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Anzahl",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LaufAntwort"
+                  },
+                  "title": "Response Importlaeufe",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Importprotokolle",
+        "tags": [
+          "Importe"
+        ]
+      }
+    },
+    "/api/importe/timetac/holen": {
+      "post": {
+        "description": "Ohne Vorschau: die Schnittstelle liefert keine Datei, die man vorher ansehen könnte.\n\nDer Lauf ist gefahrlos wiederholbar – er ersetzt seinen Zeitraum (PLAN §8). Ein Netzfehler\nschreibt nichts und lässt die vorhandenen Stunden stehen.",
+        "operationId": "importTimetacHolen",
+        "parameters": [
+          {
+            "description": "Monat 'JJJJ-MM'; ohne Angabe die letzten zwei",
+            "in": "query",
+            "name": "monat",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Monat 'JJJJ-MM'; ohne Angabe die letzten zwei",
+              "title": "Monat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__importe__UebernahmeAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "TimeTac nicht erreichbar oder nicht eingerichtet"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Stunden aus TimeTac holen und übernehmen",
+        "tags": [
+          "Importe"
+        ]
+      }
+    },
     "/api/kunden": {
       "get": {
         "description": "Kundenliste. Standardmäßig nur aktive – inaktive sind Altbestand und stören beim Suchen.",
@@ -5448,7 +6501,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UebernahmeAnfrage"
+                "$ref": "#/components/schemas/app__routen__migration__UebernahmeAnfrage"
               }
             }
           },
@@ -5459,7 +6512,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UebernahmeAntwort"
+                  "$ref": "#/components/schemas/app__routen__migration__UebernahmeAntwort"
                 }
               }
             },
@@ -5500,7 +6553,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VorschauAntwort"
+                  "$ref": "#/components/schemas/app__routen__migration__VorschauAntwort"
                 }
               }
             },
@@ -5519,6 +6572,207 @@
         "summary": "Bestandsdateien lesen und Zuordnung vorschlagen",
         "tags": [
           "Migration"
+        ]
+      }
+    },
+    "/api/nachkalkulation": {
+      "get": {
+        "description": "Alle Projekte mit Erlös, Soll, Ist und Marge.\n\nVoreingestellt ist die Sortierung nach der schwächsten Marge: dort ist die Nachfrage fällig.",
+        "operationId": "nachkalkulationUebersicht",
+        "parameters": [
+          {
+            "description": "Auftragsjahr, abgeleitet aus der Projektnummer",
+            "in": "query",
+            "name": "jahr",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Auftragsjahr, abgeleitet aus der Projektnummer",
+              "title": "Jahr"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "enum": [
+                "alle",
+                "angebot",
+                "beauftragt",
+                "in_bau",
+                "abgeschlossen",
+                "storniert"
+              ],
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "projektleiter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Projektleiter"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortierung",
+            "required": false,
+            "schema": {
+              "default": "marge",
+              "enum": [
+                "marge",
+                "projekt_nr",
+                "erloes",
+                "ist"
+              ],
+              "title": "Sortierung",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "nur_mit_hinweis",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Nur Mit Hinweis",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UebersichtAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung nachkalkulation.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Nachkalkulation aller Projekte",
+        "tags": [
+          "Nachkalkulation"
+        ]
+      }
+    },
+    "/api/nachkalkulation/mengen-ist-offen": {
+      "get": {
+        "description": "Wo die Lagerbewertung noch mit der kalkulierten Menge rechnet (PLAN §6.5).",
+        "operationId": "nachkalkulationOffeneMengen",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OffeneMengeAntwort"
+                  },
+                  "title": "Response Nachkalkulationoffenemengen",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung nachkalkulation.lesen fehlt"
+          }
+        },
+        "summary": "Projekte mit ungezählten Lagerpositionen",
+        "tags": [
+          "Nachkalkulation"
+        ]
+      }
+    },
+    "/api/nachkalkulation/{projekt_nr}": {
+      "get": {
+        "operationId": "nachkalkulationProjekt",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projekt_nr",
+            "required": true,
+            "schema": {
+              "title": "Projekt Nr",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung nachkalkulation.lesen fehlt"
+          },
+          "404": {
+            "description": "Projekt nicht gefunden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Nachkalkulation eines Projekts mit Aufgliederung",
+        "tags": [
+          "Nachkalkulation"
         ]
       }
     },
@@ -5772,7 +7026,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjektAntwort"
+                  "$ref": "#/components/schemas/app__routen__projekte__ProjektAntwort"
                 }
               }
             },
@@ -5907,7 +7161,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjektAntwort"
+                  "$ref": "#/components/schemas/app__routen__projekte__ProjektAntwort"
                 }
               }
             },
@@ -5966,7 +7220,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjektAntwort"
+                  "$ref": "#/components/schemas/app__routen__projekte__ProjektAntwort"
                 }
               }
             },

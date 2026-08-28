@@ -21,7 +21,9 @@ from app.protokoll import logger
 from app.routen import (
     auth,
     gesundheit,
+    importe,
     migration,
+    nachkalkulation,
     projekte,
     rechnungen,
     stammdaten,
@@ -100,6 +102,8 @@ def anwendung_erzeugen(
     app.include_router(umsatz.router)
     app.include_router(rechnungen.router)
     app.include_router(stueckliste.router)
+    app.include_router(nachkalkulation.router)
+    app.include_router(importe.router)
 
     # Zuletzt: der Rückfall auf index.html würde sonst die API-Pfade verschlucken
     # (siehe app/auslieferung.py).

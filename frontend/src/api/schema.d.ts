@@ -154,6 +154,114 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/importe/datev/uebernehmen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** DATEV-Kostenträger übernehmen (ersetzt den Monat) */
+        post: operations["importDatevUebernehmen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/importe/datev/vorschau": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** DATEV-Kostenträger ansehen, ohne zu schreiben */
+        get: operations["importDatevVorschau"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/importe/kalkulation/uebernehmen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sollwerte aus den Kalkulationsblättern übernehmen */
+        post: operations["importKalkulationUebernehmen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/importe/kalkulation/vorschau": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kalkulationsblätter ansehen, ohne zu schreiben */
+        get: operations["importKalkulationVorschau"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/importe/laeufe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Importprotokolle */
+        get: operations["importLaeufe"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/importe/timetac/holen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stunden aus TimeTac holen und übernehmen
+         * @description Ohne Vorschau: die Schnittstelle liefert keine Datei, die man vorher ansehen könnte.
+         *
+         *     Der Lauf ist gefahrlos wiederholbar – er ersetzt seinen Zeitraum (PLAN §8). Ein Netzfehler
+         *     schreibt nichts und lässt die vorhandenen Stunden stehen.
+         */
+        post: operations["importTimetacHolen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/kunden": {
         parameters: {
             query?: never;
@@ -266,6 +374,65 @@ export interface paths {
          * @description Liest beide Dateien und schlägt die Zuordnung vor. Schreibt nichts.
          */
         get: operations["migrationVorschau"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/nachkalkulation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Nachkalkulation aller Projekte
+         * @description Alle Projekte mit Erlös, Soll, Ist und Marge.
+         *
+         *     Voreingestellt ist die Sortierung nach der schwächsten Marge: dort ist die Nachfrage fällig.
+         */
+        get: operations["nachkalkulationUebersicht"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/nachkalkulation/mengen-ist-offen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Projekte mit ungezählten Lagerpositionen
+         * @description Wo die Lagerbewertung noch mit der kalkulierten Menge rechnet (PLAN §6.5).
+         */
+        get: operations["nachkalkulationOffeneMengen"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/nachkalkulation/{projekt_nr}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Nachkalkulation eines Projekts mit Aufgliederung */
+        get: operations["nachkalkulationProjekt"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1151,6 +1318,14 @@ export interface components {
             /** Projekt Nr */
             projekt_nr: number;
         };
+        /** DetailAntwort */
+        DetailAntwort: {
+            projekt: components["schemas"]["app__routen__nachkalkulation__ProjektAntwort"];
+            /** Stueckliste */
+            stueckliste: components["schemas"]["StuecklistenzeileAntwort"][];
+            /** Stunden */
+            stunden: components["schemas"]["StundenzeileAntwort"][];
+        };
         /** ErzeugenEingabe */
         ErzeugenEingabe: {
             /** Datum */
@@ -1181,6 +1356,13 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** HinweisAntwort */
+        HinweisAntwort: {
+            /** Code */
+            code: string;
+            /** Text */
+            text: string;
         };
         /** JobStartErgebnis */
         JobStartErgebnis: {
@@ -1416,6 +1598,27 @@ export interface components {
             /** Versatz */
             versatz: number;
         };
+        /** LaufAntwort */
+        LaufAntwort: {
+            /** Beendet */
+            beendet: string | null;
+            /** Datei */
+            datei: string | null;
+            /** Ergebnis */
+            ergebnis: {
+                [key: string]: unknown;
+            } | null;
+            /** Gestartet */
+            gestartet: string;
+            /** Id */
+            id: number;
+            /** Quelle */
+            quelle: string;
+            /** Status */
+            status: string;
+            /** Zeitraum */
+            zeitraum: string | null;
+        };
         /** ListeAntwort */
         ListeAntwort: {
             /** Anzahl */
@@ -1590,6 +1793,21 @@ export interface components {
             /** Zaehlt Zum Soll */
             zaehlt_zum_soll: boolean;
         };
+        /** OffeneMengeAntwort */
+        OffeneMengeAntwort: {
+            /** Bezeichnung */
+            bezeichnung: string | null;
+            /** Kunde */
+            kunde: string;
+            /** Offen */
+            offen: number;
+            /** Positionen */
+            positionen: number;
+            /** Projekt Nr */
+            projekt_nr: number;
+            /** Status */
+            status: string;
+        };
         /** PasswortDaten */
         PasswortDaten: {
             /** Altes Passwort */
@@ -1678,79 +1896,6 @@ export interface components {
             vertriebsweg?: string | null;
             /** Wr Typ */
             wr_typ?: string | null;
-        };
-        /** ProjektAntwort */
-        ProjektAntwort: {
-            /** Ab Wert Netto */
-            ab_wert_netto?: number | null;
-            /** Anlagenart */
-            anlagenart?: string | null;
-            /** Auftrag Vom */
-            auftrag_vom?: string | null;
-            /** Bemerkung */
-            bemerkung?: string | null;
-            /** Bezeichnung */
-            bezeichnung?: string | null;
-            /**
-             * Darf Werte Sehen
-             * @default false
-             */
-            darf_werte_sehen: boolean;
-            /** Deckung Differenz */
-            deckung_differenz?: number | null;
-            /** Id */
-            id: number;
-            /** Kunde */
-            kunde: string;
-            /** Kunde Id */
-            kunde_id: number;
-            /** Ladestation */
-            ladestation?: string | null;
-            /** Meilensteine */
-            meilensteine?: components["schemas"]["MeilensteinAntwort"][];
-            /** Nachtraege */
-            nachtraege?: components["schemas"]["NachtragZeile"][];
-            /** Nachtraege Summe */
-            nachtraege_summe?: number | null;
-            /** Pl Name */
-            pl_name?: string | null;
-            /** Pl User Id */
-            pl_user_id?: number | null;
-            /** Projekt Nr */
-            projekt_nr: number;
-            /** Pv Kwp */
-            pv_kwp?: number | null;
-            /** Quelle Migration */
-            quelle_migration?: string | null;
-            /** Soll Netto */
-            soll_netto?: number | null;
-            /** Speicher Kwh */
-            speicher_kwh?: number | null;
-            /** Speicher Typ */
-            speicher_typ?: string | null;
-            /**
-             * Stand
-             * Format: date-time
-             */
-            stand: string;
-            /** Standort */
-            standort?: string | null;
-            /** Status */
-            status: string;
-            /** Typ */
-            typ: string;
-            /** Ust Kz */
-            ust_kz: string;
-            /** Vertriebsweg */
-            vertriebsweg?: string | null;
-            /** Wr Typ */
-            wr_typ?: string | null;
-            /** Zahlungsplan */
-            zahlungsplan?: components["schemas"]["ZahlungsplanZeile"][];
-            /** Zahlungsplan Gestellt Summe */
-            zahlungsplan_gestellt_summe?: number | null;
-            /** Zahlungsplan Summe */
-            zahlungsplan_summe?: number | null;
         };
         /** ProjektEingabe */
         ProjektEingabe: {
@@ -1986,6 +2131,38 @@ export interface components {
             /** Status */
             status?: string | null;
         };
+        /** StuecklistenzeileAntwort */
+        StuecklistenzeileAntwort: {
+            /** Artikel Nr */
+            artikel_nr: string | null;
+            /** Bewertet Betrag */
+            bewertet_betrag: number | null;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Ek Preis */
+            ek_preis: number | null;
+            /** Gewerk */
+            gewerk: string | null;
+            /** Menge Ist */
+            menge_ist: string | null;
+            /** Menge Soll */
+            menge_soll: string;
+            /** Quelle */
+            quelle: string;
+        };
+        /** StundenzeileAntwort */
+        StundenzeileAntwort: {
+            /** Betrag */
+            betrag: number;
+            /** Mitarbeiter */
+            mitarbeiter: string;
+            /** Monat */
+            monat: string;
+            /** Satz */
+            satz: number;
+            /** Stunden */
+            stunden: string;
+        };
         /**
          * Systemstatus
          * @description Der „Datenstand"-Block der Startseite.
@@ -2002,52 +2179,26 @@ export interface components {
             /** Zeitplan Laeuft */
             zeitplan_laeuft: boolean;
         };
-        /** UebernahmeAnfrage */
-        UebernahmeAnfrage: {
-            /** Entscheidungen */
-            entscheidungen?: {
-                [key: string]: number | null;
-            };
-            /** Kennung */
-            kennung: string;
-            /**
-             * Offene Zulassen
-             * @default false
-             */
-            offene_zulassen: boolean;
-        };
-        /** UebernahmeAntwort */
-        UebernahmeAntwort: {
-            /** Ab Luecken */
-            ab_luecken: {
-                [key: string]: unknown;
-            }[];
-            /** Gewerk Abgeleitet */
-            gewerk_abgeleitet: {
-                [key: string]: unknown;
-            }[];
-            /** Importlauf Id */
-            importlauf_id: number | null;
-            /** Kunden */
-            kunden: number;
-            /** Meilensteine */
-            meilensteine: number;
-            /** Meldung */
-            meldung: string;
-            /** Nicht Uebernommen */
-            nicht_uebernommen: {
-                [key: string]: unknown;
-            }[];
+        /** UebersichtAntwort */
+        UebersichtAntwort: {
+            /** Ampel Gelb Promille */
+            ampel_gelb_promille: number;
+            /** Anzahl */
+            anzahl: number;
+            /** Erloes Netto */
+            erloes_netto: number;
+            /** Ist Netto */
+            ist_netto: number;
+            /** Marge Netto */
+            marge_netto: number;
+            /** Marge Promille */
+            marge_promille: number | null;
+            /** Mit Hinweis */
+            mit_hinweis: number;
+            /** Ohne Kalkulation */
+            ohne_kalkulation: number;
             /** Projekte */
-            projekte: number;
-            /** Projekte Ohne Auftragsjahr */
-            projekte_ohne_auftragsjahr: number;
-            /** Zahlungsplan */
-            zahlungsplan: number;
-            /** Zahlungsplan Gestellt */
-            zahlungsplan_gestellt: number;
-            /** Zahlungsplan Summe Netto */
-            zahlungsplan_summe_netto: number;
+            projekte: components["schemas"]["app__routen__nachkalkulation__ProjektAntwort"][];
         };
         /**
          * UnterminiertAntwort
@@ -2079,21 +2230,6 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
-        };
-        /** VorschauAntwort */
-        VorschauAntwort: {
-            /** Befunde */
-            befunde: components["schemas"]["BefundAntwort"][];
-            /** Kandidaten */
-            kandidaten: components["schemas"]["ProjektKandidat"][];
-            /** Kennung */
-            kennung: string;
-            /** Kontrollsummen */
-            kontrollsummen: {
-                [key: string]: unknown;
-            };
-            /** Zuordnungen */
-            zuordnungen: components["schemas"]["ZuordnungAntwort"][];
         };
         /** Vorschlag */
         Vorschlag: {
@@ -2211,6 +2347,235 @@ export interface components {
             vorschlaege?: components["schemas"]["Vorschlag"][];
             /** Zeilen */
             zeilen: number[];
+        };
+        /** UebernahmeAnfrage */
+        app__routen__importe__UebernahmeAnfrage: {
+            /** Kennung */
+            kennung: string;
+        };
+        /** UebernahmeAntwort */
+        app__routen__importe__UebernahmeAntwort: {
+            /** Ergebnis */
+            ergebnis: {
+                [key: string]: unknown;
+            };
+            /** Importlauf Id */
+            importlauf_id: number | null;
+            /** Meldung */
+            meldung: string;
+            /** Quelle */
+            quelle: string;
+            /** Zeitraum */
+            zeitraum: string | null;
+        };
+        /** VorschauAntwort */
+        app__routen__importe__VorschauAntwort: {
+            /** Befunde */
+            befunde: components["schemas"]["BefundAntwort"][];
+            /** Dateien */
+            dateien: string[];
+            /** Hinweise */
+            hinweise: string[];
+            /** Kennung */
+            kennung: string;
+            /** Kontrollsummen */
+            kontrollsummen: {
+                [key: string]: unknown;
+            };
+            /** Quelle */
+            quelle: string;
+            /** Zeitraum */
+            zeitraum: string | null;
+        };
+        /** UebernahmeAnfrage */
+        app__routen__migration__UebernahmeAnfrage: {
+            /** Entscheidungen */
+            entscheidungen?: {
+                [key: string]: number | null;
+            };
+            /** Kennung */
+            kennung: string;
+            /**
+             * Offene Zulassen
+             * @default false
+             */
+            offene_zulassen: boolean;
+        };
+        /** UebernahmeAntwort */
+        app__routen__migration__UebernahmeAntwort: {
+            /** Ab Luecken */
+            ab_luecken: {
+                [key: string]: unknown;
+            }[];
+            /** Gewerk Abgeleitet */
+            gewerk_abgeleitet: {
+                [key: string]: unknown;
+            }[];
+            /** Importlauf Id */
+            importlauf_id: number | null;
+            /** Kunden */
+            kunden: number;
+            /** Meilensteine */
+            meilensteine: number;
+            /** Meldung */
+            meldung: string;
+            /** Nicht Uebernommen */
+            nicht_uebernommen: {
+                [key: string]: unknown;
+            }[];
+            /** Projekte */
+            projekte: number;
+            /** Projekte Ohne Auftragsjahr */
+            projekte_ohne_auftragsjahr: number;
+            /** Zahlungsplan */
+            zahlungsplan: number;
+            /** Zahlungsplan Gestellt */
+            zahlungsplan_gestellt: number;
+            /** Zahlungsplan Summe Netto */
+            zahlungsplan_summe_netto: number;
+        };
+        /** VorschauAntwort */
+        app__routen__migration__VorschauAntwort: {
+            /** Befunde */
+            befunde: components["schemas"]["BefundAntwort"][];
+            /** Kandidaten */
+            kandidaten: components["schemas"]["ProjektKandidat"][];
+            /** Kennung */
+            kennung: string;
+            /** Kontrollsummen */
+            kontrollsummen: {
+                [key: string]: unknown;
+            };
+            /** Zuordnungen */
+            zuordnungen: components["schemas"]["ZuordnungAntwort"][];
+        };
+        /** ProjektAntwort */
+        app__routen__nachkalkulation__ProjektAntwort: {
+            /** Ab Wert Netto */
+            ab_wert_netto: number | null;
+            /** Abweichung Promille */
+            abweichung_promille: number | null;
+            /** Ampel */
+            ampel: string;
+            /** Bezeichnung */
+            bezeichnung: string | null;
+            /** Erloes Netto */
+            erloes_netto: number | null;
+            /** Fakturiert Netto */
+            fakturiert_netto: number;
+            /** Hinweise */
+            hinweise: components["schemas"]["HinweisAntwort"][];
+            /** Ist Datev */
+            ist_datev: number;
+            /** Ist Gesamt */
+            ist_gesamt: number;
+            /** Ist Stueckliste */
+            ist_stueckliste: number;
+            /** Ist Timetac */
+            ist_timetac: number;
+            /** Kunde */
+            kunde: string;
+            /** Marge Netto */
+            marge_netto: number | null;
+            /** Marge Promille */
+            marge_promille: number | null;
+            /** Marge Soll Promille */
+            marge_soll_promille: number | null;
+            /** Nachtraege Netto */
+            nachtraege_netto: number;
+            /** Pl Name */
+            pl_name: string | null;
+            /** Projekt Nr */
+            projekt_nr: number;
+            /** Soll Dl */
+            soll_dl: number | null;
+            /** Soll Gesamt */
+            soll_gesamt: number | null;
+            /** Soll Ist Abweichung */
+            soll_ist_abweichung: number | null;
+            /** Soll Material */
+            soll_material: number | null;
+            /** Soll Stunden */
+            soll_stunden: string | null;
+            /** Status */
+            status: string;
+            /** Stunden Abweichung */
+            stunden_abweichung: string | null;
+            /** Stunden Ist */
+            stunden_ist: string;
+        };
+        /** ProjektAntwort */
+        app__routen__projekte__ProjektAntwort: {
+            /** Ab Wert Netto */
+            ab_wert_netto?: number | null;
+            /** Anlagenart */
+            anlagenart?: string | null;
+            /** Auftrag Vom */
+            auftrag_vom?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /**
+             * Darf Werte Sehen
+             * @default false
+             */
+            darf_werte_sehen: boolean;
+            /** Deckung Differenz */
+            deckung_differenz?: number | null;
+            /** Id */
+            id: number;
+            /** Kunde */
+            kunde: string;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Ladestation */
+            ladestation?: string | null;
+            /** Meilensteine */
+            meilensteine?: components["schemas"]["MeilensteinAntwort"][];
+            /** Nachtraege */
+            nachtraege?: components["schemas"]["NachtragZeile"][];
+            /** Nachtraege Summe */
+            nachtraege_summe?: number | null;
+            /** Pl Name */
+            pl_name?: string | null;
+            /** Pl User Id */
+            pl_user_id?: number | null;
+            /** Projekt Nr */
+            projekt_nr: number;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Quelle Migration */
+            quelle_migration?: string | null;
+            /** Soll Netto */
+            soll_netto?: number | null;
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /** Speicher Typ */
+            speicher_typ?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Standort */
+            standort?: string | null;
+            /** Status */
+            status: string;
+            /** Typ */
+            typ: string;
+            /** Ust Kz */
+            ust_kz: string;
+            /** Vertriebsweg */
+            vertriebsweg?: string | null;
+            /** Wr Typ */
+            wr_typ?: string | null;
+            /** Zahlungsplan */
+            zahlungsplan?: components["schemas"]["ZahlungsplanZeile"][];
+            /** Zahlungsplan Gestellt Summe */
+            zahlungsplan_gestellt_summe?: number | null;
+            /** Zahlungsplan Summe */
+            zahlungsplan_summe?: number | null;
         };
         /** PositionAntwort */
         app__routen__rechnungen__PositionAntwort: {
@@ -2652,6 +3017,309 @@ export interface operations {
             };
         };
     };
+    importDatevUebernehmen: {
+        parameters: {
+            query?: {
+                monat?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__routen__importe__UebernahmeAnfrage"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__importe__UebernahmeAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datei zwischenzeitlich geändert oder Ordner nicht eingerichtet */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importDatevVorschau: {
+        parameters: {
+            query?: {
+                /** @description Monat 'JJJJ-MM'; ohne Angabe der jüngste */
+                monat?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__importe__VorschauAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ordner oder Datei fehlt */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importKalkulationUebernehmen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__routen__importe__UebernahmeAnfrage"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__importe__UebernahmeAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datei zwischenzeitlich geändert oder Ordner nicht eingerichtet */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importKalkulationVorschau: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__importe__VorschauAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ordner fehlt */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    importLaeufe: {
+        parameters: {
+            query?: {
+                quelle?: string | null;
+                anzahl?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LaufAntwort"][];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importTimetacHolen: {
+        parameters: {
+            query?: {
+                /** @description Monat 'JJJJ-MM'; ohne Angabe die letzten zwei */
+                monat?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__importe__UebernahmeAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description TimeTac nicht erreichbar oder nicht eingerichtet */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     kundenListe: {
         parameters: {
             query?: {
@@ -3035,7 +3703,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UebernahmeAnfrage"];
+                "application/json": components["schemas"]["app__routen__migration__UebernahmeAnfrage"];
             };
         };
         responses: {
@@ -3045,7 +3713,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UebernahmeAntwort"];
+                    "application/json": components["schemas"]["app__routen__migration__UebernahmeAntwort"];
                 };
             };
             /** @description Nicht angemeldet */
@@ -3095,7 +3763,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["VorschauAntwort"];
+                    "application/json": components["schemas"]["app__routen__migration__VorschauAntwort"];
                 };
             };
             /** @description Nicht angemeldet */
@@ -3118,6 +3786,142 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    nachkalkulationUebersicht: {
+        parameters: {
+            query?: {
+                /** @description Auftragsjahr, abgeleitet aus der Projektnummer */
+                jahr?: number | null;
+                status?: "alle" | "angebot" | "beauftragt" | "in_bau" | "abgeschlossen" | "storniert";
+                projektleiter?: string | null;
+                sortierung?: "marge" | "projekt_nr" | "erloes" | "ist";
+                nur_mit_hinweis?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UebersichtAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung nachkalkulation.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    nachkalkulationOffeneMengen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OffeneMengeAntwort"][];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung nachkalkulation.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    nachkalkulationProjekt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projekt_nr: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DetailAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung nachkalkulation.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Projekt nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };
@@ -3313,7 +4117,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProjektAntwort"];
+                    "application/json": components["schemas"]["app__routen__projekte__ProjektAntwort"];
                 };
             };
             /** @description Nicht angemeldet */
@@ -3467,7 +4271,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProjektAntwort"];
+                    "application/json": components["schemas"]["app__routen__projekte__ProjektAntwort"];
                 };
             };
             /** @description Nicht angemeldet */
@@ -3523,7 +4327,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProjektAntwort"];
+                    "application/json": components["schemas"]["app__routen__projekte__ProjektAntwort"];
                 };
             };
             /** @description Nicht angemeldet */
