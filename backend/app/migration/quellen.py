@@ -15,8 +15,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import date, timedelta
-from decimal import Decimal, InvalidOperation
+from datetime import date
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +24,17 @@ from openpyxl import load_workbook
 
 from app.fehler import FachFehler
 from app.geld import euro_nach_cent
+
+# Die Deutung einzelner Zellen und das Sammeln der Befunde stehen seit Phase 4 in
+# app/importe/ – die wiederkehrenden Importe (DATEV, TimeTac, Kalkulationsblatt) brauchen
+# dieselben Funktionen. Hier bleiben die eingeführten Namen mit Unterstrich stehen, damit
+# dieser Leser unverändert liest.
+from app.importe.befunde import Befund
+from app.importe.werte import excel_datum
+from app.importe.werte import ist_fehlerwert as _ist_fehlerwert
+from app.importe.werte import text as _text
+from app.importe.werte import zahl as _zahl
+from app.importe.werte import zellen as _zellen
 from app.migration.vokabular import Rechnungsart, kunde_und_ort, rechnungsart_lesen
 
 # ---------------------------------------------------------------------------
@@ -163,7 +174,6 @@ _FREIFLAECHE = re.compile(
     r"(?<![a-zäöüß])(freifl(ae|ä)che|freiland|solarpark|pv[- ]?park)(?![a-zäöüß])",
     re.IGNORECASE,
 )
-_EXCEL_NULLTAG = date(1899, 12, 30)  # Excel zählt ab 1900 mit dem bekannten Schaltjahrfehler
 
 
 class BlattFehlt(FachFehler):
@@ -182,25 +192,6 @@ class BlattFehlt(FachFehler):
             + (", ".join(f"'{b}'" for b in vorhanden) or "keine")
             + ". Bitte prüfen, ob es die richtige Datei ist.",
         )
-
-
-@dataclass(frozen=True)
-class Befund:
-    """Ein Wert, den der Leser nicht sicher deuten konnte.
-
-    ``schwere`` unterscheidet, was Aufmerksamkeit braucht: ``warnung`` heißt, dass eine Angabe
-    fehlt oder unlesbar ist; ``hinweis`` heißt, dass bewusst anders verfahren wurde.
-    """
-
-    datei: str
-    zeile: int
-    spalte: str
-    wert: str
-    meldung: str
-    schwere: str = "warnung"
-
-    def als_text(self) -> str:
-        return f"{self.datei} {self.spalte}{self.zeile}: {self.meldung} (Inhalt: {self.wert!r})"
 
 
 @dataclass
@@ -315,44 +306,6 @@ class Teamliste:
         return dict(sorted(je_status.items()))
 
 
-def _zellen(zeile: tuple[Any, ...]) -> dict[str, Any]:
-    """Belegte Zellen einer Zeile als ``{Spaltenbuchstabe: Wert}``.
-
-    Im ``read_only``-Modus liefert openpyxl für unbelegte Stellen ``EmptyCell``-Objekte, die
-    weder ``column_letter`` noch ``row`` kennen. Sie werden hier weggefiltert.
-    """
-    belegt: dict[str, Any] = {}
-    for zelle in zeile:
-        buchstabe = getattr(zelle, "column_letter", None)
-        if buchstabe is not None and zelle.value is not None:
-            belegt[buchstabe] = zelle.value
-    return belegt
-
-
-def _text(wert: Any) -> str:
-    """Zellinhalt als getrimmter Text; ``None`` wird zum Leerstring."""
-    if wert is None:
-        return ""
-    if isinstance(wert, str):
-        return wert.strip()
-    return str(wert).strip()
-
-
-def _ist_fehlerwert(text: str) -> bool:
-    """Excel-Fehlerwerte wie ``#VALUE!`` oder ``#REF!``."""
-    return text.startswith("#") and text.endswith("!")
-
-
-def _zahl(text: str) -> Decimal | None:
-    """Dezimalzahl aus einem Zellinhalt, oder ``None`` wenn es keine ist."""
-    if not text:
-        return None
-    try:
-        return Decimal(text.replace(",", "."))
-    except (InvalidOperation, ValueError):
-        return None
-
-
 def marker_lesen(wert: Any) -> Markerstand:
     """Deutet eine Zelle des Termin- oder Statusblocks.
 
@@ -378,26 +331,6 @@ def marker_lesen(wert: Any) -> Markerstand:
     if set(roh.replace(",", " ").split()) <= {"x", "X"}:
         return Markerstand(erledigt=True, roh=roh)
     return Markerstand(roh=roh)
-
-
-def excel_datum(wert: Any) -> date | None:
-    """Excel-Datumszahl oder echtes Datum in ein ``date`` wandeln.
-
-    Die Auftragsspalte der Teamliste enthält Seriennummern (44123), weil die Datei alt ist.
-    openpyxl wandelt formatierte Zellen selbst um; unformatierte kommen als Zahl an.
-    """
-    if wert is None:
-        return None
-    if isinstance(wert, date):
-        return wert
-    zahl = _zahl(_text(wert))
-    if zahl is None:
-        return None
-    tage = int(zahl)
-    # Alles unter 1000 ist keine plausible Datumszahl (1902), sondern ein Tippfehler.
-    if tage < 1000 or tage > 80000:
-        return None
-    return _EXCEL_NULLTAG + timedelta(days=tage)
 
 
 def auftragsliste_lesen(pfad: Path) -> Auftragsliste:

@@ -30,6 +30,7 @@ from sqlalchemy.orm import Session
 from app.dienste.nummernkreise import naechste_projektnummer, naechster_wert
 from app.fehler import FachFehler
 from app.geld import formatiere_euro
+from app.importe import befunde
 from app.migration.quellen import (
     SUMMENFEHLER,
     Auftragsliste,
@@ -314,11 +315,9 @@ def _laufstatus(lauf: _Lauf) -> str:
     Der Datenstand auf der Startseite zeigt den Status; ein Lauf, der Zeilen liegen gelassen hat,
     darf dort nicht wie ein glatter Erfolg aussehen.
     """
-    if lauf.bericht.nicht_uebernommen:
-        return "warnung"
-    if any(b.schwere == "warnung" for b in lauf.analyse.befunde):
-        return "warnung"
-    return "erfolg"
+    return befunde.laufstatus(
+        lauf.analyse.befunde, unvollstaendig=bool(lauf.bericht.nicht_uebernommen)
+    )
 
 
 def _protokoll_bauen(lauf: _Lauf) -> dict[str, object]:
@@ -338,17 +337,7 @@ def _protokoll_bauen(lauf: _Lauf) -> dict[str, object]:
         "gewerk_abgeleitet": bericht.gewerk_abgeleitet,
         "nicht_uebernommen": bericht.nicht_uebernommen,
         "gleiche_bezeichnung": bericht.gleiche_bezeichnung,
-        "befunde": [
-            {
-                "datei": b.datei,
-                "zeile": b.zeile,
-                "spalte": b.spalte,
-                "wert": b.wert,
-                "meldung": b.meldung,
-                "schwere": b.schwere,
-            }
-            for b in lauf.analyse.befunde
-        ],
+        "befunde": befunde.als_liste(lauf.analyse.befunde),
     }
 
 

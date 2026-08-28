@@ -462,6 +462,33 @@ def backup_ausfuehren() -> None:
             )
 
 
+@anwendung.command("kalkulationsblatt-vorlage")
+def kalkulationsblatt_vorlage(
+    ziel: str = typer.Option(
+        None,
+        help="Ablageort der Vorlage (Standard: vorlagen/Kalkulationsblatt-Vorlage.xlsx)",
+    ),
+) -> None:
+    """Die Excel-Vorlage mit dem Blatt EXPORT erzeugen (PLAN §8).
+
+    Das Blatt wird einmalig in das eigene Kalkulationsblatt übernommen; die benannten Zellen
+    (exp_…) werden dort mit der eigenen Kalkulation verknüpft. Danach liest der nächtliche Lauf
+    die Sollwerte aus jedem Blatt in 03_Kalkulation.
+    """
+    from pathlib import Path
+
+    from app.importe.kalkulationsblatt import VORLAGE_DATEINAME, vorlage_erzeugen
+    from app.konfiguration import projektwurzel
+
+    pfad = Path(ziel) if ziel else projektwurzel() / "vorlagen" / VORLAGE_DATEINAME
+    geschrieben = vorlage_erzeugen(pfad)
+    typer.echo(f"Vorlage geschrieben: {geschrieben}")
+    typer.echo(
+        "Nächster Schritt: das Blatt EXPORT in das eigene Kalkulationsblatt kopieren und die "
+        "Zellen in Spalte B mit der Kalkulation verknüpfen."
+    )
+
+
 @anwendung.command("migration-analysieren")
 def migration_analysieren(
     ordner: str = typer.Option(None, help="Abweichender Quellordner (Standard: [pfade] migration)"),

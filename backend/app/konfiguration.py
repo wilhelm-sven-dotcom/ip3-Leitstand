@@ -314,7 +314,8 @@ class Einstellungen(BaseSettings):
         return f"sqlite+pysqlite:///{self.pfade.datenbank}"
 
 
-def _projektwurzel() -> Path:
+def projektwurzel() -> Path:
+    """Wurzel des Projekts – Bezugspunkt für relative Pfade aus der config.toml."""
     # backend/app/konfiguration.py -> backend/app -> backend -> Projektwurzel
     return Path(__file__).resolve().parents[2]
 
@@ -324,7 +325,7 @@ def konfigurationspfad() -> Path:
     aus_umgebung = os.environ.get("IP3_CONFIG")
     if aus_umgebung:
         return Path(aus_umgebung).expanduser()
-    return _projektwurzel() / "config.toml"
+    return projektwurzel() / "config.toml"
 
 
 def _toml_lesen(pfad: Path) -> dict[str, Any]:
@@ -355,7 +356,7 @@ def _env_datei_laden() -> None:
     Bereits gesetzte Umgebungsvariablen haben Vorrang – im Dienstbetrieb kommen sie aus der
     Dienstkonfiguration und dürfen nicht von einer Datei überschrieben werden.
     """
-    pfad = Path(os.environ.get("IP3_ENV_DATEI", _projektwurzel() / ".env"))
+    pfad = Path(os.environ.get("IP3_ENV_DATEI", projektwurzel() / ".env"))
     if not pfad.exists():
         return
     try:
@@ -489,7 +490,7 @@ def laden() -> Einstellungen:
 
     # Relative Pfade beziehen sich auf die Projektwurzel, nicht auf das Arbeitsverzeichnis des
     # Dienstes – sonst landet die Datenbank je nach Startort an einer anderen Stelle.
-    wurzel = _projektwurzel()
+    wurzel = projektwurzel()
     for feld in ("datenbank", "logs", "backup", "rechnungen", "datev", "kalkulation", "frontend"):
         pfad = getattr(werte.pfade, feld)
         if pfad is not None and not Path(pfad).is_absolute():
