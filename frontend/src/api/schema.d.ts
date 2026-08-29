@@ -4,6 +4,63 @@
  */
 
 export interface paths {
+    "/api/anlagen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Anlagenregister
+         * @description Das Register, die jüngste Inbetriebnahme zuerst.
+         *
+         *     ``ohne_wartungsvertrag=true`` ist die Liste aus PLAN §7: jede Zeile darin ist ein Kunde, dem
+         *     ein Wartungsvertrag angeboten werden kann.
+         */
+        get: operations["anlagenListe"];
+        put?: never;
+        /**
+         * Anlage von Hand anlegen (Altbestand)
+         * @description Für Anlagen aus der Zeit vor dem Leitstand.
+         *
+         *     Anlagen aus laufenden Projekten entstehen beim Projektabschluss von selbst (PLAN §6.9) –
+         *     diese Maske ist für den Bestand, der nie ein Projekt im Leitstand hatte.
+         */
+        post: operations["anlageAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/anlagen/{anlage_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Anlagenblatt mit Fristen und Servicehistorie
+         * @description Stammdaten, offene und erledigte Fristen sowie alle Serviceaufträge zur Anlage.
+         */
+        get: operations["anlageLesen"];
+        /**
+         * Anlage ändern
+         * @description Stammdaten pflegen – vor allem MaStR-Nummer und Wartungsvertrag.
+         *
+         *     Wird die MaStR-Nummer nachgetragen, gilt die Registrierungsfrist als erfüllt: der
+         *     Fristenwächter hakt sie im selben Zug ab, statt bis zur Nacht rot zu bleiben.
+         */
+        put: operations["anlageAendern"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/ansprechpartner/{partner_id}": {
         parameters: {
             query?: never;
@@ -200,6 +257,76 @@ export interface paths {
         get: operations["cockpitZahlungen"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fristen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Fristen, das Dringendste zuerst
+         * @description Die Fristenliste und – mit ``nur_anstehende`` – das Startseiten-Widget.
+         *
+         *     Gezählt wird immer über die ungekürzte Liste: „3 überfällig" darf nicht davon abhängen, wie
+         *     viele Zeilen das Widget anzeigt.
+         */
+        get: operations["fristenListe"];
+        put?: never;
+        /**
+         * Frist von Hand anlegen
+         * @description Fertigmeldungen, Netzanschluss-Reservierungen und alles andere mit Ablaufdatum.
+         *
+         *     Gewährleistung und MaStR-Registrierung entstehen von selbst; hier steht, was der Leitstand
+         *     nicht ausrechnen kann.
+         */
+        post: operations["fristAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fristen/{frist_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Frist ändern */
+        put: operations["fristAendern"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fristen/{frist_id}/erledigt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Frist abhaken oder wieder öffnen
+         * @description Abhaken statt löschen (CLAUDE.md Regel 5).
+         *
+         *     Eine erledigte Frist bleibt stehen: sie ist der Beleg, dass jemand hingesehen hat. Der
+         *     nächtliche Lauf rührt sie nicht mehr an.
+         */
+        post: operations["fristErledigen"];
         delete?: never;
         options?: never;
         head?: never;
@@ -710,7 +837,10 @@ export interface paths {
         };
         /** Projekt mit Meilensteinen und Zahlungsplan lesen */
         get: operations["projektLesen"];
-        /** Projekt ändern */
+        /**
+         * Projekt ändern
+         * @description Projekt ändern; der Wechsel auf ``abgeschlossen`` legt die Anlage an (PLAN §6.9).
+         */
         put: operations["projektAendern"];
         post?: never;
         delete?: never;
@@ -1288,6 +1418,145 @@ export interface components {
              */
             sitzung_laeuft_ab: string;
         };
+        /** AnlageAendern */
+        AnlageAendern: {
+            /** Abnahme Datum */
+            abnahme_datum?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Gewaehrleistung Ende */
+            gewaehrleistung_ende?: string | null;
+            /** Inbetriebnahme */
+            inbetriebnahme?: string | null;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Mastr Nr */
+            mastr_nr?: string | null;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Standort */
+            standort?: string | null;
+            /**
+             * Wartungsvertrag
+             * @default false
+             */
+            wartungsvertrag: boolean;
+        };
+        /** AnlageAntwort */
+        AnlageAntwort: {
+            /** Abnahme Datum */
+            abnahme_datum?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Fristen */
+            fristen?: components["schemas"]["FristAntwort"][];
+            /** Gewaehrleistung Ende */
+            gewaehrleistung_ende?: string | null;
+            /** Id */
+            id: number;
+            /** Inbetriebnahme */
+            inbetriebnahme?: string | null;
+            /** Kunde */
+            kunde: string;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Mastr Nr */
+            mastr_nr?: string | null;
+            /** Projekt Nr */
+            projekt_nr?: number | null;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Servicehistorie */
+            servicehistorie?: components["schemas"]["ServicezeileAntwort"][];
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Standort */
+            standort?: string | null;
+            /** Wartungsvertrag */
+            wartungsvertrag: boolean;
+        };
+        /** AnlageEingabe */
+        AnlageEingabe: {
+            /** Abnahme Datum */
+            abnahme_datum?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Gewaehrleistung Ende */
+            gewaehrleistung_ende?: string | null;
+            /** Inbetriebnahme */
+            inbetriebnahme?: string | null;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Mastr Nr */
+            mastr_nr?: string | null;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /** Standort */
+            standort?: string | null;
+            /**
+             * Wartungsvertrag
+             * @default false
+             */
+            wartungsvertrag: boolean;
+        };
+        /**
+         * AnlageZeile
+         * @description Anlage in der Liste.
+         */
+        AnlageZeile: {
+            /** Gewaehrleistung Ende */
+            gewaehrleistung_ende?: string | null;
+            /** Id */
+            id: number;
+            /** Inbetriebnahme */
+            inbetriebnahme?: string | null;
+            /** Kunde */
+            kunde: string;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Mastr Nr */
+            mastr_nr?: string | null;
+            /** Projekt Nr */
+            projekt_nr?: number | null;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Standort */
+            standort?: string | null;
+            /** Wartungsvertrag */
+            wartungsvertrag: boolean;
+        };
+        /** AnlagenListe */
+        AnlagenListe: {
+            /** Anlagen */
+            anlagen: components["schemas"]["AnlageZeile"][];
+            /** Gesamt */
+            gesamt: number;
+            /** Seite */
+            seite: number;
+            /** Seiten */
+            seiten: number;
+        };
         /**
          * AnmeldeDaten
          * @description Anmeldedaten.
@@ -1579,6 +1848,94 @@ export interface components {
             berechnete_positionen?: number[];
             /** Freigegebene Positionen */
             freigegebene_positionen?: number[];
+        };
+        /** FristAendern */
+        FristAendern: {
+            /** Bezeichnung */
+            bezeichnung: string;
+            /**
+             * Faellig Am
+             * Format: date
+             */
+            faellig_am: string;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /**
+             * Vorlauf Tage
+             * @default 30
+             */
+            vorlauf_tage: number;
+        };
+        /** FristAntwort */
+        FristAntwort: {
+            /** Betreff */
+            betreff: string;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Bezug */
+            bezug: string;
+            /** Bezug Id */
+            bezug_id: number;
+            /** Erledigt Am */
+            erledigt_am?: string | null;
+            /**
+             * Faellig Am
+             * Format: date
+             */
+            faellig_am: string;
+            /** Id */
+            id: number;
+            /** Kunde */
+            kunde?: string | null;
+            /** Stand */
+            stand?: string | null;
+            /** Status */
+            status: string;
+            /** Tage Bis */
+            tage_bis: number;
+            /** Typ */
+            typ: string;
+            /** Vorlauf Tage */
+            vorlauf_tage: number;
+        };
+        /** FristEingabe */
+        FristEingabe: {
+            /** Bezeichnung */
+            bezeichnung: string;
+            /**
+             * Bezug
+             * @enum {string}
+             */
+            bezug: "projekt" | "anlage";
+            /** Bezug Id */
+            bezug_id: number;
+            /**
+             * Faellig Am
+             * Format: date
+             */
+            faellig_am: string;
+            /**
+             * Typ
+             * @enum {string}
+             */
+            typ: "mastr" | "fertigmeldung" | "reservierung" | "gewaehrleistung" | "sonstig";
+            /**
+             * Vorlauf Tage
+             * @default 30
+             */
+            vorlauf_tage: number;
+        };
+        /** FristenListe */
+        FristenListe: {
+            /** Fristen */
+            fristen: components["schemas"]["FristAntwort"][];
+            /** Zaehlung */
+            zaehlung: {
+                [key: string]: number;
+            };
         };
         /** Gesundheit */
         Gesundheit: {
@@ -2126,6 +2483,8 @@ export interface components {
         ProjektAendern: {
             /** Ab Wert Netto */
             ab_wert_netto?: number | null;
+            /** Anlage Id */
+            anlage_id?: number | null;
             /** Anlagenart */
             anlagenart?: ("aufdach" | "aufdach_speicher" | "freiflaeche" | "speicher" | "ladestation" | "sonstig") | null;
             /** Auftrag Vom */
@@ -2173,6 +2532,8 @@ export interface components {
              * @enum {string}
              */
             ust_kz: "19" | "0" | "13b" | "gemischt";
+            /** Vertragsart */
+            vertragsart?: ("vob" | "bgb") | null;
             /** Vertriebsweg */
             vertriebsweg?: string | null;
             /** Wr Typ */
@@ -2182,6 +2543,8 @@ export interface components {
         ProjektEingabe: {
             /** Ab Wert Netto */
             ab_wert_netto?: number | null;
+            /** Anlage Id */
+            anlage_id?: number | null;
             /** Anlagenart */
             anlagenart?: ("aufdach" | "aufdach_speicher" | "freiflaeche" | "speicher" | "ladestation" | "sonstig") | null;
             /** Auftrag Vom */
@@ -2402,6 +2765,20 @@ export interface components {
              * @enum {string}
              */
             ust_kz: "19" | "0" | "13b" | "gemischt";
+        };
+        /**
+         * ServicezeileAntwort
+         * @description Serviceauftrag zu einer Anlage – die Historie im Anlagenblatt.
+         */
+        ServicezeileAntwort: {
+            /** Auftrag Vom */
+            auftrag_vom?: string | null;
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /** Projekt Nr */
+            projekt_nr: number;
+            /** Status */
+            status: string;
         };
         /**
          * StandAntwort
@@ -2873,6 +3250,10 @@ export interface components {
         app__routen__projekte__ProjektAntwort: {
             /** Ab Wert Netto */
             ab_wert_netto?: number | null;
+            /** Anlage Id */
+            anlage_id?: number | null;
+            /** Anlage Standort */
+            anlage_standort?: string | null;
             /** Anlagenart */
             anlagenart?: string | null;
             /** Auftrag Vom */
@@ -2888,6 +3269,8 @@ export interface components {
             darf_werte_sehen: boolean;
             /** Deckung Differenz */
             deckung_differenz?: number | null;
+            /** Hinweise */
+            hinweise?: string[];
             /** Id */
             id: number;
             /** Kunde */
@@ -3089,6 +3472,233 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    anlagenListe: {
+        parameters: {
+            query?: {
+                /** @description Standort, Kundenname oder MaStR-Nummer */
+                suche?: string | null;
+                /** @description Nur Anlagen ohne Wartungsvertrag (die Serviceliste) */
+                ohne_wartungsvertrag?: boolean;
+                kunde_id?: number | null;
+                seite?: number;
+                anzahl?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnlagenListe"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung anlagen.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    anlageAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnlageEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnlageAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung anlagen.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datensatz nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    anlageLesen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                anlage_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnlageAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung anlagen.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Anlage nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    anlageAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                anlage_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnlageAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnlageAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung anlagen.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datensatz nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     ansprechpartnerAendern: {
         parameters: {
             query?: never;
@@ -3501,6 +4111,242 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    fristenListe: {
+        parameters: {
+            query?: {
+                /** @description Nur überfällige und im Vorlauf liegende Fristen (Startseite) */
+                nur_anstehende?: boolean;
+                /** @description Erledigte Fristen mit anzeigen */
+                mit_erledigten?: boolean;
+                /** @description Höchstens so viele Zeilen */
+                grenze?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FristenListe"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung anlagen.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fristAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FristEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FristAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung anlagen.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datensatz nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fristAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                frist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FristAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FristAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung anlagen.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datensatz nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fristErledigen: {
+        parameters: {
+            query?: {
+                /** @description false öffnet eine versehentlich abgehakte Frist */
+                erledigt?: boolean;
+            };
+            header?: never;
+            path: {
+                frist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FristAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung anlagen.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datensatz nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };
@@ -5014,6 +5860,8 @@ export interface operations {
                 status?: string;
                 projektleiter?: string;
                 anlagenart?: string;
+                /** @description 'projekt', 'service' oder 'alle' */
+                typ?: string;
                 versatz?: number;
                 anzahl?: number;
             };

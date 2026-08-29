@@ -112,6 +112,537 @@
         "title": "AngemeldeterNutzer",
         "type": "object"
       },
+      "AnlageAendern": {
+        "properties": {
+          "abnahme_datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abnahme Datum"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "gewaehrleistung_ende": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gewaehrleistung Ende"
+          },
+          "inbetriebnahme": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbetriebnahme"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "mastr_nr": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mastr Nr"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "wartungsvertrag": {
+            "default": false,
+            "title": "Wartungsvertrag",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kunde_id",
+          "stand"
+        ],
+        "title": "AnlageAendern",
+        "type": "object"
+      },
+      "AnlageAntwort": {
+        "properties": {
+          "abnahme_datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abnahme Datum"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "fristen": {
+            "items": {
+              "$ref": "#/components/schemas/FristAntwort"
+            },
+            "title": "Fristen",
+            "type": "array"
+          },
+          "gewaehrleistung_ende": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gewaehrleistung Ende"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "inbetriebnahme": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbetriebnahme"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "mastr_nr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mastr Nr"
+          },
+          "projekt_nr": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Nr"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "servicehistorie": {
+            "items": {
+              "$ref": "#/components/schemas/ServicezeileAntwort"
+            },
+            "title": "Servicehistorie",
+            "type": "array"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "wartungsvertrag": {
+            "title": "Wartungsvertrag",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "kunde_id",
+          "kunde",
+          "wartungsvertrag",
+          "stand"
+        ],
+        "title": "AnlageAntwort",
+        "type": "object"
+      },
+      "AnlageEingabe": {
+        "properties": {
+          "abnahme_datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abnahme Datum"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "gewaehrleistung_ende": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gewaehrleistung Ende"
+          },
+          "inbetriebnahme": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbetriebnahme"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "mastr_nr": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mastr Nr"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "wartungsvertrag": {
+            "default": false,
+            "title": "Wartungsvertrag",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kunde_id"
+        ],
+        "title": "AnlageEingabe",
+        "type": "object"
+      },
+      "AnlageZeile": {
+        "description": "Anlage in der Liste.",
+        "properties": {
+          "gewaehrleistung_ende": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gewaehrleistung Ende"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "inbetriebnahme": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbetriebnahme"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "mastr_nr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mastr Nr"
+          },
+          "projekt_nr": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Nr"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "wartungsvertrag": {
+            "title": "Wartungsvertrag",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "kunde_id",
+          "kunde",
+          "wartungsvertrag",
+          "stand"
+        ],
+        "title": "AnlageZeile",
+        "type": "object"
+      },
+      "AnlagenListe": {
+        "properties": {
+          "anlagen": {
+            "items": {
+              "$ref": "#/components/schemas/AnlageZeile"
+            },
+            "title": "Anlagen",
+            "type": "array"
+          },
+          "gesamt": {
+            "title": "Gesamt",
+            "type": "integer"
+          },
+          "seite": {
+            "title": "Seite",
+            "type": "integer"
+          },
+          "seiten": {
+            "title": "Seiten",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "anlagen",
+          "gesamt",
+          "seite",
+          "seiten"
+        ],
+        "title": "AnlagenListe",
+        "type": "object"
+      },
       "AnmeldeDaten": {
         "description": "Anmeldedaten.\n\nDie Kennung wird bewusst nur oberflächlich geprüft (enthält ein @, hat Vor- und Nachteil) und\nnicht gegen die vollständigen Regeln für E-Mail-Adressen. Eine strenge Prüfung bräuchte ein\nweiteres Paket und würde in Grenzfällen gültige Firmenadressen abweisen; ob die Kennung\nstimmt, entscheidet ohnehin der Abgleich mit der Nutzertabelle.",
         "properties": {
@@ -1057,6 +1588,212 @@
           "beleg"
         ],
         "title": "FestschreibenAntwort",
+        "type": "object"
+      },
+      "FristAendern": {
+        "properties": {
+          "bezeichnung": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "faellig_am": {
+            "format": "date",
+            "title": "Faellig Am",
+            "type": "string"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "vorlauf_tage": {
+            "default": 30,
+            "maximum": 3650.0,
+            "minimum": 0.0,
+            "title": "Vorlauf Tage",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "bezeichnung",
+          "faellig_am",
+          "stand"
+        ],
+        "title": "FristAendern",
+        "type": "object"
+      },
+      "FristAntwort": {
+        "properties": {
+          "betreff": {
+            "title": "Betreff",
+            "type": "string"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "bezug": {
+            "title": "Bezug",
+            "type": "string"
+          },
+          "bezug_id": {
+            "title": "Bezug Id",
+            "type": "integer"
+          },
+          "erledigt_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erledigt Am"
+          },
+          "faellig_am": {
+            "format": "date",
+            "title": "Faellig Am",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kunde": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kunde"
+          },
+          "stand": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stand"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "tage_bis": {
+            "title": "Tage Bis",
+            "type": "integer"
+          },
+          "typ": {
+            "title": "Typ",
+            "type": "string"
+          },
+          "vorlauf_tage": {
+            "title": "Vorlauf Tage",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "typ",
+          "bezeichnung",
+          "faellig_am",
+          "vorlauf_tage",
+          "status",
+          "tage_bis",
+          "bezug",
+          "bezug_id",
+          "betreff"
+        ],
+        "title": "FristAntwort",
+        "type": "object"
+      },
+      "FristEingabe": {
+        "properties": {
+          "bezeichnung": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "bezug": {
+            "enum": [
+              "projekt",
+              "anlage"
+            ],
+            "title": "Bezug",
+            "type": "string"
+          },
+          "bezug_id": {
+            "title": "Bezug Id",
+            "type": "integer"
+          },
+          "faellig_am": {
+            "format": "date",
+            "title": "Faellig Am",
+            "type": "string"
+          },
+          "typ": {
+            "enum": [
+              "mastr",
+              "fertigmeldung",
+              "reservierung",
+              "gewaehrleistung",
+              "sonstig"
+            ],
+            "title": "Typ",
+            "type": "string"
+          },
+          "vorlauf_tage": {
+            "default": 30,
+            "maximum": 3650.0,
+            "minimum": 0.0,
+            "title": "Vorlauf Tage",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "bezug",
+          "bezug_id",
+          "typ",
+          "bezeichnung",
+          "faellig_am"
+        ],
+        "title": "FristEingabe",
+        "type": "object"
+      },
+      "FristenListe": {
+        "properties": {
+          "fristen": {
+            "items": {
+              "$ref": "#/components/schemas/FristAntwort"
+            },
+            "title": "Fristen",
+            "type": "array"
+          },
+          "zaehlung": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Zaehlung",
+            "type": "object"
+          }
+        },
+        "required": [
+          "fristen",
+          "zaehlung"
+        ],
+        "title": "FristenListe",
         "type": "object"
       },
       "Gesundheit": {
@@ -2851,6 +3588,17 @@
             ],
             "title": "Ab Wert Netto"
           },
+          "anlage_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anlage Id"
+          },
           "anlagenart": {
             "anyOf": [
               {
@@ -3031,6 +3779,21 @@
             "title": "Ust Kz",
             "type": "string"
           },
+          "vertragsart": {
+            "anyOf": [
+              {
+                "enum": [
+                  "vob",
+                  "bgb"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertragsart"
+          },
           "vertriebsweg": {
             "anyOf": [
               {
@@ -3076,6 +3839,17 @@
               }
             ],
             "title": "Ab Wert Netto"
+          },
+          "anlage_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anlage Id"
           },
           "anlagenart": {
             "anyOf": [
@@ -3860,6 +4634,48 @@
           "kunde_id"
         ],
         "title": "ServiceEingabe",
+        "type": "object"
+      },
+      "ServicezeileAntwort": {
+        "description": "Serviceauftrag zu einer Anlage – die Historie im Anlagenblatt.",
+        "properties": {
+          "auftrag_vom": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auftrag Vom"
+          },
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "projekt_nr",
+          "status"
+        ],
+        "title": "ServicezeileAntwort",
         "type": "object"
       },
       "StandAntwort": {
@@ -5351,6 +6167,28 @@
             ],
             "title": "Ab Wert Netto"
           },
+          "anlage_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anlage Id"
+          },
+          "anlage_standort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anlage Standort"
+          },
           "anlagenart": {
             "anyOf": [
               {
@@ -5411,6 +6249,13 @@
               }
             ],
             "title": "Deckung Differenz"
+          },
+          "hinweise": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hinweise",
+            "type": "array"
           },
           "id": {
             "title": "Id",
@@ -6102,6 +6947,282 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/anlagen": {
+      "get": {
+        "description": "Das Register, die jüngste Inbetriebnahme zuerst.\n\n``ohne_wartungsvertrag=true`` ist die Liste aus PLAN §7: jede Zeile darin ist ein Kunde, dem\nein Wartungsvertrag angeboten werden kann.",
+        "operationId": "anlagenListe",
+        "parameters": [
+          {
+            "description": "Standort, Kundenname oder MaStR-Nummer",
+            "in": "query",
+            "name": "suche",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Standort, Kundenname oder MaStR-Nummer",
+              "title": "Suche"
+            }
+          },
+          {
+            "description": "Nur Anlagen ohne Wartungsvertrag (die Serviceliste)",
+            "in": "query",
+            "name": "ohne_wartungsvertrag",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Nur Anlagen ohne Wartungsvertrag (die Serviceliste)",
+              "title": "Ohne Wartungsvertrag",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "kunde_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kunde Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "seite",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Seite",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anzahl",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Anzahl",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnlagenListe"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung anlagen.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Anlagenregister",
+        "tags": [
+          "Anlagen und Fristen"
+        ]
+      },
+      "post": {
+        "description": "Für Anlagen aus der Zeit vor dem Leitstand.\n\nAnlagen aus laufenden Projekten entstehen beim Projektabschluss von selbst (PLAN §6.9) –\ndiese Maske ist für den Bestand, der nie ein Projekt im Leitstand hatte.",
+        "operationId": "anlageAnlegen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnlageEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnlageAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung anlagen.schreiben fehlt"
+          },
+          "404": {
+            "description": "Datensatz nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Anlage von Hand anlegen (Altbestand)",
+        "tags": [
+          "Anlagen und Fristen"
+        ]
+      }
+    },
+    "/api/anlagen/{anlage_id}": {
+      "get": {
+        "description": "Stammdaten, offene und erledigte Fristen sowie alle Serviceaufträge zur Anlage.",
+        "operationId": "anlageLesen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "anlage_id",
+            "required": true,
+            "schema": {
+              "title": "Anlage Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnlageAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung anlagen.lesen fehlt"
+          },
+          "404": {
+            "description": "Anlage nicht gefunden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Anlagenblatt mit Fristen und Servicehistorie",
+        "tags": [
+          "Anlagen und Fristen"
+        ]
+      },
+      "put": {
+        "description": "Stammdaten pflegen – vor allem MaStR-Nummer und Wartungsvertrag.\n\nWird die MaStR-Nummer nachgetragen, gilt die Registrierungsfrist als erfüllt: der\nFristenwächter hakt sie im selben Zug ab, statt bis zur Nacht rot zu bleiben.",
+        "operationId": "anlageAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "anlage_id",
+            "required": true,
+            "schema": {
+              "title": "Anlage Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnlageAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnlageAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung anlagen.schreiben fehlt"
+          },
+          "404": {
+            "description": "Datensatz nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Anlage ändern",
+        "tags": [
+          "Anlagen und Fristen"
+        ]
+      }
+    },
     "/api/ansprechpartner/{partner_id}": {
       "delete": {
         "description": "Ansprechpartner löschen.\n\nDie einzige Löschroute im Leitstand. Begründung: an einem Ansprechpartner hängt kein Beleg\nund keine Buchung – er ist eine Kontaktnotiz. Kunden, Projekte und Belege werden dagegen nie\ngelöscht, sondern wechseln den Status (CLAUDE.md Regel 5). Der Name bleibt im\nÄnderungsprotokoll, damit nachvollziehbar ist, wer wann entfernt wurde.",
@@ -6535,6 +7656,273 @@
         "summary": "Zahlungslage der festgeschriebenen Rechnungen",
         "tags": [
           "Firmen-Cockpit"
+        ]
+      }
+    },
+    "/api/fristen": {
+      "get": {
+        "description": "Die Fristenliste und – mit ``nur_anstehende`` – das Startseiten-Widget.\n\nGezählt wird immer über die ungekürzte Liste: „3 überfällig\" darf nicht davon abhängen, wie\nviele Zeilen das Widget anzeigt.",
+        "operationId": "fristenListe",
+        "parameters": [
+          {
+            "description": "Nur überfällige und im Vorlauf liegende Fristen (Startseite)",
+            "in": "query",
+            "name": "nur_anstehende",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Nur überfällige und im Vorlauf liegende Fristen (Startseite)",
+              "title": "Nur Anstehende",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Erledigte Fristen mit anzeigen",
+            "in": "query",
+            "name": "mit_erledigten",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Erledigte Fristen mit anzeigen",
+              "title": "Mit Erledigten",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Höchstens so viele Zeilen",
+            "in": "query",
+            "name": "grenze",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 200,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Höchstens so viele Zeilen",
+              "title": "Grenze"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FristenListe"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung anlagen.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fristen, das Dringendste zuerst",
+        "tags": [
+          "Anlagen und Fristen"
+        ]
+      },
+      "post": {
+        "description": "Fertigmeldungen, Netzanschluss-Reservierungen und alles andere mit Ablaufdatum.\n\nGewährleistung und MaStR-Registrierung entstehen von selbst; hier steht, was der Leitstand\nnicht ausrechnen kann.",
+        "operationId": "fristAnlegen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FristEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FristAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung anlagen.schreiben fehlt"
+          },
+          "404": {
+            "description": "Datensatz nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Frist von Hand anlegen",
+        "tags": [
+          "Anlagen und Fristen"
+        ]
+      }
+    },
+    "/api/fristen/{frist_id}": {
+      "put": {
+        "operationId": "fristAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "frist_id",
+            "required": true,
+            "schema": {
+              "title": "Frist Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FristAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FristAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung anlagen.schreiben fehlt"
+          },
+          "404": {
+            "description": "Datensatz nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Frist ändern",
+        "tags": [
+          "Anlagen und Fristen"
+        ]
+      }
+    },
+    "/api/fristen/{frist_id}/erledigt": {
+      "post": {
+        "description": "Abhaken statt löschen (CLAUDE.md Regel 5).\n\nEine erledigte Frist bleibt stehen: sie ist der Beleg, dass jemand hingesehen hat. Der\nnächtliche Lauf rührt sie nicht mehr an.",
+        "operationId": "fristErledigen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "frist_id",
+            "required": true,
+            "schema": {
+              "title": "Frist Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "false öffnet eine versehentlich abgehakte Frist",
+            "in": "query",
+            "name": "erledigt",
+            "required": false,
+            "schema": {
+              "default": true,
+              "description": "false öffnet eine versehentlich abgehakte Frist",
+              "title": "Erledigt",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FristAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung anlagen.schreiben fehlt"
+          },
+          "404": {
+            "description": "Datensatz nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Frist abhaken oder wieder öffnen",
+        "tags": [
+          "Anlagen und Fristen"
         ]
       }
     },
@@ -8206,6 +9594,18 @@
             }
           },
           {
+            "description": "'projekt', 'service' oder 'alle'",
+            "in": "query",
+            "name": "typ",
+            "required": false,
+            "schema": {
+              "default": "alle",
+              "description": "'projekt', 'service' oder 'alle'",
+              "title": "Typ",
+              "type": "string"
+            }
+          },
+          {
             "in": "query",
             "name": "versatz",
             "required": false,
@@ -8447,6 +9847,7 @@
         ]
       },
       "put": {
+        "description": "Projekt ändern; der Wechsel auf ``abgeschlossen`` legt die Anlage an (PLAN §6.9).",
         "operationId": "projektAendern",
         "parameters": [
           {

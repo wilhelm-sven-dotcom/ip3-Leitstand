@@ -23,14 +23,22 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app import audit
+from app.dienste import anlagen as anlagendienst
 from app.dienste.konflikt import geaenderte_felder, konflikt_uebersetzen, stand_pruefen
 from app.dienste.nummernkreise import naechste_projektnummer
 from app.dienste.suche import alle_woerter
 from app.fehler import Konflikt, NichtGefunden
-from app.modelle import Firma, Kunde, Meilenstein, Projekt, User, Zahlungsplanposition
+from app.konfiguration import Einstellungen
+from app.modelle import Anlage, Firma, Kunde, Meilenstein, Projekt, User, Zahlungsplanposition
 from app.modelle.projekte import ANLAGENARTEN, MEILENSTEIN_TYPEN, PROJEKT_STATUS
 from app.protokoll import logger
-from app.sicherheit.abhaengigkeiten import Zugriff, benoetigt, db_sitzung, scope_filter
+from app.sicherheit.abhaengigkeiten import (
+    Zugriff,
+    benoetigt,
+    db_sitzung,
+    konfiguration,
+    scope_filter,
+)
 
 log = logger(__name__)
 
@@ -144,6 +152,9 @@ class ProjektAntwort(BaseModel):
     vertriebsweg: str | None = None
     ust_kz: str
     status: str
+    anlage_id: int | None = None
+    # Standort der Anlage – ohne ihn wäre die Nummer im Serviceauftrag nur eine Zahl.
+    anlage_standort: str | None = None
     quelle_migration: str | None = None
     bemerkung: str | None = None
     stand: datetime
@@ -160,6 +171,9 @@ class ProjektAntwort(BaseModel):
     nachtraege_summe: int | None = None
     deckung_differenz: int | None = None
     darf_werte_sehen: bool = False
+    # Was beim Abschluss aufgefallen ist (fehlendes Abnahmedatum, fehlende Inbetriebnahme).
+    # Kein Fehler: das Projekt ist gespeichert, die Frist bleibt nur offen (PLAN §6.9).
+    hinweise: list[str] = Field(default_factory=list)
 
 
 class ProjektEingabe(BaseModel):
@@ -180,6 +194,10 @@ class ProjektEingabe(BaseModel):
     vertriebsweg: str | None = Field(default=None, max_length=100)
     ust_kz: Literal["19", "0", "13b", "gemischt"] = "19"
     status: Literal[PROJEKT_STATUS] = "beauftragt"  # type: ignore[valid-type]
+    # Nur bei Serviceaufträgen: die Anlage, an der gearbeitet wird (PLAN §7 Phase 6). Ein
+    # Serviceauftrag ohne Anlage ist erlaubt – nicht jeder Einsatz führt zu einer Anlage im
+    # Register, und ein erzwungener Bezug lüde zum Anlegen von Karteileichen ein.
+    anlage_id: int | None = None
     bemerkung: str | None = None
 
     @field_validator(
@@ -200,6 +218,11 @@ class ProjektEingabe(BaseModel):
 
 class ProjektAendern(ProjektEingabe):
     stand: datetime
+    # Nur beim Wechsel auf 'abgeschlossen' ausgewertet: sie bestimmt die Gewährleistungsdauer
+    # (VOB vier, BGB fünf Jahre, PLAN §6.9). Ohne Angabe entscheidet die Vorbelegung nach
+    # Kundentyp aus der Konfiguration – gefragt wird trotzdem, die Oberfläche schickt die
+    # bestätigte Wahl mit.
+    vertragsart: Literal["vob", "bgb"] | None = None
 
 
 class MeilensteinEingabe(BaseModel):
@@ -215,6 +238,28 @@ def _kunde_namen(db: Session, kunde_ids: list[int]) -> dict[int, str]:
         return {}
     zeilen = db.execute(select(Kunde.id, Kunde.name).where(Kunde.id.in_(kunde_ids))).all()
     return dict(zeilen)  # type: ignore[arg-type]
+
+
+def _anlagenbezug_pruefen(db: Session, typ: str, anlage_id: int | None) -> None:
+    """Der Bezug zur Anlage gehört zum Serviceauftrag, nicht zum Bauprojekt (PLAN §7 Phase 6).
+
+    Ein Bauprojekt *erzeugt* die Anlage beim Abschluss; würde es zusätzlich auf eine zeigen,
+    stünden zwei Wahrheiten nebeneinander und die Servicehistorie mischte Bau und Wartung.
+    """
+    if anlage_id is None:
+        return
+    if typ != "service":
+        raise Konflikt(
+            "Nur Serviceaufträge können sich auf eine Anlage beziehen.",
+            "Für ein Bauprojekt den Bezug weglassen – die Anlage entsteht beim Abschluss von "
+            "selbst.",
+            code="anlagenbezug_nur_service",
+        )
+    if db.get(Anlage, anlage_id) is None:
+        raise NichtGefunden(
+            "Die angegebene Anlage gibt es nicht.",
+            "Das Anlagenregister zeigt die vorhandenen Anlagen.",
+        )
 
 
 def _projekt_holen(db: Session, projekt_nr: int, zugriff: Zugriff) -> Projekt:
@@ -274,6 +319,12 @@ def _als_antwort(db: Session, projekt: Projekt, darf_werte: bool) -> ProjektAntw
         vertriebsweg=projekt.vertriebsweg,
         ust_kz=projekt.ust_kz,
         status=projekt.status,
+        anlage_id=projekt.anlage_id,
+        anlage_standort=(
+            db.scalar(select(Anlage.standort).where(Anlage.id == projekt.anlage_id))
+            if projekt.anlage_id
+            else None
+        ),
         quelle_migration=projekt.quelle_migration,
         bemerkung=projekt.bemerkung,
         stand=projekt.updated_at,
@@ -364,6 +415,7 @@ def _zustand(projekt: Projekt) -> dict[str, object]:
             "vertriebsweg",
             "ust_kz",
             "status",
+            "anlage_id",
             "bemerkung",
         )
     }
@@ -384,6 +436,7 @@ def projekte_liste(
     status: str = Query("alle"),
     projektleiter: str = Query("alle"),
     anlagenart: str = Query("alle"),
+    typ: str = Query("alle", description="'projekt', 'service' oder 'alle'"),
     versatz: int = Query(0, ge=0),
     anzahl: int = Query(SEITE_STANDARD, ge=1, le=SEITE_MAX),
 ) -> ProjekteSeite:
@@ -397,6 +450,8 @@ def projekte_liste(
         grund = grund.where(Projekt.pl_name == projektleiter)
     if anlagenart != "alle":
         grund = grund.where(Projekt.anlagenart == anlagenart)
+    if typ != "alle":
+        grund = grund.where(Projekt.typ == typ)
     if jahr is not None:
         # Die Projektnummer trägt das Jahr in den ersten zwei Stellen (JJNNN, PLAN §3). Über die
         # Nummer statt über auftrag_vom, weil 41 migrierte Projekte kein Auftragsdatum haben –
@@ -523,6 +578,8 @@ def projekt_anlegen(
             code="werte_ohne_berechtigung",
         )
 
+    _anlagenbezug_pruefen(db, eingabe.typ, eingabe.anlage_id)
+
     jahr = eingabe.auftrag_vom.year if eingabe.auftrag_vom else None
     projekt = Projekt(
         projekt_nr=naechste_projektnummer(
@@ -547,6 +604,52 @@ def projekt_anlegen(
     return _als_antwort(db, projekt, zugriff.darf("projekte.werte_lesen"))
 
 
+def _abschluss(
+    db: Session,
+    projekt: Projekt,
+    vertragsart: str | None,
+    zugriff: Zugriff,
+    werte: Einstellungen,
+) -> list[str]:
+    """Anlage und Gewährleistungsfrist zum abgeschlossenen Projekt (PLAN §6.9).
+
+    Die Vertragsart kommt aus der Anfrage; fehlt sie, entscheidet die Vorbelegung nach Kundentyp
+    (Entscheidung 32). Gerechnet wird ab dem Meilenstein „Abnahme“ – fehlt der, entsteht die
+    Anlage trotzdem und der Hinweis sagt, was nachzutragen ist.
+    """
+    kunde = db.get(Kunde, projekt.kunde_id)
+    gewaehlt = vertragsart or anlagendienst.vertragsart_vorbelegen(
+        kunde.typ if kunde else None, werte.gewaehrleistung.vorbelegung
+    )
+    ergebnis = anlagendienst.aus_projekt(
+        db,
+        projekt,
+        vertragsart=gewaehlt,
+        vorlauf_tage=werte.gewaehrleistung.vorlauf_tage,
+    )
+    audit.eintragen(
+        db,
+        "anlage.angelegt" if ergebnis.neu else "anlage.aktualisiert",
+        nutzer=zugriff.nutzer,
+        ip=zugriff.ip,
+        tabelle="anlagen",
+        datensatz_id=ergebnis.anlage.id,
+        neu={
+            "projekt_nr": projekt.projekt_nr,
+            "vertragsart": ergebnis.vertragsart,
+            "abnahme_datum": ergebnis.anlage.abnahme_datum,
+            "gewaehrleistung_ende": ergebnis.anlage.gewaehrleistung_ende,
+        },
+    )
+    log.info(
+        "Projekt %s abgeschlossen: Anlage %s (%s)",
+        projekt.projekt_nr,
+        ergebnis.anlage.id,
+        ergebnis.vertragsart,
+    )
+    return ergebnis.hinweise
+
+
 @router.put(
     "/{projekt_nr}",
     response_model=ProjektAntwort,
@@ -559,7 +662,9 @@ def projekt_aendern(
     eingabe: ProjektAendern,
     zugriff: Zugriff = Depends(benoetigt("projekte.schreiben")),
     db: Session = Depends(db_sitzung),
+    werte_konfig: Einstellungen = Depends(konfiguration),
 ) -> ProjektAntwort:
+    """Projekt ändern; der Wechsel auf ``abgeschlossen`` legt die Anlage an (PLAN §6.9)."""
     projekt = _projekt_holen(db, projekt_nr, zugriff)
     stand_pruefen(projekt, eingabe.stand, "Das Projekt")
 
@@ -572,8 +677,10 @@ def projekt_aendern(
             code="werte_ohne_berechtigung",
         )
 
+    _anlagenbezug_pruefen(db, eingabe.typ, eingabe.anlage_id)
+
     vorher = _zustand(projekt)
-    werte = eingabe.model_dump(exclude={"stand"})
+    werte = eingabe.model_dump(exclude={"stand", "vertragsart"})
     if not darf_werte:
         # Ohne die Berechtigung kommt das Feld nicht in der Antwort vor; ein mitgeschickter Wert
         # wäre also erfunden und darf nichts überschreiben.
@@ -582,30 +689,45 @@ def projekt_aendern(
         setattr(projekt, feld, wert)
     nachher = _zustand(projekt)
 
+    # Anlagenregister-Automatik (PLAN §6.9): Der Wechsel auf 'abgeschlossen' erzeugt die Anlage
+    # und die Gewährleistungsfrist. Eine ausdrücklich mitgeschickte Vertragsart rechnet die Frist
+    # auch dann neu, wenn sonst nichts anders ist – wer sich beim Abschluss vergriffen hat, soll
+    # das hier berichtigen können und nicht erst in der Anlagenmaske.
+    schliesst_ab = projekt.status == "abgeschlossen" and (
+        vorher["status"] != "abgeschlossen" or eingabe.vertragsart is not None
+    )
+
     unterschiede = geaenderte_felder(vorher, nachher)
-    if not unterschiede:
+    if not unterschiede and not schliesst_ab:
         return _als_antwort(db, projekt, darf_werte)
 
-    audit.eintragen(
-        db,
-        "projekt.geaendert",
-        nutzer=zugriff.nutzer,
-        ip=zugriff.ip,
-        tabelle="projekte",
-        datensatz_id=projekt.id,
-        alt={f: w["alt"] for f, w in unterschiede.items()},
-        neu={
-            "projekt_nr": projekt.projekt_nr,
-            **{f: w["neu"] for f, w in unterschiede.items()},
-        },
-    )
+    if unterschiede:
+        audit.eintragen(
+            db,
+            "projekt.geaendert",
+            nutzer=zugriff.nutzer,
+            ip=zugriff.ip,
+            tabelle="projekte",
+            datensatz_id=projekt.id,
+            alt={f: w["alt"] for f, w in unterschiede.items()},
+            neu={
+                "projekt_nr": projekt.projekt_nr,
+                **{f: w["neu"] for f, w in unterschiede.items()},
+            },
+        )
+
+    hinweise: list[str] = []
+    if schliesst_ab:
+        hinweise = _abschluss(db, projekt, eingabe.vertragsart, zugriff, werte_konfig)
     try:
         db.commit()
     except Exception as fehler:
         db.rollback()
         konflikt_uebersetzen(fehler, "Das Projekt")
         raise
-    return _als_antwort(db, projekt, darf_werte)
+    antwort = _als_antwort(db, projekt, darf_werte)
+    antwort.hinweise = hinweise
+    return antwort
 
 
 @router.put(

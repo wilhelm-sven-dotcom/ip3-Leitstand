@@ -19,6 +19,7 @@ from app.konfiguration import Einstellungen, einstellungen, pruefe_betriebsberei
 from app.protokoll import einrichten as protokoll_einrichten
 from app.protokoll import logger
 from app.routen import (
+    anlagen,
     auth,
     cockpit,
     gesundheit,
@@ -108,6 +109,7 @@ def anwendung_erzeugen(
     app.include_router(cockpit.router)
     app.include_router(importe.router)
     app.include_router(kostenpflege.router)
+    app.include_router(anlagen.router)
 
     # Zuletzt: der Rückfall auf index.html würde sonst die API-Pfade verschlucken
     # (siehe app/auslieferung.py).
