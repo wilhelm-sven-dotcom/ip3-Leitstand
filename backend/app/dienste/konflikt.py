@@ -103,6 +103,11 @@ def _gleichwertig(vorher: Any, nachher: Any) -> bool:
     """
     if vorher == nachher:
         return True
+    # ``bool`` ist in Python eine Ganzzahl, ``Decimal("False")`` aber ein Fehler. Ohne diesen
+    # Ausschluss stürzte jede Maske mit einem Ja/Nein-Feld beim Speichern ab – aufgefallen am
+    # Wartungsvertrag im Anlagenregister. Ungleiche Wahrheitswerte sind ohnehin verschieden.
+    if isinstance(vorher, bool) or isinstance(nachher, bool):
+        return False
     if isinstance(vorher, Decimal | float | int) and isinstance(nachher, Decimal | float | int):
         return Decimal(str(vorher)) == Decimal(str(nachher))
     return False

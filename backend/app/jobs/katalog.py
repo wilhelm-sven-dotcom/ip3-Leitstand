@@ -56,7 +56,7 @@ KATALOG: tuple[JobDefinition, ...] = (
         "Fristenprüfung",
         max_alter_stunden=26,
         ab_phase=6,
-        beschreibung="Fällige Fristen für die Startseite ermitteln",
+        beschreibung="MaStR-Fristen ableiten, erfüllte abhaken, fällige zählen",
     ),
 )
 
@@ -64,7 +64,7 @@ SCHLUESSEL: frozenset[str] = frozenset(eintrag.schluessel for eintrag in KATALOG
 
 # Bis zu welcher Phase die Jobs im Katalog tatsächlich laufen. Alles darüber zeigt der
 # Systemstatus als „ab Phase n" an, statt es stillschweigend wegzulassen.
-AKTIVE_PHASE = 5
+AKTIVE_PHASE = 6
 
 
 def definition(schluessel: str) -> JobDefinition:

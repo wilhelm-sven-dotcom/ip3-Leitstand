@@ -53,12 +53,32 @@ class TestKatalog:
         assert katalog.ist_eingerichtet(katalog.definition("backup"))
 
     def test_jobs_dieser_phase_sind_eingerichtet(self):
-        for schluessel in ("backup", "datev_import", "timetac_sync", "kalkulation_scan"):
+        for schluessel in (
+            "backup",
+            "datev_import",
+            "timetac_sync",
+            "kalkulation_scan",
+            # Seit Phase 6 läuft auch die Fristenprüfung.
+            "fristen",
+        ):
             assert katalog.ist_eingerichtet(katalog.definition(schluessel))
 
     def test_spaetere_jobs_sind_noch_nicht_eingerichtet(self):
-        # Die Fristenprüfung kommt mit Phase 6.
-        assert not katalog.ist_eingerichtet(katalog.definition("fristen"))
+        """Der Katalog kennt Jobs künftiger Phasen; eingerichtet sind sie nicht.
+
+        Zurzeit steht kein solcher Job darin – alle Phasen bis 6 sind gebaut. Die Prüfung
+        bleibt trotzdem, weil sie den Mechanismus sichert, mit dem der nächste Eintrag
+        angekündigt wird, statt still zu fehlen (PLAN §2).
+        """
+        kuenftig = katalog.JobDefinition(
+            "spaeterer_lauf",
+            "Ein Lauf aus einer späteren Phase",
+            max_alter_stunden=26,
+            ab_phase=katalog.AKTIVE_PHASE + 1,
+            beschreibung="Nur für diese Prüfung",
+        )
+        assert not katalog.ist_eingerichtet(kuenftig)
+        assert all(e.ab_phase <= katalog.AKTIVE_PHASE for e in katalog.KATALOG)
 
     def test_unbekannter_job_nennt_die_bekannten(self):
         with pytest.raises(KeyError) as fehler:
@@ -142,24 +162,17 @@ class TestAlleJobsSindSichtbar:
         schluessel = {j["schluessel"] for j in jobs}
         assert schluessel == set(katalog.SCHLUESSEL)
 
-    def test_spaetere_jobs_nennen_ihre_phase(self, client: TestClient, admin):
-        anmelden(client, "chef@ip3-energie.de")
-        jobs = client.get("/api/systemstatus").json()["jobs"]
-        fristen = next(j for j in jobs if j["schluessel"] == "fristen")
-        assert fristen["eingerichtet"] is False
-        assert fristen["ab_phase"] == 6
-        assert "ab Phase 6" in fristen["text"]
-
     def test_jobs_dieser_phase_gelten_als_eingerichtet(self, client: TestClient, admin):
         anmelden(client, "chef@ip3-energie.de")
         jobs = client.get("/api/systemstatus").json()["jobs"]
-        datev = next(j for j in jobs if j["schluessel"] == "datev_import")
-        assert datev["eingerichtet"] is True
+        for schluessel in ("datev_import", "fristen"):
+            eintrag = next(j for j in jobs if j["schluessel"] == schluessel)
+            assert eintrag["eingerichtet"] is True, schluessel
 
-    def test_spaetere_jobs_faerben_den_gesamtstatus_nicht_rot(
+    def test_alle_eingerichteten_laeufe_gruen_ergibt_einen_gruenen_status(
         self, client: TestClient, admin, test_einstellungen, tmp_path
     ):
-        """Sonst stünde die Startseite dauerhaft auf Alarm, bis Phase 6 fertig ist."""
+        """Kein Lauf des Katalogs darf die Startseite ohne Grund auf Alarm setzen."""
         test_einstellungen.firma.strasse = "Industriestraße 1"
         test_einstellungen.firma.plz = "92637"
         test_einstellungen.firma.ust_id = "DE123456789"
@@ -171,7 +184,7 @@ class TestAlleJobsSindSichtbar:
         test_einstellungen.pfade.datev = tmp_path / "02_DATEV"
         test_einstellungen.pfade.kalkulation = tmp_path / "03_Kalkulation"
         test_einstellungen.timetac.aktiv = False
-        for job in ("backup", "datev_import", "timetac_sync", "kalkulation_scan"):
+        for job in ("backup", "datev_import", "timetac_sync", "kalkulation_scan", "fristen"):
             _lauf_anlegen(job, "erfolg", vor_stunden=2)
 
         anmelden(client, "chef@ip3-energie.de")
@@ -274,13 +287,23 @@ class TestJobVonHandStarten:
         assert antwort.status_code == 404
         assert "erfunden" in antwort.json()["meldung"]
 
-    def test_noch_nicht_eingerichteter_job_409(self, client: TestClient, admin):
+    def test_fristenlauf_laesst_sich_von_hand_starten(self, client: TestClient, admin):
+        """Seit Phase 6 ist die Fristenprüfung eingerichtet und von Hand auslösbar."""
         angemeldet = anmelden(client, "chef@ip3-energie.de")
         antwort = angemeldet.schreiben("POST", "/api/systemstatus/jobs/fristen/starten")
-        assert antwort.status_code == 409
-        koerper = antwort.json()
-        assert koerper["code"] == "job_nicht_eingerichtet"
-        assert "Phase 6" in koerper["meldung"]
+        assert antwort.status_code == 200, antwort.text
+        assert antwort.json()["gestartet"] is True
+
+    def test_jeder_eingerichtete_job_hat_eine_funktion(self, client: TestClient, admin):
+        """Ein Job im Katalog ohne Lauf dahinter wäre ein stiller Ausfall (PLAN §2)."""
+        angemeldet = anmelden(client, "chef@ip3-energie.de")
+        for eintrag in katalog.KATALOG:
+            if not katalog.ist_eingerichtet(eintrag):
+                continue
+            antwort = angemeldet.schreiben(
+                "POST", f"/api/systemstatus/jobs/{eintrag.schluessel}/starten"
+            )
+            assert antwort.status_code == 200, f"{eintrag.schluessel}: {antwort.text}"
 
     def test_importlauf_ohne_eingerichteten_ordner_warnt_statt_zu_scheitern(
         self, client: TestClient, admin, test_einstellungen
@@ -316,7 +339,15 @@ class TestZeitplan:
         finally:
             scheduler.beenden()
 
-    def test_ohne_jede_voraussetzung_kein_zeitplan(self, test_einstellungen, gesäte_db, caplog):
+    def test_ohne_jede_quelle_laeuft_der_fristenwaechter(
+        self, test_einstellungen, gesäte_db, caplog
+    ):
+        """Seit Phase 6 startet der Zeitplan auch ohne eingerichteten Import.
+
+        Bis Phase 5 blieb er in diesem Fall aus, weil kein Lauf etwas zu tun hatte. Der
+        Fristenwächter braucht weder Ordner noch Zugangsdaten – und eine Gewährleistung, die
+        abläuft, weil die Kanzleiordner noch nicht eingerichtet sind, wäre absurd.
+        """
         from app.jobs import scheduler
 
         test_einstellungen.pfade.backup = None
@@ -325,8 +356,8 @@ class TestZeitplan:
         test_einstellungen.timetac.aktiv = False
         try:
             with caplog.at_level("WARNING"):
-                assert scheduler.starten(test_einstellungen) is None
-            assert "Kein Hintergrundlauf ist eingerichtet" in caplog.text
+                assert scheduler.starten(test_einstellungen) is not None
+            assert "nachts läuft nur der Fristenwächter" in caplog.text
         finally:
             scheduler.beenden()
 

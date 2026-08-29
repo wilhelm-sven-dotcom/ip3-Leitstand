@@ -16,6 +16,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from app.jobs.backup import backup_job, sitzungen_aufraeumen_job
+from app.jobs.fristen import fristen_job
 from app.jobs.importe import datev_job, kalkulation_job, timetac_job
 from app.konfiguration import Einstellungen
 from app.protokoll import logger
@@ -37,17 +38,20 @@ def _naechtlicher_lauf(werte: Einstellungen) -> None:
     sitzungen_aufraeumen_job("zeitplan")
     kalkulation_job("zeitplan", werte)
     datev_job("zeitplan", werte)
-    # TimeTac zuletzt: der Lauf hängt am Netz und dauert am längsten.
+    # TimeTac zuletzt unter den Importen: der Lauf hängt am Netz und dauert am längsten.
     timetac_job("zeitplan", werte)
+    # Der Fristenwächter ganz zum Schluss: er rechnet auf dem Stand, den die Importe gerade
+    # hergestellt haben, und braucht selbst keine Datei und keine Verbindung.
+    fristen_job("zeitplan", werte)
 
 
 def starten(werte: Einstellungen) -> BackgroundScheduler | None:
     """Zeitplan starten.
 
-    Der Plan startet, sobald **ein** Lauf etwas zu tun hat. Bis Phase 3 hing das allein am
-    Backup-Ziel; seit die Importe dazugekommen sind, wäre das falsch: ein Haus ohne
-    Backup-Ordner soll trotzdem nachts seine Stunden holen. Jeder Lauf prüft seine eigene
-    Voraussetzung und meldet sie im Systemstatus, wenn sie fehlt.
+    Der Plan startet immer. Bis Phase 3 hing das am Backup-Ziel, ab Phase 4 an mindestens einer
+    eingerichteten Quelle; seit der Fristenwächter dazugekommen ist, wäre auch das falsch: er
+    braucht weder Ordner noch Zugangsdaten und hat in jeder Installation etwas zu tun. Jeder
+    Lauf prüft seine eigene Voraussetzung und meldet sie im Systemstatus, wenn sie fehlt.
     """
     global _scheduler
     if _scheduler is not None:
@@ -56,11 +60,10 @@ def starten(werte: Einstellungen) -> BackgroundScheduler | None:
     fehlend = _fehlende_voraussetzungen(werte)
     if len(fehlend) == len(_VORAUSSETZUNGEN):
         log.warning(
-            "Kein Hintergrundlauf ist eingerichtet – der nächtliche Zeitplan wird nicht "
-            "gestartet. Nächster Schritt: in config.toml unter [pfade] mindestens backup, "
-            "datev oder kalkulation setzen, oder in der .env die TimeTac-Zugangsdaten."
+            "Kein Import ist eingerichtet – nachts läuft nur der Fristenwächter. Nächster "
+            "Schritt: in config.toml unter [pfade] backup, datev und kalkulation setzen und in "
+            "der .env die TimeTac-Zugangsdaten hinterlegen."
         )
-        return None
     for hinweis in fehlend:
         log.warning("Nächtlicher Lauf ohne Voraussetzung: %s", hinweis)
 
@@ -94,8 +97,8 @@ def starten(werte: Einstellungen) -> BackgroundScheduler | None:
     return scheduler
 
 
-# Was ein Lauf braucht, um überhaupt etwas tun zu können. Der Zeitplan startet, sobald eine
-# dieser Voraussetzungen erfüllt ist.
+# Was die Importläufe brauchen, um überhaupt etwas tun zu können. Fehlt alles, startet der
+# Zeitplan trotzdem – für den Fristenwächter, der ohne Einrichtung auskommt.
 _VORAUSSETZUNGEN = ("Datensicherung", "DATEV-Import", "Kalkulationsblätter", "TimeTac-Stunden")
 
 

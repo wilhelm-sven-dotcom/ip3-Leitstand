@@ -196,3 +196,18 @@ class TestGeaenderteFelder:
         assert geaenderte_felder({"pv_kwp": None}, {"pv_kwp": 0.0}) == {
             "pv_kwp": {"alt": None, "neu": 0.0}
         }
+
+    def test_wahrheitswerte_stuerzen_nicht_ab(self):
+        """``bool`` ist in Python eine Ganzzahl, ``Decimal("False")`` aber ein Fehler.
+
+        Aufgefallen am Wartungsvertrag im Anlagenregister: die erste Maske mit einem
+        Ja/Nein-Feld brachte das Speichern zum Absturz, weil der Zahlenvergleich für den
+        Umweg über ``Decimal`` griff.
+        """
+        assert geaenderte_felder({"wartungsvertrag": False}, {"wartungsvertrag": True}) == {
+            "wartungsvertrag": {"alt": False, "neu": True}
+        }
+        assert geaenderte_felder({"wartungsvertrag": True}, {"wartungsvertrag": True}) == {}
+        assert geaenderte_felder({"aktiv": True}, {"aktiv": None}) == {
+            "aktiv": {"alt": True, "neu": None}
+        }

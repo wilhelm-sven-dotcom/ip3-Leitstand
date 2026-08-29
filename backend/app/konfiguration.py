@@ -430,6 +430,50 @@ class NachkalkulationEinstellungen(BaseModel):
     ampel_gelb_promille: int = Field(default=50, ge=0, le=1000)
 
 
+class GewaehrleistungEinstellungen(BaseModel):
+    """Vorbelegung der Vertragsart beim Projektabschluss (PLAN §6.9, Entscheidung 32).
+
+    VOB/B sind vier Jahre Gewährleistung, BGB fünf (§ 634a Abs. 1 Nr. 2 BGB, § 13 Abs. 4
+    VOB/B). Gegenüber Verbrauchern gilt in aller Regel BGB, weil VOB/B dort nur wirksam wird,
+    wenn sie im Ganzen vereinbart ist.
+
+    Die Werte sind eine **Vorbelegung**, keine Festlegung: beim Abschluss lässt sich die
+    Vertragsart ändern. Sie steht hier und nicht im Code, weil sie eine Vertragsfrage ist.
+    """
+
+    # Kundentyp -> Vertragsart. Erlaubt sind 'vob' und 'bgb'.
+    vorbelegung: dict[str, str] = Field(
+        default_factory=lambda: {"b2b": "vob", "b2c": "bgb"},
+    )
+    # Wie lange vor Ablauf die Frist auf der Startseite erscheint (PLAN §6.9: drei Monate).
+    vorlauf_tage: int = Field(default=90, ge=0, le=365)
+
+    @field_validator("vorbelegung")
+    @classmethod
+    def bekannte_vertragsart(cls, werte: dict[str, str]) -> dict[str, str]:
+        for kundentyp, art in werte.items():
+            if art not in ("vob", "bgb"):
+                raise ValueError(
+                    f"Für '{kundentyp}' steht '{art}' – erlaubt sind nur 'vob' (4 Jahre) und "
+                    "'bgb' (5 Jahre)."
+                )
+        return werte
+
+
+class FristenEinstellungen(BaseModel):
+    """Der Fristenwächter (PLAN §7 Phase 6).
+
+    **Kein Mailversand** (Entscheidung 34): PLAN §12 und CLAUDE.md schließen ihn aus. Fällige
+    Fristen erscheinen auf der Startseite und in der Fristenliste.
+    """
+
+    # Vorlauf für Fristen, die keinen eigenen mitbringen.
+    vorlauf_tage: int = Field(default=30, ge=0, le=365)
+    # Frist zur MaStR-Registrierung nach Inbetriebnahme. Das Marktstammdatenregister verlangt
+    # die Registrierung innerhalb eines Monats (§ 5 Abs. 1 MaStRV).
+    mastr_tage: int = Field(default=30, ge=1, le=365)
+
+
 class JobEinstellungen(BaseModel):
     backup_uhrzeit: str = "01:30"
     backup_generationen: int = 30
@@ -524,6 +568,10 @@ class Einstellungen(BaseSettings):
     protokoll: ProtokollEinstellungen = Field(default_factory=ProtokollEinstellungen)
     stundensaetze: StundensaetzeEinstellungen = Field(default_factory=StundensaetzeEinstellungen)
     timetac: TimeTacEinstellungen = Field(default_factory=TimeTacEinstellungen)
+    gewaehrleistung: GewaehrleistungEinstellungen = Field(
+        default_factory=GewaehrleistungEinstellungen
+    )
+    fristen: FristenEinstellungen = Field(default_factory=FristenEinstellungen)
     nachkalkulation: NachkalkulationEinstellungen = Field(
         default_factory=NachkalkulationEinstellungen
     )
