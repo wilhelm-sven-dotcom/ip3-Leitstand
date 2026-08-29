@@ -783,6 +783,80 @@
         "title": "BewertungAntwort",
         "type": "object"
       },
+      "CockpitAntwort": {
+        "properties": {
+          "fixkosten_herkunft": {
+            "title": "Fixkosten Herkunft",
+            "type": "string"
+          },
+          "fixkosten_je_block": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Fixkosten Je Block",
+            "type": "object"
+          },
+          "hinweise": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hinweise",
+            "type": "array"
+          },
+          "jahr": {
+            "title": "Jahr",
+            "type": "integer"
+          },
+          "kennzahlen": {
+            "$ref": "#/components/schemas/KennzahlenAntwort"
+          },
+          "kumuliert": {
+            "title": "Kumuliert",
+            "type": "integer"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "monate": {
+            "items": {
+              "$ref": "#/components/schemas/app__routen__cockpit__MonatAntwort"
+            },
+            "title": "Monate",
+            "type": "array"
+          },
+          "steuerungssicht": {
+            "default": "Steuerungssicht der Geschäftsführung, keine handelsrechtliche BWA: hier stehen Auftragswerte, kalkulatorische Sätze und Planzahlen neben Buchhaltungswerten.",
+            "title": "Steuerungssicht",
+            "type": "string"
+          },
+          "umsatzbasis": {
+            "title": "Umsatzbasis",
+            "type": "string"
+          },
+          "verfuegbare_monate": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Verfuegbare Monate",
+            "type": "array"
+          }
+        },
+        "required": [
+          "jahr",
+          "monat",
+          "umsatzbasis",
+          "monate",
+          "fixkosten_je_block",
+          "fixkosten_herkunft",
+          "kumuliert",
+          "kennzahlen",
+          "hinweise",
+          "verfuegbare_monate"
+        ],
+        "title": "CockpitAntwort",
+        "type": "object"
+      },
       "DetailAntwort": {
         "properties": {
           "projekt": {
@@ -1053,6 +1127,47 @@
           "ab_phase"
         ],
         "title": "JobStatus",
+        "type": "object"
+      },
+      "KennzahlenAntwort": {
+        "properties": {
+          "break_even_netto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Break Even Netto"
+          },
+          "marge_monate": {
+            "title": "Marge Monate",
+            "type": "integer"
+          },
+          "marge_promille": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marge Promille"
+          },
+          "reichweite": {
+            "$ref": "#/components/schemas/ReichweiteAntwort"
+          }
+        },
+        "required": [
+          "marge_promille",
+          "marge_monate",
+          "break_even_netto",
+          "reichweite"
+        ],
+        "title": "KennzahlenAntwort",
         "type": "object"
       },
       "Konto": {
@@ -2041,44 +2156,6 @@
         "title": "MengenBestaetigen",
         "type": "object"
       },
-      "MonatAntwort": {
-        "properties": {
-          "ist_anzahl": {
-            "title": "Ist Anzahl",
-            "type": "integer"
-          },
-          "ist_netto": {
-            "title": "Ist Netto",
-            "type": "integer"
-          },
-          "monat": {
-            "title": "Monat",
-            "type": "string"
-          },
-          "plan_anzahl": {
-            "title": "Plan Anzahl",
-            "type": "integer"
-          },
-          "plan_netto": {
-            "title": "Plan Netto",
-            "type": "integer"
-          },
-          "summe_netto": {
-            "title": "Summe Netto",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "monat",
-          "ist_netto",
-          "plan_netto",
-          "summe_netto",
-          "ist_anzahl",
-          "plan_anzahl"
-        ],
-        "title": "MonatAntwort",
-        "type": "object"
-      },
       "MonateAntwort": {
         "properties": {
           "hinweise": {
@@ -2105,7 +2182,7 @@
           },
           "monate": {
             "items": {
-              "$ref": "#/components/schemas/MonatAntwort"
+              "$ref": "#/components/schemas/app__routen__umsatz__MonatAntwort"
             },
             "title": "Monate",
             "type": "array"
@@ -2375,6 +2452,41 @@
           "offen"
         ],
         "title": "OffeneMengeAntwort",
+        "type": "object"
+      },
+      "OffenesKontoAntwort": {
+        "properties": {
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "konto": {
+            "title": "Konto",
+            "type": "string"
+          },
+          "monate": {
+            "title": "Monate",
+            "type": "integer"
+          },
+          "summe": {
+            "title": "Summe",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "konto",
+          "bezeichnung",
+          "summe",
+          "monate"
+        ],
+        "title": "OffenesKontoAntwort",
         "type": "object"
       },
       "PasswortDaten": {
@@ -3381,6 +3493,60 @@
         "title": "ProjektleiterZuordnung",
         "type": "object"
       },
+      "ReichweiteAntwort": {
+        "properties": {
+          "bestand_netto": {
+            "title": "Bestand Netto",
+            "type": "integer"
+          },
+          "deckungsbeitrag": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deckungsbeitrag"
+          },
+          "durchschnittsumsatz": {
+            "title": "Durchschnittsumsatz",
+            "type": "integer"
+          },
+          "fixkostenmonate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixkostenmonate"
+          },
+          "umsatzmonate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Umsatzmonate"
+          }
+        },
+        "required": [
+          "bestand_netto",
+          "durchschnittsumsatz",
+          "umsatzmonate",
+          "deckungsbeitrag",
+          "fixkostenmonate"
+        ],
+        "title": "ReichweiteAntwort",
+        "type": "object"
+      },
       "SatzAntwort": {
         "properties": {
           "netto": {
@@ -3942,6 +4108,118 @@
         "title": "VorschlagAntwort",
         "type": "object"
       },
+      "ZahlungenAntwort": {
+        "properties": {
+          "bezahlt": {
+            "title": "Bezahlt",
+            "type": "integer"
+          },
+          "hinweise": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hinweise",
+            "type": "array"
+          },
+          "je_status": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Je Status",
+            "type": "object"
+          },
+          "offen": {
+            "title": "Offen",
+            "type": "integer"
+          },
+          "posten": {
+            "items": {
+              "$ref": "#/components/schemas/ZahlungslageAntwort"
+            },
+            "title": "Posten",
+            "type": "array"
+          },
+          "stichtag": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stichtag"
+          },
+          "ueberfaellig": {
+            "title": "Ueberfaellig",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "stichtag",
+          "offen",
+          "ueberfaellig",
+          "bezahlt",
+          "je_status",
+          "posten",
+          "hinweise"
+        ],
+        "title": "ZahlungenAntwort",
+        "type": "object"
+      },
+      "ZahlungslageAntwort": {
+        "properties": {
+          "datum": {
+            "format": "date",
+            "title": "Datum",
+            "type": "string"
+          },
+          "faellig_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faellig Am"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "offen": {
+            "title": "Offen",
+            "type": "integer"
+          },
+          "rechnung_nr": {
+            "title": "Rechnung Nr",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "zahlbetrag": {
+            "title": "Zahlbetrag",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "rechnung_nr",
+          "kunde",
+          "datum",
+          "faellig_am",
+          "zahlbetrag",
+          "offen",
+          "status"
+        ],
+        "title": "ZahlungslageAntwort",
+        "type": "object"
+      },
       "ZahlungsplanZeile": {
         "properties": {
           "art": {
@@ -4205,6 +4483,73 @@
           "offen"
         ],
         "title": "ZuordnungAntwort",
+        "type": "object"
+      },
+      "app__routen__cockpit__MonatAntwort": {
+        "properties": {
+          "db_promille": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Db Promille"
+          },
+          "deckung": {
+            "title": "Deckung",
+            "type": "integer"
+          },
+          "deckungsbeitrag": {
+            "title": "Deckungsbeitrag",
+            "type": "integer"
+          },
+          "fixkosten": {
+            "title": "Fixkosten",
+            "type": "integer"
+          },
+          "fixkosten_herkunft": {
+            "title": "Fixkosten Herkunft",
+            "type": "string"
+          },
+          "fixkostendeckung_promille": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixkostendeckung Promille"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "umsatz_netto": {
+            "title": "Umsatz Netto",
+            "type": "integer"
+          },
+          "variable_kosten": {
+            "title": "Variable Kosten",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "monat",
+          "umsatz_netto",
+          "variable_kosten",
+          "deckungsbeitrag",
+          "fixkosten",
+          "fixkosten_herkunft",
+          "deckung",
+          "db_promille",
+          "fixkostendeckung_promille"
+        ],
+        "title": "MonatAntwort",
         "type": "object"
       },
       "app__routen__importe__UebernahmeAnfrage": {
@@ -5242,6 +5587,44 @@
         "title": "PositionAntwort",
         "type": "object"
       },
+      "app__routen__umsatz__MonatAntwort": {
+        "properties": {
+          "ist_anzahl": {
+            "title": "Ist Anzahl",
+            "type": "integer"
+          },
+          "ist_netto": {
+            "title": "Ist Netto",
+            "type": "integer"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "plan_anzahl": {
+            "title": "Plan Anzahl",
+            "type": "integer"
+          },
+          "plan_netto": {
+            "title": "Plan Netto",
+            "type": "integer"
+          },
+          "summe_netto": {
+            "title": "Summe Netto",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "monat",
+          "ist_netto",
+          "plan_netto",
+          "summe_netto",
+          "ist_anzahl",
+          "plan_anzahl"
+        ],
+        "title": "MonatAntwort",
+        "type": "object"
+      },
       "app__routen__zahlungsplan__PositionAntwort": {
         "properties": {
           "art": {
@@ -5729,6 +6112,168 @@
         "summary": "Eigenes Passwort ändern",
         "tags": [
           "Anmeldung"
+        ]
+      }
+    },
+    "/api/cockpit": {
+      "get": {
+        "description": "Umsatz, Deckungsbeitrag, Fixkosten und Über-/Unterdeckung für einen Monat.\n\n``basis=bezahlt`` schaltet auf die Liquiditätssicht: statt der gestellten Rechnungen zählt,\nwas laut OPOS beglichen ist (PLAN §6.7).",
+        "operationId": "cockpitMonat",
+        "parameters": [
+          {
+            "description": "Monat 'JJJJ-MM' (Standard: laufender Monat)",
+            "in": "query",
+            "name": "monat",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Monat 'JJJJ-MM' (Standard: laufender Monat)",
+              "title": "Monat"
+            }
+          },
+          {
+            "in": "query",
+            "name": "basis",
+            "required": false,
+            "schema": {
+              "default": "gestellt",
+              "enum": [
+                "gestellt",
+                "bezahlt"
+              ],
+              "title": "Basis",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CockpitAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung cockpit.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Monatsansicht des Firmen-Cockpits",
+        "tags": [
+          "Firmen-Cockpit"
+        ]
+      }
+    },
+    "/api/cockpit/konten-offen": {
+      "get": {
+        "description": "Die Pflegeliste zum Fixkostenblock, das größte Konto zuerst.\n\nJedes Konto hier fehlt in den Fixkosten – die Überdeckung sieht dadurch besser aus, als sie\nist.",
+        "operationId": "cockpitOffeneKonten",
+        "parameters": [
+          {
+            "description": "Nur Salden dieses Jahres",
+            "in": "query",
+            "name": "jahr",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Nur Salden dieses Jahres",
+              "title": "Jahr"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OffenesKontoAntwort"
+                  },
+                  "title": "Response Cockpitoffenekonten",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung cockpit.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Konten ohne Zuordnung zu einem Kostenblock",
+        "tags": [
+          "Firmen-Cockpit"
+        ]
+      }
+    },
+    "/api/cockpit/zahlungen": {
+      "get": {
+        "description": "Offen, überfällig und bezahlt zum jüngsten OPOS-Stichtag (PLAN §6.7).\n\nOhne OPOS-Import steht zu jeder Rechnung nur fest, dass sie gestellt wurde – der Leitstand\nbehauptet dann nichts über Zahlungen.",
+        "operationId": "cockpitZahlungen",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZahlungenAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung cockpit.lesen fehlt"
+          }
+        },
+        "summary": "Zahlungslage der festgeschriebenen Rechnungen",
+        "tags": [
+          "Firmen-Cockpit"
         ]
       }
     },

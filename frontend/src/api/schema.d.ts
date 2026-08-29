@@ -137,6 +137,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cockpit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Monatsansicht des Firmen-Cockpits
+         * @description Umsatz, Deckungsbeitrag, Fixkosten und Über-/Unterdeckung für einen Monat.
+         *
+         *     ``basis=bezahlt`` schaltet auf die Liquiditätssicht: statt der gestellten Rechnungen zählt,
+         *     was laut OPOS beglichen ist (PLAN §6.7).
+         */
+        get: operations["cockpitMonat"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cockpit/konten-offen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Konten ohne Zuordnung zu einem Kostenblock
+         * @description Die Pflegeliste zum Fixkostenblock, das größte Konto zuerst.
+         *
+         *     Jedes Konto hier fehlt in den Fixkosten – die Überdeckung sieht dadurch besser aus, als sie
+         *     ist.
+         */
+        get: operations["cockpitOffeneKonten"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cockpit/zahlungen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Zahlungslage der festgeschriebenen Rechnungen
+         * @description Offen, überfällig und bezahlt zum jüngsten OPOS-Stichtag (PLAN §6.7).
+         *
+         *     Ohne OPOS-Import steht zu jeder Rechnung nur fest, dass sie gestellt wurde – der Leitstand
+         *     behauptet dann nichts über Zahlungen.
+         */
+        get: operations["cockpitZahlungen"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/gesundheit": {
         parameters: {
             query?: never;
@@ -1318,6 +1387,35 @@ export interface components {
             /** Projekt Nr */
             projekt_nr: number;
         };
+        /** CockpitAntwort */
+        CockpitAntwort: {
+            /** Fixkosten Herkunft */
+            fixkosten_herkunft: string;
+            /** Fixkosten Je Block */
+            fixkosten_je_block: {
+                [key: string]: number;
+            };
+            /** Hinweise */
+            hinweise: string[];
+            /** Jahr */
+            jahr: number;
+            kennzahlen: components["schemas"]["KennzahlenAntwort"];
+            /** Kumuliert */
+            kumuliert: number;
+            /** Monat */
+            monat: string;
+            /** Monate */
+            monate: components["schemas"]["app__routen__cockpit__MonatAntwort"][];
+            /**
+             * Steuerungssicht
+             * @default Steuerungssicht der Geschäftsführung, keine handelsrechtliche BWA: hier stehen Auftragswerte, kalkulatorische Sätze und Planzahlen neben Buchhaltungswerten.
+             */
+            steuerungssicht: string;
+            /** Umsatzbasis */
+            umsatzbasis: string;
+            /** Verfuegbare Monate */
+            verfuegbare_monate: string[];
+        };
         /** DetailAntwort */
         DetailAntwort: {
             projekt: components["schemas"]["app__routen__nachkalkulation__ProjektAntwort"];
@@ -1399,6 +1497,16 @@ export interface components {
             status: string;
             /** Text */
             text: string;
+        };
+        /** KennzahlenAntwort */
+        KennzahlenAntwort: {
+            /** Break Even Netto */
+            break_even_netto: number | null;
+            /** Marge Monate */
+            marge_monate: number;
+            /** Marge Promille */
+            marge_promille: number | null;
+            reichweite: components["schemas"]["ReichweiteAntwort"];
         };
         /** Konto */
         Konto: {
@@ -1683,21 +1791,6 @@ export interface components {
             /** Positionen */
             positionen: components["schemas"]["MengeEingabe"][];
         };
-        /** MonatAntwort */
-        MonatAntwort: {
-            /** Ist Anzahl */
-            ist_anzahl: number;
-            /** Ist Netto */
-            ist_netto: number;
-            /** Monat */
-            monat: string;
-            /** Plan Anzahl */
-            plan_anzahl: number;
-            /** Plan Netto */
-            plan_netto: number;
-            /** Summe Netto */
-            summe_netto: number;
-        };
         /** MonateAntwort */
         MonateAntwort: {
             /** Hinweise */
@@ -1709,7 +1802,7 @@ export interface components {
             /** Jahre */
             jahre?: number[];
             /** Monate */
-            monate: components["schemas"]["MonatAntwort"][];
+            monate: components["schemas"]["app__routen__umsatz__MonatAntwort"][];
             /** Plan Netto */
             plan_netto: number;
             /** Projektleiter */
@@ -1807,6 +1900,17 @@ export interface components {
             projekt_nr: number;
             /** Status */
             status: string;
+        };
+        /** OffenesKontoAntwort */
+        OffenesKontoAntwort: {
+            /** Bezeichnung */
+            bezeichnung: string | null;
+            /** Konto */
+            konto: string;
+            /** Monate */
+            monate: number;
+            /** Summe */
+            summe: number;
         };
         /** PasswortDaten */
         PasswortDaten: {
@@ -2083,6 +2187,19 @@ export interface components {
                 [key: string]: number | null;
             };
         };
+        /** ReichweiteAntwort */
+        ReichweiteAntwort: {
+            /** Bestand Netto */
+            bestand_netto: number;
+            /** Deckungsbeitrag */
+            deckungsbeitrag: number | null;
+            /** Durchschnittsumsatz */
+            durchschnittsumsatz: number;
+            /** Fixkostenmonate */
+            fixkostenmonate: number | null;
+            /** Umsatzmonate */
+            umsatzmonate: number | null;
+        };
         /** SatzAntwort */
         SatzAntwort: {
             /** Netto */
@@ -2261,6 +2378,45 @@ export interface components {
             /** Projekt Nr */
             projekt_nr: number;
         };
+        /** ZahlungenAntwort */
+        ZahlungenAntwort: {
+            /** Bezahlt */
+            bezahlt: number;
+            /** Hinweise */
+            hinweise: string[];
+            /** Je Status */
+            je_status: {
+                [key: string]: number;
+            };
+            /** Offen */
+            offen: number;
+            /** Posten */
+            posten: components["schemas"]["ZahlungslageAntwort"][];
+            /** Stichtag */
+            stichtag: string | null;
+            /** Ueberfaellig */
+            ueberfaellig: number;
+        };
+        /** ZahlungslageAntwort */
+        ZahlungslageAntwort: {
+            /**
+             * Datum
+             * Format: date
+             */
+            datum: string;
+            /** Faellig Am */
+            faellig_am: string | null;
+            /** Kunde */
+            kunde: string;
+            /** Offen */
+            offen: number;
+            /** Rechnung Nr */
+            rechnung_nr: string;
+            /** Status */
+            status: string;
+            /** Zahlbetrag */
+            zahlbetrag: number;
+        };
         /** ZahlungsplanZeile */
         ZahlungsplanZeile: {
             /** Art */
@@ -2347,6 +2503,27 @@ export interface components {
             vorschlaege?: components["schemas"]["Vorschlag"][];
             /** Zeilen */
             zeilen: number[];
+        };
+        /** MonatAntwort */
+        app__routen__cockpit__MonatAntwort: {
+            /** Db Promille */
+            db_promille: number | null;
+            /** Deckung */
+            deckung: number;
+            /** Deckungsbeitrag */
+            deckungsbeitrag: number;
+            /** Fixkosten */
+            fixkosten: number;
+            /** Fixkosten Herkunft */
+            fixkosten_herkunft: string;
+            /** Fixkostendeckung Promille */
+            fixkostendeckung_promille: number | null;
+            /** Monat */
+            monat: string;
+            /** Umsatz Netto */
+            umsatz_netto: number;
+            /** Variable Kosten */
+            variable_kosten: number;
         };
         /** UebernahmeAnfrage */
         app__routen__importe__UebernahmeAnfrage: {
@@ -2642,6 +2819,21 @@ export interface components {
              * Format: date-time
              */
             stand: string;
+        };
+        /** MonatAntwort */
+        app__routen__umsatz__MonatAntwort: {
+            /** Ist Anzahl */
+            ist_anzahl: number;
+            /** Ist Netto */
+            ist_netto: number;
+            /** Monat */
+            monat: string;
+            /** Plan Anzahl */
+            plan_anzahl: number;
+            /** Plan Netto */
+            plan_netto: number;
+            /** Summe Netto */
+            summe_netto: number;
         };
         /** PositionAntwort */
         app__routen__zahlungsplan__PositionAntwort: {
@@ -2990,6 +3182,133 @@ export interface operations {
             };
             /** @description Das neue Passwort erfüllt die Anforderungen nicht */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    cockpitMonat: {
+        parameters: {
+            query?: {
+                /** @description Monat 'JJJJ-MM' (Standard: laufender Monat) */
+                monat?: string | null;
+                basis?: "gestellt" | "bezahlt";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CockpitAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung cockpit.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cockpitOffeneKonten: {
+        parameters: {
+            query?: {
+                /** @description Nur Salden dieses Jahres */
+                jahr?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OffenesKontoAntwort"][];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung cockpit.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cockpitZahlungen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZahlungenAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung cockpit.lesen fehlt */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

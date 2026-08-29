@@ -20,6 +20,7 @@ from app.protokoll import einrichten as protokoll_einrichten
 from app.protokoll import logger
 from app.routen import (
     auth,
+    cockpit,
     gesundheit,
     importe,
     migration,
@@ -103,6 +104,7 @@ def anwendung_erzeugen(
     app.include_router(rechnungen.router)
     app.include_router(stueckliste.router)
     app.include_router(nachkalkulation.router)
+    app.include_router(cockpit.router)
     app.include_router(importe.router)
 
     # Zuletzt: der Rückfall auf index.html würde sonst die API-Pfade verschlucken
