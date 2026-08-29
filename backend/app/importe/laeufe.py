@@ -15,13 +15,14 @@ wäre hier also falsch, ein Anhängen aber auch: die Beträge stünden doppelt.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from datetime import date
 from typing import Any
 
 from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from app.importe.befunde import Befund, als_liste, laufstatus
-from app.modelle import DatevSaldo, Importlauf, IstKosten
+from app.modelle import DatevSaldo, Importlauf, IstKosten, Opos
 from app.zeit import jetzt_utc
 
 
@@ -102,4 +103,14 @@ def salden_leeren(sitzung: Session, *, monat: str) -> int:
     verzweigen und wäre an jeder Aufrufstelle schwerer zu lesen als drei kurze.
     """
     ergebnis = sitzung.execute(delete(DatevSaldo).where(DatevSaldo.monat == monat))
+    return int(ergebnis.rowcount or 0)
+
+
+def opos_leeren(sitzung: Session, *, stichtag: date) -> int:
+    """Offene Posten eines Stichtags löschen. Gibt die Anzahl zurück.
+
+    Eine OPOS-Liste gilt für einen Tag, nicht für einen Monat: zwei Stände desselben Monats
+    stehen nebeneinander, ein zweiter Lauf desselben Tages ersetzt.
+    """
+    ergebnis = sitzung.execute(delete(Opos).where(Opos.stand_datum == stichtag))
     return int(ergebnis.rowcount or 0)
