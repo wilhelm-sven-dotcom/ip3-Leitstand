@@ -192,8 +192,21 @@ def test_unzugeordnetes_konto_erscheint_als_hinweis_und_in_der_liste(admin) -> N
     assert offene[0]["summe"] == 900_000
 
 
-def test_ohne_monat_kommt_der_laufende(admin) -> None:
+def test_ohne_monat_kommt_der_juengste_mit_zahlen(admin) -> None:
+    """Nicht der laufende Monat: dafür hat die Kanzlei noch nichts geliefert.
+
+    Ein Cockpit, das beim Aufrufen vier Nullen zeigt, sieht kaputt aus statt leer – im Abnahme-
+    lauf war genau das der erste Eindruck.
+    """
     daten = admin.client.get("/api/cockpit").json()
+    assert daten["monat"] == MONAT
+
+
+def test_ohne_jede_zahl_bleibt_der_laufende_monat(client, nutzer_erzeugen, gesäte_db) -> None:
+    """Eine frische Datenbank hat keinen jüngsten Monat – dann ist heute die beste Auskunft."""
+    nutzer_erzeugen("leer@ip3-energie.de", "admin")
+    leer = anmelden(client, "leer@ip3-energie.de")
+    daten = leer.client.get("/api/cockpit").json()
     assert daten["monat"] == f"{date.today():%Y-%m}"
 
 

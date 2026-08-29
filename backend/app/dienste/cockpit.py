@@ -37,7 +37,7 @@ from sqlalchemy.orm import Session
 
 from app import formate, geld
 from app.dienste import auswertung
-from app.modelle import DatevSaldo, FixkostenPlan, IstKosten
+from app.modelle import DatevSaldo, FixkostenPlan, IstKosten, Zahlungsplanposition
 
 # Ist-Quellen, die als variable Kosten in den Deckungsbeitrag eingehen. 'timetac' fehlt
 # absichtlich – siehe Modulkopf, PLAN §6.6.
@@ -385,6 +385,33 @@ def hinweise_sammeln(sitzung: Session, cockpit: Cockpit) -> list[str]:
             "eine OPOS-Liste führt keinen Zahltag."
         )
     return hinweise
+
+
+def letzter_monat_mit_zahlen(sitzung: Session) -> str | None:
+    """Jüngster Monat, für den **tatsächliche** Zahlen vorliegen – die Vorbelegung der Ansicht.
+
+    Der laufende Monat wäre die naheliegende Wahl und die schlechtere: die Kanzlei liefert erst
+    nach dem Monatsabschluss, also steht Anfang September für September noch nichts da. Wer das
+    Cockpit aufruft und vier Nullen sieht, hält es für kaputt, statt zu erkennen, dass er in die
+    Zukunft schaut.
+
+    Zwei Abgrenzungen, beide im Abnahmelauf teuer erkauft:
+
+    * **Geplant ist nicht gebucht.** Zahlungsplanpositionen tragen Planmonate weit in die
+      Zukunft; nur abgerechnete zählen hier (``auswertung.ist_bedingung``).
+    * **Nie über den laufenden Monat hinaus.** Ein Beleg mit Datum im Folgemonat zöge die
+      Ansicht sonst in einen Monat, über den noch nichts zu sagen ist.
+    """
+    heute = f"{date.today():%Y-%m}"
+    kandidaten = [
+        sitzung.scalar(select(func.max(IstKosten.monat))),
+        sitzung.scalar(select(func.max(DatevSaldo.monat))),
+        sitzung.scalar(
+            select(func.max(Zahlungsplanposition.plan_monat)).where(auswertung.ist_bedingung())
+        ),
+    ]
+    vorhanden = [monat for monat in kandidaten if monat and monat <= heute]
+    return max(vorhanden) if vorhanden else None
 
 
 def monate_mit_daten(sitzung: Session, sichtbare_projekte: Select) -> list[str]:

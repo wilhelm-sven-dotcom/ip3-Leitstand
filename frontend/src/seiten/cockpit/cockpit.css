@@ -1,0 +1,292 @@
+/**
+ * Firmen-Cockpit (design/Firmen-Cockpit.dc.html).
+ *
+ * Farben ausschließlich aus den Tokens (PLAN §11): Summen in ip³ Blau, Abzüge und eine
+ * Unterdeckung in Akzent-Rot. Kein Grün, keine Verläufe. Zahlen in Space Grotesk mit
+ * Tabellenziffern, damit die Spalten untereinander stehen.
+ */
+
+.cockpit__einordnung {
+  max-width: 76ch;
+  margin: 0 0 var(--abstand-5);
+  color: var(--text-sekundaer);
+  font-size: var(--text-s);
+  line-height: 1.5;
+}
+
+.cockpit__leiste {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--abstand-3);
+  margin-bottom: var(--abstand-4);
+}
+
+.cockpit__monatswahl {
+  display: flex;
+  align-items: center;
+  gap: var(--abstand-2);
+}
+
+.cockpit__monat {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: var(--text-l);
+  min-width: 11ch;
+  text-align: center;
+}
+
+.cockpit__umschalter {
+  display: inline-flex;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+}
+
+.cockpit__basis {
+  font-family: var(--font-ui);
+  font-size: var(--text-m);
+  font-weight: 600;
+  color: var(--text-sekundaer);
+  background: var(--weiss);
+  border: 0;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+
+.cockpit__basis + .cockpit__basis {
+  border-left: 1px solid var(--linie);
+}
+
+.cockpit__basis:hover {
+  background: var(--flaeche-info);
+  color: var(--text);
+}
+
+.cockpit__basis[aria-pressed="true"] {
+  background: var(--ip3-blau);
+  color: var(--weiss);
+}
+
+.cockpit__hinweise {
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-2);
+  margin: var(--abstand-4) 0;
+}
+
+.cockpit__block {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: var(--abstand-5);
+  margin-top: var(--abstand-5);
+}
+
+.cockpit__paar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--abstand-5);
+}
+
+.cockpit__paar > .cockpit__block {
+  margin-top: var(--abstand-5);
+}
+
+.cockpit__ueberschrift {
+  margin: 0;
+  font-size: var(--text-l);
+  font-weight: 700;
+  color: var(--ip3-blau);
+}
+
+.cockpit__unterzeile {
+  margin: var(--abstand-1) 0 var(--abstand-4);
+  color: var(--text-sekundaer);
+  font-size: var(--text-s);
+}
+
+.cockpit__legende {
+  margin: var(--abstand-3) 0 0;
+  color: var(--text-sekundaer);
+  font-size: var(--text-s);
+}
+
+.cockpit__grosszahl {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 1.1;
+  color: var(--ip3-blau);
+}
+
+/* Unter 100 % Fixkostendeckung: Akzent-Rot, nicht Grün gegen Rot (PLAN §11). */
+.cockpit__grosszahl--knapp {
+  color: var(--akzent-rot);
+}
+
+.cockpit__einheit {
+  font-family: var(--font-ui);
+  font-size: var(--text-m);
+  font-weight: 400;
+  color: var(--text-sekundaer);
+  margin-left: var(--abstand-2);
+}
+
+.cockpit__tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-m);
+}
+
+.cockpit__tabelle th {
+  background: var(--ip3-blau);
+  color: var(--weiss);
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--text-s);
+  padding: 8px 10px;
+}
+
+.cockpit__tabelle td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--linie);
+}
+
+.cockpit__tabelle tbody tr:nth-child(odd) td {
+  background: var(--flaeche-info);
+}
+
+.cockpit__zahl {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cockpit__zeile--grau td {
+  color: var(--text-sekundaer);
+}
+
+.cockpit__zeile--summe td {
+  border-top: 2px solid var(--ip3-blau);
+  border-bottom: 0;
+  font-weight: 700;
+  background: var(--weiss) !important;
+}
+
+/* --- Wasserfall ---------------------------------------------------------- */
+
+.wasserfall {
+  position: relative;
+  /* Luft für die Beschriftung des höchsten Balkens. */
+  padding-top: var(--abstand-6);
+}
+
+.wasserfall__balken {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--abstand-4);
+  position: relative;
+}
+
+.wasserfall__spalte {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  min-width: 0;
+}
+
+.wasserfall__wert {
+  position: absolute;
+  left: 0;
+  right: 0;
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: var(--text-m);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.wasserfall__saeulenraum {
+  position: relative;
+  /* Feste Höhe statt Flexanteil: die Balkenhöhen sind gegen genau diesen Wert gerechnet.
+     Teilte sich der Raum mit Beschriftung und Fußzeile, ragte der höchste Balken darüber
+     hinaus und seine Zahl stieße an die Überschrift. */
+  height: var(--saeulenhoehe, 210px);
+  flex: none;
+}
+
+.wasserfall__saeule {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  border-radius: var(--radius-s) var(--radius-s) 0 0;
+}
+
+.wasserfall__saeule--summe {
+  background: var(--ip3-blau);
+}
+
+.wasserfall__saeule--abzug {
+  background: var(--akzent-rot);
+  opacity: 0.85;
+}
+
+.wasserfall__saeule--unterdeckung {
+  background: var(--akzent-rot);
+}
+
+.wasserfall__name {
+  margin-top: var(--abstand-2);
+  padding-top: var(--abstand-2);
+  border-top: 1px solid var(--linie);
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.wasserfall__marke {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--akzent-rot);
+  pointer-events: none;
+}
+
+.wasserfall__marke span {
+  position: absolute;
+  right: 0;
+  top: -18px;
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--akzent-rot);
+  background: var(--weiss);
+  padding: 0 var(--abstand-2);
+}
+
+@media (max-width: 640px) {
+  .wasserfall__name {
+    font-size: 10px;
+  }
+  .cockpit__grosszahl {
+    font-size: 34px;
+  }
+}
+
+/* Wo eine Kennzahl nicht zu rechnen ist, steht der Grund – kein nackter Gedankenstrich. */
+.cockpit__leer {
+  margin: 0 0 var(--abstand-3);
+  color: var(--text-sekundaer);
+  font-size: var(--text-m);
+  line-height: 1.5;
+  max-width: 40ch;
+}

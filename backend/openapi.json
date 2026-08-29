@@ -6382,7 +6382,7 @@
         "operationId": "cockpitMonat",
         "parameters": [
           {
-            "description": "Monat 'JJJJ-MM' (Standard: laufender Monat)",
+            "description": "Monat 'JJJJ-MM' (Standard: jüngster Monat mit Zahlen)",
             "in": "query",
             "name": "monat",
             "required": false,
@@ -6395,7 +6395,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Monat 'JJJJ-MM' (Standard: laufender Monat)",
+              "description": "Monat 'JJJJ-MM' (Standard: jüngster Monat mit Zahlen)",
               "title": "Monat"
             }
           },
@@ -6937,6 +6937,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung admin.konfiguration fehlt"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -7174,6 +7180,12 @@
               }
             },
             "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung admin.konfiguration fehlt"
           }
         },
         "summary": "Zuordnung der Kontenbereiche zu Kostenblöcken",

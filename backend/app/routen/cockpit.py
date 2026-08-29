@@ -122,10 +122,14 @@ def _sichtbar(zugriff: Zugriff) -> Select:
     return scope_filter(select(Projekt), zugriff, "projekte.lesen", Projekt.pl_user_id)
 
 
-def _monat_pruefen(monat: str | None) -> str:
-    """Monat aus der Anfrage, sonst der laufende. Ein unsinniger Wert wird abgewiesen."""
+def _monat_pruefen(monat: str | None, sitzung: Session) -> str:
+    """Monat aus der Anfrage, sonst der jüngste mit Zahlen. Unsinn wird abgewiesen.
+
+    Nicht der laufende Monat: die Kanzlei liefert nach dem Monatsabschluss, und ein Cockpit,
+    das beim Aufrufen vier Nullen zeigt, sieht kaputt aus statt leer.
+    """
     if monat is None:
-        return f"{date.today():%Y-%m}"
+        return dienst.letzter_monat_mit_zahlen(sitzung) or f"{date.today():%Y-%m}"
     if not _MONAT.match(monat):
         raise FachFehler(
             f"'{monat}' ist kein Monat.",
@@ -143,7 +147,9 @@ def _monat_pruefen(monat: str | None) -> str:
     responses=LESEN,
 )
 def monatsansicht(
-    monat: str | None = Query(None, description="Monat 'JJJJ-MM' (Standard: laufender Monat)"),
+    monat: str | None = Query(
+        None, description="Monat 'JJJJ-MM' (Standard: jüngster Monat mit Zahlen)"
+    ),
     basis: Literal[UMSATZBASIS] = "gestellt",  # type: ignore[valid-type]
     zugriff: Zugriff = Depends(benoetigt("cockpit.lesen")),
     db: Session = Depends(db_sitzung),
@@ -154,7 +160,7 @@ def monatsansicht(
     ``basis=bezahlt`` schaltet auf die Liquiditätssicht: statt der gestellten Rechnungen zählt,
     was laut OPOS beglichen ist (PLAN §6.7).
     """
-    gewaehlt = _monat_pruefen(monat)
+    gewaehlt = _monat_pruefen(monat, db)
     sichtbar = _sichtbar(zugriff)
 
     ergebnis = dienst.monatsansicht(

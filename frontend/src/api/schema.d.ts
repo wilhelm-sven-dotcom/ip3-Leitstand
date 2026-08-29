@@ -3380,7 +3380,7 @@ export interface operations {
     cockpitMonat: {
         parameters: {
             query?: {
-                /** @description Monat 'JJJJ-MM' (Standard: laufender Monat) */
+                /** @description Monat 'JJJJ-MM' (Standard: jüngster Monat mit Zahlen) */
                 monat?: string | null;
                 basis?: "gestellt" | "bezahlt";
             };
@@ -3848,6 +3848,20 @@ export interface operations {
                     "application/json": components["schemas"]["PlanAntwort"][];
                 };
             };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung admin.konfiguration fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -4088,6 +4102,20 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["BereichAntwort"][];
                 };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung admin.konfiguration fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

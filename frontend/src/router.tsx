@@ -24,6 +24,7 @@ import { ProjektNeu } from "@/seiten/projekte/ProjektNeu";
 import { Projektleiter } from "@/seiten/projekte/Projektleiter";
 import { Rechnungen } from "@/seiten/rechnungen/Rechnungen";
 import { RechnungDetail } from "@/seiten/rechnungen/RechnungDetail";
+import { Cockpit } from "@/seiten/cockpit/Cockpit";
 import { Nachkalkulation } from "@/seiten/nachkalkulation/Nachkalkulation";
 import { Umsatz } from "@/seiten/umsatz/Umsatz";
 import { useSitzung } from "@/sitzung/SitzungKontext";
@@ -152,6 +153,15 @@ export function AppRouten() {
         element={
           <GeschuetzteRoute>
             <Nachkalkulation />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/cockpit"
+        element={
+          <GeschuetzteRoute>
+            <Cockpit />
           </GeschuetzteRoute>
         }
       />

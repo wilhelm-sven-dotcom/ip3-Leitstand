@@ -36,11 +36,12 @@ from app.sicherheit.abhaengigkeiten import Zugriff, benoetigt, db_sitzung
 
 router = APIRouter(prefix="/api/kostenpflege", tags=["Kostenpflege"])
 
-SCHREIBEN = {
+LESEN = {
     401: {"description": "Nicht angemeldet"},
     403: {"description": "Berechtigung admin.konfiguration fehlt"},
-    409: {"description": "Der Datensatz wurde zwischenzeitlich geändert"},
 }
+
+SCHREIBEN = {**LESEN, 409: {"description": "Der Datensatz wurde zwischenzeitlich geändert"}}
 
 _MONAT = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 
@@ -166,6 +167,7 @@ def _voriger_monat(monat: str) -> str:
     response_model=list[BereichAntwort],
     summary="Zuordnung der Kontenbereiche zu Kostenblöcken",
     operation_id="kontenBereiche",
+    responses=LESEN,
 )
 def bereiche(
     zugriff: Zugriff = Depends(benoetigt("admin.konfiguration")),
@@ -321,6 +323,7 @@ def bereich_entfernen(
     response_model=list[PlanAntwort],
     summary="Geplante Fixkosten",
     operation_id="fixkostenPlan",
+    responses=LESEN,
 )
 def plan(
     monat: str | None = Query(None, description="Nur diesen Monat 'JJJJ-MM'"),
