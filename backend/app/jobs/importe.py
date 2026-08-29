@@ -1,4 +1,4 @@
-"""Die drei nächtlichen Importläufe der Phase 4 (PLAN §8).
+"""Die nächtlichen Importläufe (PLAN §8).
 
 Ein Job, der still fehlt, ist schlimmer als einer, der als „noch nicht eingerichtet" dasteht
 (``app/jobs/katalog.py``). Deshalb gilt hier für alle drei dasselbe:
@@ -16,6 +16,8 @@ Ein Job, der still fehlt, ist schlimmer als einer, der als „noch nicht eingeri
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 
 from app.datenbank import schreib_sitzung
@@ -36,16 +38,36 @@ def _konfiguration(werte: Einstellungen | None) -> Einstellungen:
 # ---------------------------------------------------------------------------
 
 
+@dataclass
+class Teilergebnis:
+    """Was eine der drei DATEV-Quellen beigetragen hat."""
+
+    quelle: str
+    dateien: int = 0
+    zeitraeume: list[str] = field(default_factory=list)
+    zeilen: int = 0
+    summe_cent: int = 0
+    fehler: list[str] = field(default_factory=list)
+    hinweis: str = ""
+
+    @property
+    def hat_geliefert(self) -> bool:
+        return bool(self.zeitraeume)
+
+
 def datev_job(ausgeloest_von: str = "zeitplan", werte: Einstellungen | None = None) -> None:
-    """Alle noch nicht eingelesenen Kostenträgerdateien aus ``02_DATEV`` übernehmen."""
+    """Alle drei Kanzlei-Exporte aus ``02_DATEV`` übernehmen (PLAN §8).
+
+    Kostenträger, Summen- und Saldenliste und offene Posten liegen im selben Ordner und kommen
+    im selben Monatsrhythmus – deshalb ein Lauf und nicht drei. Jede Quelle wird für sich
+    verarbeitet: eine unlesbare SuSa hält die Kostenträger nicht auf.
+    """
     konfiguration = _konfiguration(werte)
     with protokollierter_lauf("datev_import", ausgeloest_von) as ergebnis:
         _datev_lauf(konfiguration, ergebnis)
 
 
 def _datev_lauf(werte: Einstellungen, ergebnis: LaufErgebnis) -> None:
-    from app.importe.datev import kostentraeger_lesen, monat_aus_dateiname, uebernehmen
-
     ordner = werte.pfade.datev
     if ordner is None or not ordner.is_dir():
         ergebnis.warnen(
@@ -54,50 +76,142 @@ def _datev_lauf(werte: Einstellungen, ergebnis: LaufErgebnis) -> None:
         )
         return
 
+    teile = [
+        _kostentraeger_lauf(werte, ordner),
+        _susa_lauf(werte, ordner),
+        _opos_lauf(werte, ordner),
+    ]
+    ergebnis.kennzahlen = {
+        teil.quelle: {
+            "dateien": teil.dateien,
+            "zeitraeume": teil.zeitraeume,
+            "zeilen": teil.zeilen,
+            "summe_cent": teil.summe_cent,
+            "uebersprungen": len(teil.fehler),
+        }
+        for teil in teile
+    }
+
+    fehler = [meldung for teil in teile for meldung in teil.fehler]
+    hinweise = [teil.hinweis for teil in teile if teil.hinweis and not teil.hat_geliefert]
+
+    if fehler:
+        ergebnis.warnen(
+            f"{sum(len(t.zeitraeume) for t in teile)} Zeiträume übernommen, "
+            f"{len(fehler)} Datei(en) übersprungen: " + "; ".join(fehler)
+        )
+        return
+    if not any(teil.hat_geliefert for teil in teile):
+        ergebnis.warnen(f"Im Ordner {ordner.name} liegt keine Kanzlei-Datei. " + " ".join(hinweise))
+        return
+
+    geschafft = ", ".join(
+        f"{teil.quelle} {len(teil.zeitraeume)}" for teil in teile if teil.hat_geliefert
+    )
+    ergebnis.meldung = f"Übernommen: {geschafft} (Zeiträume)."
+    if hinweise:
+        # Eine noch nicht gelieferte Quelle wird genannt, macht den Lauf aber **nicht** zur
+        # Warnung. Die Kanzlei liefert SuSa und OPOS erst nach der Abstimmung; sie monatelang
+        # jede Nacht rot zu melden, gewöhnt alle daran, den Systemstatus zu übergehen. Dass
+        # Zahlen fehlen, sagt das Cockpit an der Stelle, an der sie fehlen – dort lässt sich
+        # etwas dagegen tun.
+        ergebnis.meldung += " Noch ohne: " + " ".join(hinweise)
+
+
+def _kostentraeger_lauf(werte: Einstellungen, ordner: Path) -> Teilergebnis:
+    from app.importe.datev import kostentraeger_lesen, monat_aus_dateiname, uebernehmen
+
+    teil = Teilergebnis(quelle="kostentraeger")
     dateien = sorted(
         (p for p in ordner.glob("kostentraeger*.csv") if monat_aus_dateiname(p)),
         key=lambda p: monat_aus_dateiname(p) or "",
     )
+    teil.dateien = len(dateien)
     if not dateien:
-        ergebnis.warnen(
-            f"Im Ordner {ordner.name} liegt keine Kostenträgerdatei. Die Kanzlei liefert sie "
-            "monatlich als 'kostentraeger_JJJJ-MM.csv'."
+        teil.hinweis = (
+            "Die Kostenträgerauswertung fehlt ('kostentraeger_JJJJ-MM.csv') – ohne sie bleiben "
+            "die Ist-Kosten der Projekte leer."
         )
-        return
+        return teil
 
-    monate: list[str] = []
-    zeilen = 0
-    summe = 0
-    fehler: list[str] = []
     for pfad in dateien:
         try:
             datei = kostentraeger_lesen(pfad, werte.datev.kostentraeger)
             with schreib_sitzung() as sitzung:
-                teil = uebernehmen(sitzung, datei)
-            monate.append(teil.monat)
-            zeilen += teil.zeilen
-            summe += teil.summe_cent
+                ergebnis = uebernehmen(sitzung, datei)
+            teil.zeitraeume.append(ergebnis.monat)
+            teil.zeilen += ergebnis.zeilen
+            teil.summe_cent += ergebnis.summe_cent
         except FachFehler as ausfall:
             # Eine unlesbare Datei darf die anderen Monate nicht aufhalten.
-            fehler.append(f"{pfad.name}: {ausfall.meldung}")
+            teil.fehler.append(f"{pfad.name}: {ausfall.meldung}")
             log.warning("DATEV-Import übersprungen: %s – %s", pfad.name, ausfall.meldung)
+    return teil
 
-    ergebnis.kennzahlen = {
-        "dateien": len(dateien),
-        "monate": monate,
-        "zeilen": zeilen,
-        "summe_cent": summe,
-        "uebersprungen": len(fehler),
-    }
-    if fehler:
-        ergebnis.warnen(
-            f"{len(monate)} Monate übernommen, {len(fehler)} Datei(en) übersprungen: "
-            + "; ".join(fehler)
-        )
-        return
-    ergebnis.meldung = (
-        f"{len(monate)} Monate übernommen ({', '.join(monate)}), {zeilen} Kostenzeilen."
+
+def _susa_lauf(werte: Einstellungen, ordner: Path) -> Teilergebnis:
+    from app.datenbank import lese_sitzung
+    from app.dienste.konten import bereiche_laden
+    from app.importe.susa import monat_aus_dateiname, susa_lesen, uebernehmen
+
+    teil = Teilergebnis(quelle="susa")
+    dateien = sorted(
+        (p for p in ordner.glob("susa*.csv") if monat_aus_dateiname(p)),
+        key=lambda p: monat_aus_dateiname(p) or "",
     )
+    teil.dateien = len(dateien)
+    if not dateien:
+        teil.hinweis = (
+            "Die Summen- und Saldenliste fehlt ('susa_JJJJ-MM.csv') – ohne sie hat das "
+            "Firmen-Cockpit keinen Fixkostenblock."
+        )
+        return teil
+
+    with lese_sitzung() as sitzung:
+        bereiche = bereiche_laden(sitzung)
+
+    for pfad in dateien:
+        try:
+            datei = susa_lesen(pfad, werte.datev.susa, bereiche)
+            with schreib_sitzung() as sitzung:
+                ergebnis = uebernehmen(sitzung, datei)
+            teil.zeitraeume.append(ergebnis.monat)
+            teil.zeilen += ergebnis.zeilen
+            teil.summe_cent += ergebnis.summe_cent
+        except FachFehler as ausfall:
+            teil.fehler.append(f"{pfad.name}: {ausfall.meldung}")
+            log.warning("SuSa-Import übersprungen: %s – %s", pfad.name, ausfall.meldung)
+    return teil
+
+
+def _opos_lauf(werte: Einstellungen, ordner: Path) -> Teilergebnis:
+    from app.importe.opos import opos_lesen, stichtag_aus_dateiname, uebernehmen
+
+    teil = Teilergebnis(quelle="opos")
+    dateien = sorted(
+        (p for p in ordner.glob("opos*.csv") if stichtag_aus_dateiname(p)),
+        key=lambda p: stichtag_aus_dateiname(p) or date.min,
+    )
+    teil.dateien = len(dateien)
+    if not dateien:
+        teil.hinweis = (
+            "Die Liste der offenen Posten fehlt ('opos_JJJJ-MM-TT.csv') – ohne sie ist zu jeder "
+            "Rechnung nur bekannt, dass sie gestellt wurde."
+        )
+        return teil
+
+    for pfad in dateien:
+        try:
+            datei = opos_lesen(pfad, werte.datev.opos)
+            with schreib_sitzung() as sitzung:
+                ergebnis = uebernehmen(sitzung, datei)
+            teil.zeitraeume.append(ergebnis.stichtag.isoformat())
+            teil.zeilen += ergebnis.posten
+            teil.summe_cent += ergebnis.offen_cent
+        except FachFehler as ausfall:
+            teil.fehler.append(f"{pfad.name}: {ausfall.meldung}")
+            log.warning("OPOS-Import übersprungen: %s – %s", pfad.name, ausfall.meldung)
+    return teil
 
 
 # ---------------------------------------------------------------------------

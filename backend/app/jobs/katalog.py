@@ -35,7 +35,7 @@ KATALOG: tuple[JobDefinition, ...] = (
         # Die Kanzlei liefert monatlich; nach 45 Tagen fehlt sicher etwas.
         max_alter_stunden=24 * 45,
         ab_phase=4,
-        beschreibung="Kostenträger, Summen- und Saldenliste, offene Posten aus 02_DATEV",
+        beschreibung="Kostenträger, Summen- und Saldenliste und offene Posten aus 02_DATEV",
     ),
     JobDefinition(
         "timetac_sync",
@@ -64,7 +64,7 @@ SCHLUESSEL: frozenset[str] = frozenset(eintrag.schluessel for eintrag in KATALOG
 
 # Bis zu welcher Phase die Jobs im Katalog tatsächlich laufen. Alles darüber zeigt der
 # Systemstatus als „ab Phase n" an, statt es stillschweigend wegzulassen.
-AKTIVE_PHASE = 4
+AKTIVE_PHASE = 5
 
 
 def definition(schluessel: str) -> JobDefinition:

@@ -127,7 +127,10 @@ def test_datev_lauf_uebernimmt_alle_monate(
 
     lauf = job_lauf("datev_import")
     assert lauf.status == "erfolg"
-    assert lauf.kennzahlen["monate"] == ["2026-07", "2026-08"]
+    # Die Kennzahlen führen die drei Kanzlei-Quellen getrennt (Phase 5): ein Lauf, drei Dateien.
+    assert lauf.kennzahlen["kostentraeger"]["zeitraeume"] == ["2026-07", "2026-08"]
+    assert lauf.kennzahlen["susa"]["dateien"] == 0
+    assert "Noch ohne" in lauf.meldung, "die fehlende SuSa wird genannt, warnt aber nicht"
     with lese_sitzung() as sitzung:
         zeilen = list(sitzung.scalars(select(IstKosten).where(IstKosten.quelle == "datev")))
         assert sorted(z.monat for z in zeilen) == ["2026-07", "2026-08"]
@@ -151,9 +154,71 @@ def test_kaputte_datei_haelt_die_uebrigen_monate_nicht_auf(
 
     lauf = job_lauf("datev_import")
     assert lauf.status == "warnung"
-    assert lauf.kennzahlen["monate"] == ["2026-07"]
-    assert lauf.kennzahlen["uebersprungen"] == 1
+    assert lauf.kennzahlen["kostentraeger"]["zeitraeume"] == ["2026-07"]
+    assert lauf.kennzahlen["kostentraeger"]["uebersprungen"] == 1
     assert "kostentraeger_2026-08.csv" in lauf.meldung
+
+
+def test_ein_lauf_liest_alle_drei_kanzlei_quellen(
+    test_einstellungen, projekt: int, tmp_path: Path
+) -> None:
+    """Kostenträger, SuSa und OPOS liegen im selben Ordner und kommen im selben Rhythmus."""
+    ordner = tmp_path / "02_DATEV"
+    ordner.mkdir()
+    test_einstellungen.pfade.datev = ordner
+    (ordner / "kostentraeger_2026-07.csv").write_text(
+        KOPF + "\n05.07.2026;3400;Wareneingang;Module;RE-1;1.000,00;S;26001\n", encoding="utf-8"
+    )
+    (ordner / "susa_2026-07.csv").write_text(
+        "Konto;Kontobezeichnung;Saldo;Soll/Haben-Kennzeichen;Monatssaldo\n"
+        "4120;Löhne;210.000,00;S;30.000,00\n",
+        encoding="utf-8",
+    )
+    (ordner / "opos_2026-07-31.csv").write_text(
+        "Rechnungsnummer;Kunde;Rechnungsbetrag;Offener Betrag;Fälligkeit\n"
+        "RE-2026-0001;Mustermann;11.900,00;11.900,00;15.07.2026\n",
+        encoding="utf-8",
+    )
+
+    datev_job("manuell", test_einstellungen)
+
+    lauf = job_lauf("datev_import")
+    assert lauf.status == "erfolg", lauf.meldung
+    assert lauf.kennzahlen["kostentraeger"]["zeitraeume"] == ["2026-07"]
+    assert lauf.kennzahlen["susa"]["zeitraeume"] == ["2026-07"]
+    assert lauf.kennzahlen["opos"]["zeitraeume"] == ["2026-07-31"]
+    assert "Noch ohne" not in lauf.meldung
+
+    with lese_sitzung() as sitzung:
+        from app.modelle import DatevSaldo, Opos
+
+        assert sitzung.scalar(select(DatevSaldo.saldo)) == 3_000_000
+        assert sitzung.scalar(select(Opos.offen_betrag)) == 1_190_000
+
+
+def test_kaputte_susa_haelt_die_kostentraeger_nicht_auf(
+    test_einstellungen, projekt: int, tmp_path: Path
+) -> None:
+    """Jede Quelle wird für sich verarbeitet – sonst kostet ein Formatfehler alle Zahlen."""
+    ordner = tmp_path / "02_DATEV"
+    ordner.mkdir()
+    test_einstellungen.pfade.datev = ordner
+    (ordner / "kostentraeger_2026-07.csv").write_text(
+        KOPF + "\n05.07.2026;3400;Wareneingang;Module;RE-1;1.000,00;S;26001\n", encoding="utf-8"
+    )
+    (ordner / "susa_2026-07.csv").write_text(
+        "Ganz andere Spalten;ohne;alles\nx;y;z\n", encoding="utf-8"
+    )
+
+    datev_job("manuell", test_einstellungen)
+
+    lauf = job_lauf("datev_import")
+    assert lauf.status == "warnung"
+    assert lauf.kennzahlen["kostentraeger"]["zeitraeume"] == ["2026-07"]
+    assert lauf.kennzahlen["susa"]["uebersprungen"] == 1
+    assert "susa_2026-07.csv" in lauf.meldung
+    with lese_sitzung() as sitzung:
+        assert sitzung.scalars(select(IstKosten)).all(), "die Kostenträger sind trotzdem da"
 
 
 def test_kalkulationslauf_schreibt_sollwerte(
