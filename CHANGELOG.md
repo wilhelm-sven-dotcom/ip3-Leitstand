@@ -2,6 +2,78 @@
 
 Format: neueste Phase oben. Jede Phase endet lauffähig mit grüner Testsuite (PLAN §7).
 
+## 0.7.0 – Phase 6: Service, Anlagen und Fristen
+
+Was nach dem Bau kommt, hat jetzt einen Ort. Menüpunkt **Service & Anlagen**, sichtbar mit
+`anlagen.lesen`.
+
+### Aus dem Projekt wird eine Anlage (PLAN §6.9)
+
+Wechselt ein Projekt auf `abgeschlossen`, entsteht daraus ein Anlagen-Datensatz mit
+Gewährleistungsfrist. Drei Festlegungen tragen das:
+
+* **Die Dauer hängt an der Vertragsart.** VOB/B vier Jahre, BGB fünf (§ 634a Abs. 1 Nr. 2 BGB,
+  § 13 Abs. 4 VOB/B). Vorbelegt wird nach Kundentyp – gegenüber Verbrauchern gilt ohnehin BGB,
+  weil VOB/B dort nur wirksam wird, wenn sie im Ganzen vereinbart ist. Die Vorbelegung steht in
+  der `config.toml`, nicht im Code; beim Abschluss ist die Wahl änderbar, und eine nachgereichte
+  Vertragsart rechnet die Frist neu.
+* **Gerechnet wird ab Abnahme**, nicht ab Inbetriebnahme oder Rechnungsdatum (§ 634a Abs. 2 BGB).
+  Fehlt das Abnahmedatum, entsteht die Anlage trotzdem – ohne Frist und mit einem Hinweis, was
+  nachzutragen ist. Ein erfundenes Datum wäre schlimmer als eine fehlende Überwachung.
+* **Eine zweite Anlage entsteht nie.** Ein Projekt, das erneut auf `abgeschlossen` wechselt,
+  aktualisiert die vorhandene.
+
+### Der Fristenwächter
+
+Drei Zustände – überfällig, läuft ab, offen –, gemessen am **eigenen Vorlauf jeder Frist**: die
+Gewährleistung meldet sich drei Monate vorher, eine MaStR-Registrierung nach zwei Wochen. Ein
+gemeinsamer Vorlauf würde entweder zu früh lärmen oder zu spät warnen.
+
+Der nächtliche Lauf leitet die Frist zur Registrierung im Marktstammdatenregister aus dem
+Inbetriebnahmedatum ab (§ 5 Abs. 1 MaStRV: binnen eines Monats) und hakt sie ab, sobald die
+Nummer im Anlagenregister steht – **erfüllt, nicht verfallen**. Eine von Hand geschlossene Frist
+macht er nie wieder auf. Er rechnet bei jedem Lauf denselben Stand aus und darf deshalb beliebig
+oft laufen.
+
+**Kein Mailversand.** PLAN §7 erwähnt einen optionalen täglichen E-Mail-Digest; PLAN §12 und
+CLAUDE.md schließen automatischen Mailversand aus. Der Widerspruch ist zugunsten des Verbots
+aufgelöst: die Fristen stehen auf der Startseite und in der Fristenliste.
+
+Der Zeitplan startet seither **immer**. Bis Phase 5 blieb er aus, wenn kein Import eingerichtet
+war – der Fristenwächter braucht weder Ordner noch Zugangsdaten, und eine Gewährleistung, die
+abläuft, weil die Kanzleiordner noch fehlen, wäre absurd.
+
+### Register, Fristen und Serviceaufträge
+
+* **`/api/anlagen`** – Register mit Suche über Standort, Kunde und MaStR-Nummer, Filter „nur ohne
+  Wartungsvertrag" (die Liste, aus der Servicegeschäft entsteht, PLAN §7). Das Anlagenblatt führt
+  Kennwerte, Fristen und Servicehistorie zusammen und ist zugleich die Pflegemaske. Wird die
+  MaStR-Nummer dort nachgetragen, ist die Registrierungsfrist im selben Zug erledigt – sonst
+  bliebe sie bis zur Nacht rot und wäre für den Erfasser unerklärlich.
+* **`/api/fristen`** – die vollständige Liste und, mit `nur_anstehende`, das Startseiten-Widget.
+  Gezählt wird immer über die ungekürzte Liste: „3 überfällig" darf nicht davon abhängen, wie
+  viele Zeilen ins Widget passen. Fristen werden **erledigt, nicht gelöscht** (CLAUDE.md Regel 5)
+  – eine abgehakte Frist ist der Beleg, dass jemand hingesehen hat.
+* **Serviceaufträge** sind Projekte mit `typ='service'` und Bezug auf eine Anlage; ihre Positionen
+  entstehen von Hand über den Zahlungsplan (kein Artikelstamm-Import). Ein Bauprojekt darf sich
+  **nicht** auf eine Anlage beziehen: es erzeugt sie beim Abschluss, und zwei Wahrheiten
+  nebeneinander würden die Servicehistorie aus Bau und Wartung mischen. Der Bezug ist freiwillig –
+  nicht jeder Einsatz führt zu einer Anlage im Register.
+
+Gelesen wird mit `anlagen.lesen`, geschrieben mit `anlagen.schreiben`. Das Team sieht das
+Register, ändert es aber nicht: dort stehen Zusagen mit Rechtsfolge, kein Notizbuch.
+
+### Was der Abnahmelauf zutage brachte
+
+Zwei Fehler im eigenen Code, beide behoben. Alle Fristen trugen zunächst dieselbe rote Marke –
+eine Gewährleistung „in rund 4 Jahren" sah aus wie eine versäumte MaStR-Registrierung; sichtbar
+erst auf dem gerenderten Bild. Und `geaenderte_felder` stürzte bei Ja/Nein-Feldern ab, weil `bool`
+in Python eine Ganzzahl ist, `Decimal("False")` aber ein Fehler: der Wartungsvertrag war das erste
+solche Feld im Leitstand.
+
+Keine Migration nötig – Tabellen, Rechte und Job standen seit `0001_grundschema` bereit.
+Nachgezogen wurden `[gewaehrleistung]` und `[fristen]` in der Konfiguration.
+
 ## 0.6.0 – Phase 5: Firmen-Cockpit
 
 Der Leitstand rechnet jetzt auch auf Firmenebene. Menüpunkt **Firmen-Cockpit**, sichtbar mit

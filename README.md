@@ -25,18 +25,19 @@ Alle Daten bleiben lokal beziehungsweise im Firmen-OneDrive.
 
 ## Stand
 
-**Phase 5 – Firmen-Cockpit.** Der Leitstand rechnet jetzt auch auf Firmenebene: Umsatz minus
-variable Kosten ergibt den Deckungsbeitrag, minus Fixkosten die Über- oder Unterdeckung, kumuliert
-über das Jahr. Dazu Break-even-Monatsumsatz, die Reichweite des Auftragsbestands und ein
-Umschalter zwischen gestelltem und bezahltem Umsatz. Die Fixkosten kommen aus der Summen- und
-Saldenliste der Kanzlei, für Zukunftsmonate aus der eigenen Planung; der Zahlungsstatus
-ausschließlich aus der Liste offener Posten. Ausdrücklich eine Steuerungssicht, keine
-handelsrechtliche BWA.
+**Phase 6 – Service, Anlagen und Fristen.** Was nach dem Bau kommt, hat jetzt einen Ort. Wechselt
+ein Projekt auf „abgeschlossen", entsteht daraus eine Anlage samt Gewährleistungsfrist: vier Jahre
+nach VOB, fünf nach BGB, gerechnet ab der Abnahme. Der Fristenwächter leitet die Frist zur
+MaStR-Registrierung aus dem Inbetriebnahmedatum ab und hakt sie ab, sobald die Nummer im Register
+steht; was überfällig ist oder demnächst abläuft, steht auf der Startseite. Verschickt wird
+nichts. Dazu das Anlagenregister mit Servicehistorie, die Liste der Anlagen ohne Wartungsvertrag
+und Serviceaufträge als eigener Projekttyp.
 
 Davor gebaut: Phase 1 (Übernahme der Bestandsdaten, Projekte, Termine, Zahlungsplan), Phase 2
 (Umsatz und Forecast), Phase 3 (Fakturierung bis zur festgeschriebenen Schlussrechnung mit
-E-Rechnung) und Phase 4 (Ist-Kosten aus DATEV, TimeTac und Stückliste, Nachkalkulation je
-Projekt). Einzelheiten im [CHANGELOG](CHANGELOG.md).
+E-Rechnung), Phase 4 (Ist-Kosten aus DATEV, TimeTac und Stückliste, Nachkalkulation je Projekt)
+und Phase 5 (Firmen-Cockpit mit Deckungsbeitrag, Fixkostenblock, Break-even und Zahlungslage).
+Einzelheiten im [CHANGELOG](CHANGELOG.md).
 
 ## Schnellstart für die Entwicklung
 

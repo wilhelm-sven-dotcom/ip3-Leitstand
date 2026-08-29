@@ -98,6 +98,53 @@ Die Steuernummer bleibt wünschenswert, ist aber keine Voraussetzung.
     Warnung zu melden, gewöhnt alle daran, den Systemstatus zu übergehen. Dass Zahlen fehlen,
     sagt das Cockpit dort, wo sie fehlen.
 
+## Entschieden für Phase 6 (29.08.2026)
+
+32. **Gewährleistung nach Kundentyp vorbelegt.** Gewerbekunden (`b2b`) VOB mit vier Jahren,
+    Privatkunden (`b2c`) BGB mit fünf – gegenüber Verbrauchern gilt ohnehin BGB, weil VOB/B
+    dort nur wirksam wird, wenn sie im Ganzen vereinbart ist. Die Vorbelegung steht in der
+    `config.toml` unter `[gewaehrleistung] vorbelegung`, nicht im Code; beim Projektabschluss
+    ist die Wahl änderbar, und eine nachgereichte Vertragsart rechnet die Frist neu.
+33. **Servicepositionen erst mal nur von Hand.** Kein Artikelstamm-Import (PLAN §7 nennt ihn als
+    Möglichkeit). Positionen entstehen über den Zahlungsplan des Serviceauftrags.
+34. **Fristen nur auf der Startseite, kein Mailversand.** PLAN §7 erwähnt einen „optionalen
+    täglichen E-Mail-Digest"; PLAN §12 und CLAUDE.md schließen automatischen Mailversand aus.
+    Der Widerspruch ist zugunsten des Verbots aufgelöst. Eine Erinnerung, die im Postfach
+    untergeht, ist ohnehin keine.
+
+**Von mir entschieden (technisch, im Code kommentiert), zur Kenntnis:**
+
+35. **Ohne Abnahmedatum entsteht die Anlage trotzdem** – ohne Gewährleistungsfrist und mit einem
+    Hinweis, was nachzutragen ist. Ein erfundenes Datum wäre schlimmer als eine fehlende
+    Überwachung.
+36. **Jede Frist trägt ihren eigenen Vorlauf.** Gewährleistung 90 Tage (PLAN §6.9), MaStR die
+    halbe Laufzeit. Ein gemeinsamer Vorlauf würde entweder zu früh lärmen oder zu spät warnen.
+37. **Der nächtliche Lauf hakt erfüllte Fristen ab, macht aber nie eine wieder auf.** Steht die
+    MaStR-Nummer im Register, gilt die Registrierung als erfüllt, nicht als verfallen. Wer eine
+    Frist von Hand abgehakt hat, hat es getan.
+38. **Ein Bauprojekt kann sich nicht auf eine Anlage beziehen**, nur ein Serviceauftrag. Das
+    Bauprojekt *erzeugt* die Anlage beim Abschluss; zwei Wahrheiten nebeneinander würden die
+    Servicehistorie aus Bau und Wartung mischen.
+39. **Der Zeitplan startet jetzt immer.** Bis Phase 5 blieb er aus, wenn kein Import eingerichtet
+    war; der Fristenwächter braucht weder Ordner noch Zugangsdaten.
+
+## Was der Phase-6-Abnahmelauf zutage brachte
+
+**Zwei Fehler im eigenen Code, behoben:**
+
+| Was | Warum es zählt |
+|---|---|
+| Alle Fristen trugen dieselbe rote Marke – eine Gewährleistung „in rund 4 Jahren" sah aus wie eine versäumte MaStR-Registrierung. Erst auf dem gerenderten Bild zu sehen. | Wenn alles dringend aussieht, ist nichts mehr dringend. Gefülltes Akzent-Rot jetzt nur für Überfälliges, roter Rand im Vorlauf, sonst ip³ Blau. |
+| `geaenderte_felder` stürzte bei Ja/Nein-Feldern ab (`bool` ist in Python eine Ganzzahl, `Decimal("False")` aber ein Fehler). | Der Wartungsvertrag war das erste solche Feld im Leitstand – Speichern erzeugte einen Serverfehler statt einer Meldung. |
+
+**Für Sven, bevor Service in Betrieb geht:**
+
+| Was | Warum |
+|---|---|
+| **Vertragsart je Kundentyp bestätigen** (Entscheidung 32) | Vier oder fünf Jahre Gewährleistung sind ein Unterschied von einem Jahr Haftung. Falls ip³ auch gegenüber Privatkunden regelmäßig VOB/B vereinbart, gehört das in die `config.toml`. |
+| **Anlagen aus dem Altbestand erfassen** | Der Leitstand kennt nur, was er selbst abgeschlossen hat. Ältere Anlagen sind über „Service & Anlagen" von Hand anzulegen – sonst fehlen ihre Gewährleistungs- und Wartungsfristen. |
+| **`anlagen.schreiben` hat zurzeit nur `admin`** | PLAN §4 nennt für `buchhaltung` weder Anlagen noch Fristen. Damit kann nur die Geschäftsführung eine Frist abhaken. Soll die Buchhaltung das Register pflegen, ist das eine Änderung an der Rollentabelle in PLAN §4. |
+
 ## Was der Phase-5-Abnahmelauf zutage brachte
 
 **Drei Fehler im eigenen Code, alle erst auf der gerenderten Seite sichtbar, behoben:**

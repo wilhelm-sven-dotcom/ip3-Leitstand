@@ -190,6 +190,22 @@ aufgabe = ["Aufgabe", "Task", "Taetigkeit", "Tätigkeit"]
 # (Phase 4). Eine Einschaetzung, keine Rechengroesse -- die Marge selbst beruehrt das nicht.
 ampel_gelb_promille = 50
 
+[gewaehrleistung]
+# Vertragsart je Kundentyp, die beim Projektabschluss vorgeschlagen wird (Phase 6, PLAN §6.9).
+# Erlaubt sind nur "vob" (vier Jahre) und "bgb" (fünf Jahre). Gegenüber Verbrauchern gilt in
+# aller Regel BGB, weil VOB/B dort nur wirksam wird, wenn sie im Ganzen vereinbart ist.
+# Es ist eine Vorbelegung, keine Festlegung: beim Abschluss laesst sich die Art aendern.
+vorbelegung = { b2b = "vob", b2c = "bgb" }
+# Wie lange vor Ablauf die Gewaehrleistungsfrist auf der Startseite erscheint (PLAN §6.9).
+vorlauf_tage = 90
+
+[fristen]
+# Vorlauf fuer Fristen, die keinen eigenen mitbringen.
+vorlauf_tage = 30
+# Frist zur Registrierung im Marktstammdatenregister nach Inbetriebnahme:
+# § 5 Abs. 1 MaStRV verlangt sie binnen eines Monats.
+mastr_tage = 30
+
 [jobs]
 # Nächtliche Läufe in Ortszeit (Europe/Berlin).
 backup_uhrzeit = "01:30"
