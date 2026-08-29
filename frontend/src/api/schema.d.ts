@@ -331,6 +331,112 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/kostenpflege/fixkosten": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Geplante Fixkosten */
+        get: operations["fixkostenPlan"];
+        put?: never;
+        /** Fixkosten-Planwert anlegen */
+        post: operations["fixkostenPlanAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kostenpflege/fixkosten/{monat}/vormonat-uebernehmen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Planwerte aus dem Vormonat übernehmen
+         * @description Die Planwerte des Vormonats in diesen Monat kopieren.
+         *
+         *     Fixkosten ändern sich selten – ein Jahr von Hand einzutragen wäre zwölfmal dieselbe Arbeit.
+         *     Schon vorhandene Blöcke werden **nicht** überschrieben: wer einen Wert bewusst angepasst
+         *     hat, soll ihn nicht durch einen Klick verlieren.
+         */
+        post: operations["fixkostenPlanVormonat"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kostenpflege/fixkosten/{plan_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Fixkosten-Planwert ändern */
+        put: operations["fixkostenPlanAendern"];
+        post?: never;
+        /** Fixkosten-Planwert entfernen */
+        delete: operations["fixkostenPlanEntfernen"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kostenpflege/konten": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Zuordnung der Kontenbereiche zu Kostenblöcken */
+        get: operations["kontenBereiche"];
+        put?: never;
+        /**
+         * Kontenbereich zuordnen
+         * @description Neuen Bereich anlegen und die vorhandenen Salden neu zuordnen.
+         */
+        post: operations["kontenBereichAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kostenpflege/konten/{bereich_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Kontenbereich ändern */
+        put: operations["kontenBereichAendern"];
+        post?: never;
+        /**
+         * Kontenzuordnung entfernen
+         * @description Zuordnung löschen. Die betroffenen Konten fallen auf „ohne Block" zurück.
+         *
+         *     Anders als bei Belegen und Stammdaten ist Löschen hier richtig (CLAUDE.md Regel 5 meint
+         *     Datensätze mit Bezügen): eine Zuordnung ist eine Einstellung, kein Geschäftsvorfall. Die
+         *     Salden bleiben stehen und erscheinen wieder auf der Pflegeliste.
+         */
+        delete: operations["kontenBereichEntfernen"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/kunden": {
         parameters: {
             query?: never;
@@ -1366,6 +1472,39 @@ export interface components {
             /** Zahlbetrag */
             zahlbetrag: number;
         };
+        /** BereichAendern */
+        BereichAendern: {
+            /** Block */
+            block: string;
+            /** Konto Bis */
+            konto_bis: string;
+            /** Konto Von */
+            konto_von: string;
+            /** Stand */
+            stand?: string | null;
+        };
+        /** BereichAntwort */
+        BereichAntwort: {
+            /** Block */
+            block: string;
+            /** Id */
+            id: number;
+            /** Konto Bis */
+            konto_bis: string;
+            /** Konto Von */
+            konto_von: string;
+            /** Stand */
+            stand: string | null;
+        };
+        /** BereichEingabe */
+        BereichEingabe: {
+            /** Block */
+            block: string;
+            /** Konto Bis */
+            konto_bis: string;
+            /** Konto Von */
+            konto_von: string;
+        };
         /** BewertungAntwort */
         BewertungAntwort: {
             /** Betrag Cent */
@@ -1919,6 +2058,44 @@ export interface components {
             /** Neues Passwort */
             neues_passwort: string;
         };
+        /** PlanAendern */
+        PlanAendern: {
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Betrag */
+            betrag: number;
+            /** Stand */
+            stand?: string | null;
+        };
+        /** PlanAntwort */
+        PlanAntwort: {
+            /** Bemerkung */
+            bemerkung: string | null;
+            /** Betrag */
+            betrag: number;
+            /** Block */
+            block: string;
+            /** Id */
+            id: number;
+            /** Monat */
+            monat: string;
+            /** Stand */
+            stand: string | null;
+        };
+        /** PlanEingabe */
+        PlanEingabe: {
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /**
+             * Betrag
+             * @description Geplanter Monatsbetrag in Cent
+             */
+            betrag: number;
+            /** Block */
+            block: string;
+            /** Monat */
+            monat: string;
+        };
         /** PositionAendern */
         PositionAendern: {
             /**
@@ -2295,6 +2472,17 @@ export interface components {
             naechster_lauf?: string | null;
             /** Zeitplan Laeuft */
             zeitplan_laeuft: boolean;
+        };
+        /** UebernahmeErgebnis */
+        UebernahmeErgebnis: {
+            /** Monat */
+            monat: string;
+            /** Quelle Monat */
+            quelle_monat: string;
+            /** Uebernommen */
+            uebernommen: number;
+            /** Uebersprungen */
+            uebersprungen: number;
         };
         /** UebersichtAntwort */
         UebersichtAntwort: {
@@ -3622,6 +3810,430 @@ export interface operations {
                 content?: never;
             };
             /** @description TimeTac nicht erreichbar oder nicht eingerichtet */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fixkostenPlan: {
+        parameters: {
+            query?: {
+                /** @description Nur diesen Monat 'JJJJ-MM' */
+                monat?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanAntwort"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fixkostenPlanAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung admin.konfiguration fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fixkostenPlanVormonat: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                monat: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UebernahmeErgebnis"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung admin.konfiguration fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fixkostenPlanAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung admin.konfiguration fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fixkostenPlanEntfernen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung admin.konfiguration fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kontenBereiche: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BereichAntwort"][];
+                };
+            };
+        };
+    };
+    kontenBereichAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BereichEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BereichAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung admin.konfiguration fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kontenBereichAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bereich_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BereichAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BereichAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung admin.konfiguration fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kontenBereichEntfernen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bereich_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung admin.konfiguration fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
             409: {
                 headers: {
                     [name: string]: unknown;

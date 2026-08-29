@@ -727,6 +727,113 @@
         "title": "BelegAntwort",
         "type": "object"
       },
+      "BereichAendern": {
+        "properties": {
+          "block": {
+            "title": "Block",
+            "type": "string"
+          },
+          "konto_bis": {
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Konto Bis",
+            "type": "string"
+          },
+          "konto_von": {
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Konto Von",
+            "type": "string"
+          },
+          "stand": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stand"
+          }
+        },
+        "required": [
+          "konto_von",
+          "konto_bis",
+          "block"
+        ],
+        "title": "BereichAendern",
+        "type": "object"
+      },
+      "BereichAntwort": {
+        "properties": {
+          "block": {
+            "title": "Block",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "konto_bis": {
+            "title": "Konto Bis",
+            "type": "string"
+          },
+          "konto_von": {
+            "title": "Konto Von",
+            "type": "string"
+          },
+          "stand": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stand"
+          }
+        },
+        "required": [
+          "id",
+          "konto_von",
+          "konto_bis",
+          "block",
+          "stand"
+        ],
+        "title": "BereichAntwort",
+        "type": "object"
+      },
+      "BereichEingabe": {
+        "properties": {
+          "block": {
+            "title": "Block",
+            "type": "string"
+          },
+          "konto_bis": {
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Konto Bis",
+            "type": "string"
+          },
+          "konto_von": {
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Konto Von",
+            "type": "string"
+          }
+        },
+        "required": [
+          "konto_von",
+          "konto_bis",
+          "block"
+        ],
+        "title": "BereichEingabe",
+        "type": "object"
+      },
       "BewertungAntwort": {
         "properties": {
           "betrag_cent": {
@@ -2511,6 +2618,132 @@
         "title": "PasswortDaten",
         "type": "object"
       },
+      "PlanAendern": {
+        "properties": {
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "betrag": {
+            "minimum": 0.0,
+            "title": "Betrag",
+            "type": "integer"
+          },
+          "stand": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stand"
+          }
+        },
+        "required": [
+          "betrag"
+        ],
+        "title": "PlanAendern",
+        "type": "object"
+      },
+      "PlanAntwort": {
+        "properties": {
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "betrag": {
+            "title": "Betrag",
+            "type": "integer"
+          },
+          "block": {
+            "title": "Block",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "stand": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stand"
+          }
+        },
+        "required": [
+          "id",
+          "monat",
+          "block",
+          "betrag",
+          "bemerkung",
+          "stand"
+        ],
+        "title": "PlanAntwort",
+        "type": "object"
+      },
+      "PlanEingabe": {
+        "properties": {
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "betrag": {
+            "description": "Geplanter Monatsbetrag in Cent",
+            "minimum": 0.0,
+            "title": "Betrag",
+            "type": "integer"
+          },
+          "block": {
+            "title": "Block",
+            "type": "string"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          }
+        },
+        "required": [
+          "monat",
+          "block",
+          "betrag"
+        ],
+        "title": "PlanEingabe",
+        "type": "object"
+      },
       "PositionAendern": {
         "properties": {
           "art": {
@@ -3875,6 +4108,34 @@
           "zeitplan_laeuft"
         ],
         "title": "Systemstatus",
+        "type": "object"
+      },
+      "UebernahmeErgebnis": {
+        "properties": {
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "quelle_monat": {
+            "title": "Quelle Monat",
+            "type": "string"
+          },
+          "uebernommen": {
+            "title": "Uebernommen",
+            "type": "integer"
+          },
+          "uebersprungen": {
+            "title": "Uebersprungen",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "monat",
+          "quelle_monat",
+          "uebernommen",
+          "uebersprungen"
+        ],
+        "title": "UebernahmeErgebnis",
         "type": "object"
       },
       "UebersichtAntwort": {
@@ -6635,6 +6896,442 @@
         "summary": "Stunden aus TimeTac holen und übernehmen",
         "tags": [
           "Importe"
+        ]
+      }
+    },
+    "/api/kostenpflege/fixkosten": {
+      "get": {
+        "operationId": "fixkostenPlan",
+        "parameters": [
+          {
+            "description": "Nur diesen Monat 'JJJJ-MM'",
+            "in": "query",
+            "name": "monat",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Nur diesen Monat 'JJJJ-MM'",
+              "title": "Monat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PlanAntwort"
+                  },
+                  "title": "Response Fixkostenplan",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Geplante Fixkosten",
+        "tags": [
+          "Kostenpflege"
+        ]
+      },
+      "post": {
+        "operationId": "fixkostenPlanAnlegen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung admin.konfiguration fehlt"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fixkosten-Planwert anlegen",
+        "tags": [
+          "Kostenpflege"
+        ]
+      }
+    },
+    "/api/kostenpflege/fixkosten/{monat}/vormonat-uebernehmen": {
+      "post": {
+        "description": "Die Planwerte des Vormonats in diesen Monat kopieren.\n\nFixkosten ändern sich selten – ein Jahr von Hand einzutragen wäre zwölfmal dieselbe Arbeit.\nSchon vorhandene Blöcke werden **nicht** überschrieben: wer einen Wert bewusst angepasst\nhat, soll ihn nicht durch einen Klick verlieren.",
+        "operationId": "fixkostenPlanVormonat",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "monat",
+            "required": true,
+            "schema": {
+              "title": "Monat",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UebernahmeErgebnis"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung admin.konfiguration fehlt"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Planwerte aus dem Vormonat übernehmen",
+        "tags": [
+          "Kostenpflege"
+        ]
+      }
+    },
+    "/api/kostenpflege/fixkosten/{plan_id}": {
+      "delete": {
+        "operationId": "fixkostenPlanEntfernen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plan_id",
+            "required": true,
+            "schema": {
+              "title": "Plan Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung admin.konfiguration fehlt"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fixkosten-Planwert entfernen",
+        "tags": [
+          "Kostenpflege"
+        ]
+      },
+      "put": {
+        "operationId": "fixkostenPlanAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plan_id",
+            "required": true,
+            "schema": {
+              "title": "Plan Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung admin.konfiguration fehlt"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fixkosten-Planwert ändern",
+        "tags": [
+          "Kostenpflege"
+        ]
+      }
+    },
+    "/api/kostenpflege/konten": {
+      "get": {
+        "operationId": "kontenBereiche",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BereichAntwort"
+                  },
+                  "title": "Response Kontenbereiche",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Zuordnung der Kontenbereiche zu Kostenblöcken",
+        "tags": [
+          "Kostenpflege"
+        ]
+      },
+      "post": {
+        "description": "Neuen Bereich anlegen und die vorhandenen Salden neu zuordnen.",
+        "operationId": "kontenBereichAnlegen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BereichEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BereichAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung admin.konfiguration fehlt"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Kontenbereich zuordnen",
+        "tags": [
+          "Kostenpflege"
+        ]
+      }
+    },
+    "/api/kostenpflege/konten/{bereich_id}": {
+      "delete": {
+        "description": "Zuordnung löschen. Die betroffenen Konten fallen auf „ohne Block\" zurück.\n\nAnders als bei Belegen und Stammdaten ist Löschen hier richtig (CLAUDE.md Regel 5 meint\nDatensätze mit Bezügen): eine Zuordnung ist eine Einstellung, kein Geschäftsvorfall. Die\nSalden bleiben stehen und erscheinen wieder auf der Pflegeliste.",
+        "operationId": "kontenBereichEntfernen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "bereich_id",
+            "required": true,
+            "schema": {
+              "title": "Bereich Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung admin.konfiguration fehlt"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Kontenzuordnung entfernen",
+        "tags": [
+          "Kostenpflege"
+        ]
+      },
+      "put": {
+        "operationId": "kontenBereichAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "bereich_id",
+            "required": true,
+            "schema": {
+              "title": "Bereich Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BereichAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BereichAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung admin.konfiguration fehlt"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Kontenbereich ändern",
+        "tags": [
+          "Kostenpflege"
         ]
       }
     },
