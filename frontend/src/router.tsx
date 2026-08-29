@@ -27,6 +27,7 @@ import { RechnungDetail } from "@/seiten/rechnungen/RechnungDetail";
 import { Cockpit } from "@/seiten/cockpit/Cockpit";
 import { Nachkalkulation } from "@/seiten/nachkalkulation/Nachkalkulation";
 import { Umsatz } from "@/seiten/umsatz/Umsatz";
+import { Anlagen } from "@/seiten/service/Anlagen";
 import { useSitzung } from "@/sitzung/SitzungKontext";
 
 function Ladeflaeche() {
@@ -171,6 +172,15 @@ export function AppRouten() {
         element={
           <GeschuetzteRoute>
             <Umsatz />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/service"
+        element={
+          <GeschuetzteRoute>
+            <Anlagen />
           </GeschuetzteRoute>
         }
       />

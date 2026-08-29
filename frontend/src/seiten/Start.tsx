@@ -22,6 +22,7 @@ import { EmptyState } from "@/komponenten/EmptyState";
 import { Knopf } from "@/komponenten/Knopf";
 import { Meldung } from "@/komponenten/Meldung";
 import { Datenstand } from "@/seiten/Datenstand";
+import { FristenWidget } from "@/seiten/service/FristenWidget";
 import { meilensteinText } from "@/seiten/projekte/begriffe";
 import { useSitzung } from "@/sitzung/SitzungKontext";
 import { api, fehlerAuslesen } from "@/api/client";
@@ -153,12 +154,14 @@ export function Start() {
             titel="Noch keine Vorgänge."
             text={
               "Ein Rechnungsvorschlag erscheint, sobald eine Zahlungsplanposition einen " +
-              "Auslöser trägt und der zugehörige Meilenstein erledigt ist. Fristen und " +
-              "überfällige Beträge folgen mit den Phasen 4 und 6."
+              "Auslöser trägt und der zugehörige Meilenstein erledigt ist. Anstehende " +
+              "Fristen stehen darunter."
             }
           />
         )}
       </section>
+
+      <FristenWidget />
 
       {darf("systemstatus.lesen") ? (
         <Datenstand

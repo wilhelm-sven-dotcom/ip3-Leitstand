@@ -1,0 +1,148 @@
+/* Anlagenregister, Fristen und Serviceaufträge (PLAN §7 Phase 6).
+ *
+ * Farben ausschließlich aus den Tokens (PLAN §11). Überfälliges trägt Akzent-Rot – der einzige
+ * Akzent, den das Corporate Design kennt; Anstehendes bleibt blau. Kein Grün für „erledigt“:
+ * die Ampel gibt es hier bewusst nicht.
+ */
+
+/* --- Fristen-Widget auf der Startseite --------------------------------- */
+
+.fristen__kopf {
+  display: flex;
+  align-items: baseline;
+  gap: var(--abstand-3);
+  margin-bottom: var(--abstand-3);
+}
+
+.fristen__zusatz {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-s);
+  color: var(--akzent-rot);
+}
+
+.fristen {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  background: var(--weiss);
+}
+
+.fristen__zeile {
+  display: flex;
+  align-items: center;
+  gap: var(--abstand-4);
+  padding: var(--abstand-3) var(--abstand-4);
+  border-bottom: 1px solid var(--linie);
+}
+
+.fristen__zeile:last-child {
+  border-bottom: none;
+}
+
+/* Feste Breite, damit die Texte darunter auf einer Kante beginnen – bei gemischten
+   Badge-Längen sonst ein Flattersatz. */
+.fristen__marke {
+  flex: none;
+  width: 170px;
+}
+
+.fristen__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.fristen__titel {
+  font-size: var(--text-m);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.fristen__meta {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  margin-top: 2px;
+}
+
+.fristen__mehr {
+  margin-top: var(--abstand-3);
+  font-size: var(--text-s);
+}
+
+.fristen__mehr a {
+  color: var(--ip3-blau);
+}
+
+/* --- Anlagenblatt im Seitenpanel --------------------------------------- */
+
+.anlagenblatt__abschnitt {
+  margin-top: var(--abstand-5);
+}
+
+.anlagenblatt__abschnitt:first-child {
+  margin-top: 0;
+}
+
+.anlagenblatt__ueberschrift {
+  font-size: var(--text-s);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ip3-blau);
+  margin: 0 0 var(--abstand-2);
+}
+
+.anlagenblatt__liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.anlagenblatt__eintrag {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--abstand-3);
+  padding: var(--abstand-2) 0;
+  border-bottom: 1px solid var(--linie);
+  font-size: var(--text-m);
+}
+
+.anlagenblatt__eintrag:last-child {
+  border-bottom: none;
+}
+
+.anlagenblatt__eintrag--erledigt {
+  color: var(--text-sekundaer);
+}
+
+.anlagenblatt__wann {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  white-space: nowrap;
+}
+
+.anlagenblatt__kennwert {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--abstand-3);
+  padding: var(--abstand-2) 0;
+  font-size: var(--text-m);
+  border-bottom: 1px solid var(--linie);
+}
+
+.anlagenblatt__kennwert dt {
+  color: var(--text-sekundaer);
+  margin: 0;
+}
+
+.anlagenblatt__kennwert dd {
+  margin: 0;
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}

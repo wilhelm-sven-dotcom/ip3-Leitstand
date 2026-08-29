@@ -25,7 +25,7 @@ type Menuepunkt = {
   abPhase?: number;
 };
 
-const AKTUELLE_PHASE = 5;
+const AKTUELLE_PHASE = 6;
 
 export const MENUE: Menuepunkt[] = [
   { pfad: "/", beschriftung: "Start" },
