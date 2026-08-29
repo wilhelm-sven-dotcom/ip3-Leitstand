@@ -96,7 +96,14 @@ class CsvDatei:
     zeichensatz: str
     trennzeichen: str
     spaltenkoepfe: list[str]
+    # Felder des Leitstands, die im Kopf tatsächlich gefunden wurden. Nicht dasselbe wie die
+    # Schlüssel einer Zeile abzufragen: eine Datei ohne Datenzeilen hätte sonst gar keine
+    # Auskunft, und ein optionales Feld ließe sich nicht von einem leeren unterscheiden.
+    felder: list[str] = field(default_factory=list)
     zeilen: list[Zeile] = field(default_factory=list)
+
+    def hat(self, feld: str) -> bool:
+        return feld in self.felder
 
 
 def lesen(pfad: Path, zuordnung: dict[str, list[str]], *, pflicht: tuple[str, ...]) -> CsvDatei:
@@ -124,6 +131,7 @@ def lesen(pfad: Path, zuordnung: dict[str, list[str]], *, pflicht: tuple[str, ..
         zeichensatz=zeichensatz,
         trennzeichen=trennzeichen,
         spaltenkoepfe=kopf,
+        felder=sorted(spalten),
     )
     for nummer, rohzeile in enumerate(zeilen[1:], start=2):
         if not any(zelle.strip() for zelle in rohzeile):

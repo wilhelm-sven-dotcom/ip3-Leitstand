@@ -21,7 +21,7 @@ from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from app.importe.befunde import Befund, als_liste, laufstatus
-from app.modelle import Importlauf, IstKosten
+from app.modelle import DatevSaldo, Importlauf, IstKosten
 from app.zeit import jetzt_utc
 
 
@@ -90,4 +90,16 @@ def zeitraum_leeren(sitzung: Session, *, quelle: str, monat: str) -> int:
     ergebnis = sitzung.execute(
         delete(IstKosten).where(IstKosten.quelle == quelle, IstKosten.monat == monat)
     )
+    return int(ergebnis.rowcount or 0)
+
+
+def salden_leeren(sitzung: Session, *, monat: str) -> int:
+    """Salden der Summen- und Saldenliste eines Monats löschen. Gibt die Anzahl zurück.
+
+    Eigene Funktion statt eines Tabellenparameters an :func:`zeitraum_leeren`: die drei Importe
+    räumen unterschiedliche Tabellen nach unterschiedlichen Merkmalen ab (Ist-Kosten je Quelle
+    und Monat, Salden je Monat, offene Posten je Stichtag). Eine gemeinsame Funktion müsste das
+    verzweigen und wäre an jeder Aufrufstelle schwerer zu lesen als drei kurze.
+    """
+    ergebnis = sitzung.execute(delete(DatevSaldo).where(DatevSaldo.monat == monat))
     return int(ergebnis.rowcount or 0)

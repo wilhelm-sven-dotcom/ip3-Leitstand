@@ -279,8 +279,48 @@ class KostentraegerEinstellungen(BaseModel):
         return any(von <= nummer <= bis for von, bis in self.bereiche())
 
 
+class SusaEinstellungen(BaseModel):
+    """Die Summen- und Saldenliste für den Fixkostenblock (PLAN §8, Phase 5).
+
+    Spaltennamen wie beim Kostenträgerimport aus der Konfiguration, nicht aus dem Code: sie
+    weichen je Kanzlei-Export ab.
+    """
+
+    spalten: dict[str, list[str]] = Field(
+        default_factory=lambda: {
+            "konto": ["Konto", "Sachkonto", "Kontonummer"],
+            "bezeichnung": ["Kontobezeichnung", "Kontenbeschriftung", "Bezeichnung"],
+            "saldo": ["Saldo", "Endsaldo", "Saldo kumuliert", "Betrag"],
+            "soll_haben": ["Soll/Haben-Kennzeichen", "S/H", "SH", "Soll/Haben"],
+            "monatssaldo": ["Monatssaldo", "Periodensaldo", "Bewegung", "Umsatz Periode"],
+        }
+    )
+
+    # Eine SuSa führt die Salden oft kumuliert seit Jahresbeginn *und* je Periode. Für den
+    # Monatsausweis zählt die Periode; steht sie nicht in der Datei, wird der Saldo genommen
+    # und im Protokoll vermerkt, damit niemand kumulierte Werte für Monatswerte hält.
+    monatssaldo_bevorzugen: bool = True
+
+
+class OposEinstellungen(BaseModel):
+    """Offene Posten der Debitoren (PLAN §8, §6.7)."""
+
+    spalten: dict[str, list[str]] = Field(
+        default_factory=lambda: {
+            "rechnung_nr": ["Rechnungsnummer", "Beleg", "Belegfeld 1", "Belegnummer"],
+            "kunde": ["Kunde", "Debitor", "Name", "Kontobezeichnung"],
+            "betrag": ["Rechnungsbetrag", "Betrag", "Umsatz", "Bruttobetrag"],
+            "offen_betrag": ["Offener Betrag", "Offen", "Restbetrag", "Saldo"],
+            "faellig_am": ["Fälligkeit", "Faelligkeit", "Fällig am", "Faellig am", "Nettofällig"],
+            "datum": ["Belegdatum", "Rechnungsdatum", "Datum"],
+        }
+    )
+
+
 class DatevEinstellungen(BaseModel):
     kostentraeger: KostentraegerEinstellungen = Field(default_factory=KostentraegerEinstellungen)
+    susa: SusaEinstellungen = Field(default_factory=SusaEinstellungen)
+    opos: OposEinstellungen = Field(default_factory=OposEinstellungen)
 
 
 class StundensaetzeEinstellungen(BaseModel):
