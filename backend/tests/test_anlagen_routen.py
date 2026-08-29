@@ -47,15 +47,26 @@ def bestand(gesäte_db) -> dict[str, int]:
         sitzung.add_all([anlage, zweite])
         sitzung.flush()
 
-        sitzung.add(
-            Frist(
-                bezug="anlage",
-                bezug_id=anlage.id,
-                typ="gewaehrleistung",
-                bezeichnung="Gewährleistung endet (VOB, 4 Jahre)",
-                faellig_am=date(2030, 5, 20),
-                vorlauf_tage=90,
-            )
+        sitzung.add_all(
+            [
+                Frist(
+                    bezug="anlage",
+                    bezug_id=anlage.id,
+                    typ="gewaehrleistung",
+                    bezeichnung="Gewährleistung endet (VOB, 4 Jahre)",
+                    faellig_am=date(2030, 5, 20),
+                    vorlauf_tage=90,
+                ),
+                # Frist an der zweiten Anlage: sie darf im Blatt der ersten nicht auftauchen.
+                Frist(
+                    bezug="anlage",
+                    bezug_id=zweite.id,
+                    typ="sonstig",
+                    bezeichnung="Zählerwechsel Lagerhalle",
+                    faellig_am=date(2027, 2, 1),
+                    vorlauf_tage=30,
+                ),
+            ]
         )
         # Ein Serviceauftrag zur ersten Anlage – die Historie im Anlagenblatt.
         sitzung.add(
@@ -143,7 +154,9 @@ def test_suche_ueber_standort_kunde_und_mastr(admin) -> None:
 def test_anlagenblatt_zeigt_fristen_und_servicehistorie(admin, bestand) -> None:
     daten = admin.client.get(f"/api/anlagen/{bestand['anlage']}").json()
     assert daten["abnahme_datum"] == "2026-05-20"
+    # Nur die eigenen Fristen: die der zweiten Anlage bleibt draußen.
     assert [f["typ"] for f in daten["fristen"]] == ["gewaehrleistung"]
+    assert daten["fristen"][0]["stand"]
     assert daten["fristen"][0]["betreff"] == "Floß, Sonnenhang 7"
     assert [s["projekt_nr"] for s in daten["servicehistorie"]] == [26900]
     assert daten["servicehistorie"][0]["bezeichnung"] == "Wechselrichtertausch"
@@ -262,10 +275,12 @@ def test_nachgetragene_mastr_nummer_hakt_die_frist_sofort_ab(admin, bestand) -> 
 
 def test_fristenliste_mit_zaehlung(admin, bestand) -> None:
     daten = admin.client.get("/api/fristen").json()
-    assert [f["typ"] for f in daten["fristen"]] == ["gewaehrleistung"]
-    assert daten["zaehlung"]["offen"] == 1
-    assert daten["fristen"][0]["betreff"] == "Floß, Sonnenhang 7"
-    assert daten["fristen"][0]["kunde"] == "Gut Sonnenhang"
+    # Gleicher Zustand, also nach Fälligkeit: die nähere Frist zuerst.
+    assert [f["typ"] for f in daten["fristen"]] == ["sonstig", "gewaehrleistung"]
+    assert daten["zaehlung"]["offen"] == 2
+    gewaehrleistung = daten["fristen"][1]
+    assert gewaehrleistung["betreff"] == "Floß, Sonnenhang 7"
+    assert gewaehrleistung["kunde"] == "Gut Sonnenhang"
 
 
 def test_widget_zeigt_nur_anstehende(admin, bestand) -> None:
@@ -356,22 +371,28 @@ def test_unbekannter_fristtyp_wird_abgewiesen(admin, bestand) -> None:
 
 
 def test_frist_abhaken_und_wieder_oeffnen(admin, bestand) -> None:
-    frist_id = admin.client.get("/api/fristen").json()["fristen"][0]["id"]
+    frist_id = _gewaehrleistung(admin)["id"]
 
     daten = admin.schreiben("POST", f"/api/fristen/{frist_id}/erledigt").json()
     assert daten["erledigt_am"] == f"{date.today():%Y-%m-%d}"
     # Abgehakt heißt aus der Liste, nicht aus der Datenbank.
-    assert admin.client.get("/api/fristen").json()["fristen"] == []
+    assert [f["typ"] for f in admin.client.get("/api/fristen").json()["fristen"]] == ["sonstig"]
     with lese_sitzung() as sitzung:
         assert sitzung.get(Frist, frist_id) is not None
 
     wieder = admin.schreiben("POST", f"/api/fristen/{frist_id}/erledigt?erledigt=false").json()
     assert wieder["erledigt_am"] is None
-    assert len(admin.client.get("/api/fristen").json()["fristen"]) == 1
+    assert len(admin.client.get("/api/fristen").json()["fristen"]) == 2
+
+
+def _gewaehrleistung(admin) -> dict:
+    """Die Gewährleistungsfrist der ersten Anlage aus der Liste."""
+    fristen = admin.client.get("/api/fristen").json()["fristen"]
+    return next(f for f in fristen if f["typ"] == "gewaehrleistung")
 
 
 def test_abhaken_steht_im_audit(admin, bestand) -> None:
-    frist_id = admin.client.get("/api/fristen").json()["fristen"][0]["id"]
+    frist_id = _gewaehrleistung(admin)["id"]
     admin.schreiben("POST", f"/api/fristen/{frist_id}/erledigt")
     with lese_sitzung() as sitzung:
         eintrag = sitzung.scalar(
@@ -381,7 +402,7 @@ def test_abhaken_steht_im_audit(admin, bestand) -> None:
 
 
 def test_frist_verschieben(admin, bestand) -> None:
-    zeile = admin.client.get("/api/fristen").json()["fristen"][0]
+    zeile = _gewaehrleistung(admin)
     antwort = admin.schreiben(
         "PUT",
         f"/api/fristen/{zeile['id']}",
@@ -397,7 +418,7 @@ def test_frist_verschieben(admin, bestand) -> None:
 
 
 def test_frist_verschieben_mit_veraltetem_stand(admin, bestand) -> None:
-    zeile = admin.client.get("/api/fristen").json()["fristen"][0]
+    zeile = _gewaehrleistung(admin)
     koerper = {
         "bezeichnung": zeile["bezeichnung"],
         "faellig_am": "2031-05-20",

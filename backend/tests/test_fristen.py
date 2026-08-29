@@ -252,11 +252,15 @@ def test_nachgetragene_nummer_hakt_die_frist_ab(gesäte_db) -> None:
 
 
 def test_lauf_ist_wiederholbar(gesäte_db) -> None:
-    """Zweimal derselbe Lauf ergibt denselben Stand – keine zweite Frist."""
+    """Zweimal derselbe Lauf ergibt denselben Stand – keine zweite Frist.
+
+    Und der zweite Lauf meldet **nichts gesetzt**: er hat nur bestätigt, was schon dastand.
+    Stünde jede Nacht dieselbe Zahl im Protokoll, sagte sie nichts mehr.
+    """
     _anlage_anlegen(inbetriebnahme=date(2026, 8, 20))
     with schreib_sitzung() as sitzung:
-        dienst.mastr_pflegen(sitzung, tage=30, stichtag=HEUTE)
-        dienst.mastr_pflegen(sitzung, tage=30, stichtag=HEUTE)
+        assert dienst.mastr_pflegen(sitzung, tage=30, stichtag=HEUTE).gesetzt == 1
+        assert dienst.mastr_pflegen(sitzung, tage=30, stichtag=HEUTE).gesetzt == 0
     with lese_sitzung() as sitzung:
         assert len(list(sitzung.scalars(select(Frist)))) == 1
 

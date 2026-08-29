@@ -205,7 +205,7 @@ def _zeile(anlage: Anlage, kunde: str, projekt_nr: int | None) -> AnlageZeile:
     )
 
 
-def _als_frist_antwort(zeile: fristendienst.Fristzeile, stand: datetime | None) -> FristAntwort:
+def _als_frist_antwort(zeile: fristendienst.Fristzeile) -> FristAntwort:
     return FristAntwort(
         id=zeile.id,
         typ=zeile.typ,
@@ -219,7 +219,7 @@ def _als_frist_antwort(zeile: fristendienst.Fristzeile, stand: datetime | None) 
         betreff=zeile.betreff,
         kunde=zeile.kunde,
         erledigt_am=zeile.erledigt_am,
-        stand=stand,
+        stand=zeile.stand,
     )
 
 
@@ -321,17 +321,9 @@ def anlage_lesen(
         else None
     )
 
-    zeilen = fristendienst.liste(db, mit_erledigten=True)
-    staende = {
-        f.id: f.updated_at
-        for f in db.scalars(
-            select(Frist).where(Frist.bezug == "anlage", Frist.bezug_id == anlage_id)
-        )
-    }
     fristen = [
-        _als_frist_antwort(z, staende.get(z.id))
-        for z in zeilen
-        if z.bezug == "anlage" and z.bezug_id == anlage_id
+        _als_frist_antwort(z)
+        for z in fristendienst.liste(db, mit_erledigten=True, bezug="anlage", bezug_id=anlage_id)
     ]
 
     historie = db.execute(
@@ -482,9 +474,8 @@ def fristen_liste(
     if grenze:
         zeilen = zeilen[:grenze]
 
-    staende = {f.id: f.updated_at for f in db.scalars(select(Frist))}
     return FristenListe(
-        fristen=[_als_frist_antwort(z, staende.get(z.id)) for z in zeilen],
+        fristen=[_als_frist_antwort(z) for z in zeilen],
         zaehlung=gezaehlt,
     )
 
@@ -633,13 +624,11 @@ def _bezug_pruefen(db: Session, bezug: str, bezug_id: int) -> None:
 
 def _eine_frist(db: Session, frist_id: int) -> FristAntwort:
     """Eine Frist mit aufgelöstem Bezug – dieselbe Form wie in der Liste."""
-    frist = _frist_holen(db, frist_id)
-    zeilen = fristendienst.liste(db, mit_erledigten=True)
-    passend = next((z for z in zeilen if z.id == frist_id), None)
-    if passend is None:  # pragma: no cover – die Frist wurde gerade gelesen
+    zeilen = fristendienst.liste(db, mit_erledigten=True, frist_id=frist_id)
+    if not zeilen:  # pragma: no cover – die Frist wurde gerade geschrieben
         raise FachFehler(
             "Die Frist ließ sich nicht mehr lesen.",
             "Bitte die Fristenliste neu laden.",
             code="frist_verschwunden",
         )
-    return _als_frist_antwort(passend, frist.updated_at)
+    return _als_frist_antwort(zeilen[0])

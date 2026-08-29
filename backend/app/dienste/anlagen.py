@@ -162,12 +162,15 @@ def frist_setzen(
     bezeichnung: str,
     faellig_am: date,
     vorlauf_tage: int,
-) -> Frist:
+) -> tuple[Frist, bool]:
     """Frist anlegen oder die vorhandene desselben Typs aktualisieren.
 
     Je Bezug und Typ genau eine Frist: verschiebt sich das Abnahmedatum, soll das
     Gewährleistungsende mitwandern und nicht als zweite Zeile daneben stehen. Eine bereits
     erledigte Frist wird nicht wieder aufgemacht – wer sie abgehakt hat, hat es getan.
+
+    Zurück kommt die Frist und ob sie **neu** ist. Der nächtliche Lauf meldet sonst jede Nacht
+    „2 Fristen gesetzt", obwohl er nur bestätigt hat, was schon dastand.
     """
     vorhanden = sitzung.scalar(
         select(Frist).where(
@@ -177,6 +180,7 @@ def frist_setzen(
             Frist.erledigt_am.is_(None),
         )
     )
+    neu = vorhanden is None
     if vorhanden is None:
         vorhanden = Frist(bezug=bezug, bezug_id=bezug_id, typ=typ)
         sitzung.add(vorhanden)
@@ -185,7 +189,7 @@ def frist_setzen(
     vorhanden.faellig_am = faellig_am
     vorhanden.vorlauf_tage = vorlauf_tage
     sitzung.flush()
-    return vorhanden
+    return vorhanden, neu
 
 
 def ohne_wartungsvertrag(sitzung: Session) -> list[Anlage]:

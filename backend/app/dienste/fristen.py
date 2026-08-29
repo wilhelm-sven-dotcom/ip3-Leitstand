@@ -18,7 +18,7 @@ Festlegungen:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -63,6 +63,9 @@ class Fristzeile:
     betreff: str
     kunde: str | None = None
     erledigt_am: date | None = None
+    # Für die Konfliktprüfung beim Speichern (CLAUDE.md Regel 6). Steht hier, damit die Route
+    # nicht alle Fristen ein zweites Mal laden muss, nur um an ``updated_at`` zu kommen.
+    stand: datetime | None = None
 
 
 def _betreffe(
@@ -106,17 +109,30 @@ def liste(
     nur_anstehende: bool = False,
     mit_erledigten: bool = False,
     grenze: int | None = None,
+    bezug: str | None = None,
+    bezug_id: int | None = None,
+    frist_id: int | None = None,
 ) -> list[Fristzeile]:
     """Fristen mit aufgelöstem Bezug, das Dringendste zuerst.
 
     ``nur_anstehende`` liefert, was das Startseiten-Widget zeigt: überfällig oder im eigenen
     Vorlauf. Ohne die Einschränkung kommt die vollständige Liste – dieselben Daten, nur ohne
     Filter, damit die Fristenseite nicht eine zweite Abfrage braucht.
+
+    ``bezug``/``bezug_id`` schränken auf einen Datensatz ein (das Anlagenblatt), ``frist_id`` auf
+    eine einzelne Frist (die Antwort nach dem Speichern). Ohne diese Einschränkung würde jedes
+    Anlagenblatt sämtliche Fristen der Firma laden.
     """
     heute = stichtag or date.today()
     abfrage = select(Frist)
     if not mit_erledigten:
         abfrage = abfrage.where(Frist.erledigt_am.is_(None))
+    if bezug is not None:
+        abfrage = abfrage.where(Frist.bezug == bezug)
+    if bezug_id is not None:
+        abfrage = abfrage.where(Frist.bezug_id == bezug_id)
+    if frist_id is not None:
+        abfrage = abfrage.where(Frist.id == frist_id)
     fristen = list(sitzung.scalars(abfrage.order_by(Frist.faellig_am, Frist.id)))
 
     betreffe = _betreffe(sitzung, fristen)
@@ -142,6 +158,7 @@ def liste(
                 betreff=betreff,
                 kunde=kunde,
                 erledigt_am=frist.erledigt_am,
+                stand=frist.updated_at,
             )
         )
 
@@ -161,6 +178,8 @@ def zaehlung(zeilen: list[Fristzeile]) -> dict[str, int]:
 class Wachergebnis:
     """Was der nächtliche Lauf getan hat."""
 
+    # Nur neu entstandene Fristen. Ein Lauf, der nur bestätigt, was schon dasteht, meldet 0 –
+    # sonst stünde jede Nacht dieselbe Zahl im Protokoll und sagte nichts mehr.
     gesetzt: int = 0
     erledigt: int = 0
     ueberfaellig: int = 0
@@ -183,7 +202,7 @@ def mastr_pflegen(sitzung: Session, *, tage: int, stichtag: date | None = None) 
     )
     for anlage in offen:
         assert anlage.inbetriebnahme is not None  # von der Abfrage garantiert
-        frist_setzen(
+        _, ist_neu = frist_setzen(
             sitzung,
             bezug="anlage",
             bezug_id=anlage.id,
@@ -196,7 +215,8 @@ def mastr_pflegen(sitzung: Session, *, tage: int, stichtag: date | None = None) 
             # Die Frist ist kurz; ein Vorlauf über die halbe Laufzeit wäre Dauerlärm.
             vorlauf_tage=max(tage // 2, 1),
         )
-        ergebnis.gesetzt += 1
+        if ist_neu:
+            ergebnis.gesetzt += 1
 
     # Nummer nachgetragen: die Frist ist erfüllt, nicht verfallen.
     heute = stichtag or date.today()
