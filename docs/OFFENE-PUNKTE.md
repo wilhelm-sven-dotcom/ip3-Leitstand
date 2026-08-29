@@ -75,6 +75,48 @@ Die Steuernummer bleibt wünschenswert, ist aber keine Voraussetzung.
 | 24 | Die Entwicklungsumgebung erreicht `api.timetac.com` nicht (Netzwerkrichtlinie, 403). | **Gegen aufgezeichnete Antworten bauen, auf dem Host prüfen.** Basis-URL, Abfrageparameter und Feldnamen sind konfigurierbar; die Testsuite läuft ohne Netz. `ip3-leitstand timetac-test` macht den ersten echten Lauf nachvollziehbar, ohne etwas zu schreiben. |
 | 25 | Bleibt der CSV-Weg, nachdem die API da ist? | **Ja, als Rückfallebene** (PLAN §8). Er kostet über den DATEV-CSV-Leser hinaus wenig, trägt bei einem Ausfall der Schnittstelle und lädt alte Monate nach, die die API nicht mehr hergibt. |
 
+## Entschieden für Phase 5 (29.08.2026)
+
+26. **Reichweite des Auftragsbestands: beide Zahlen.** PLAN §7 und das Mockup rechneten sie
+    unterschiedlich. Groß steht jetzt Bestand ÷ Ø-Monatsumsatz („wie lange reicht die Arbeit"),
+    als Unterzeile die Fixkostendeckung aus PLAN §7 („wie lange trägt der Bestand die Firma").
+27. **Break-even über die Ist-Marge des laufenden Jahres (YTD).** Nicht rollierend über zwölf
+    Monate. Weil die Basis im Januar auf einem einzigen Monat steht, nennt ein Hinweis die
+    Anzahl Monate, sobald es weniger als drei sind.
+28. **Liquiditätssicht als Umschalter im Wasserfall.** Ein Knopf über der Grafik wechselt die
+    Umsatzbasis zwischen „gestellt" und „bezahlt", statt die offenen Posten in einen eigenen
+    Block unter das Cockpit zu setzen.
+
+**Von mir entschieden (technisch, im Code kommentiert), zur Kenntnis:**
+
+29. **Fixkosten: Ist schlägt Plan, nie beides.** Liegt für einen Monat eine Summen- und
+    Saldenliste vor, gilt sie; sonst der Planwert. Die Ansicht sagt, welche Quelle gilt.
+30. **Der engste Kontenbereich gewinnt.** So lässt sich ein Sonderkonto aus einem umgebenden
+    Bereich herauslösen, ohne diesen zu zerlegen.
+31. **Eine noch nicht gelieferte Kanzlei-Datei warnt nicht.** Sie wird im Lauf genannt, macht ihn
+    aber nicht rot. SuSa und OPOS kommen erst nach der Abstimmung; sie monatelang jede Nacht als
+    Warnung zu melden, gewöhnt alle daran, den Systemstatus zu übergehen. Dass Zahlen fehlen,
+    sagt das Cockpit dort, wo sie fehlen.
+
+## Was der Phase-5-Abnahmelauf zutage brachte
+
+**Drei Fehler im eigenen Code, alle erst auf der gerenderten Seite sichtbar, behoben:**
+
+| Was | Warum es zählt |
+|---|---|
+| Die Ansicht öffnete auf dem **laufenden Monat**, für den die Kanzlei noch nichts geliefert haben kann. | Vier Nullen sehen kaputt aus, nicht leer. Jetzt kommt der jüngste Monat mit tatsächlichen Zahlen. |
+| Der erste Versuch dafür nahm **geplante** Zahlungsplanmonate mit und landete im November 2026. | Geplant ist nicht gebucht. Gezählt wird jetzt nur, was abgerechnet ist, und nie über den laufenden Monat hinaus. |
+| Die Beschriftung des höchsten Wasserfallbalkens verschwand hinter ihm; eine Unterdeckung stand ohne Minuszeichen da („14 T€" statt „−14 T€"). | Ein Vorzeichenfehler in der Kennzahl, auf die es ankommt. |
+
+**Für Sven, vor dem ersten echten Monatslauf:**
+
+| Was | Warum |
+|---|---|
+| **SuSa und OPOS bei der Kanzlei anfordern** (`docs/KANZLEI-ANFORDERUNG.md`, Punkt 4) | Ohne sie hat das Cockpit keinen Fixkostenblock und keinen Zahlungsstatus. |
+| **Ausdrücklich die Auswertung je Periode verlangen** | Eine kumulierte SuSa als Monatswert lässt die Fixkosten ab Februar von allein wachsen. Der Leitstand meldet es, aber besser gar nicht erst. |
+| **Kontenzuordnung mit der Buchhaltung befüllen** | Ohne sie bleibt der Fixkostenblock leer. Konten ohne Zuordnung zählen nicht mit und stehen als Pflegehinweis im Cockpit. |
+| **Fixkosten für die Restmonate planen** | Für Monate ohne SuSa – also die Zukunft – gibt es sonst keinen Fixkostenausweis. |
+
 ## Was der Phase-4-Abnahmelauf zutage brachte
 
 **Zwei Fehler im eigenen Code, behoben:**

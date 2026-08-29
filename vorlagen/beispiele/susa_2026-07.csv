@@ -1,0 +1,12 @@
+Konto;Kontobezeichnung;Saldo;Soll/Haben-Kennzeichen;Monatssaldo
+4120;Löhne und Gehälter;210.000,00;S;31.500,00
+4130;Gesetzliche soziale Aufwendungen;68.600,00;S;10.290,00
+4210;Miete Halle Theisseil;12.950,00;S;1.850,00
+4240;Gas, Strom, Wasser;5.320,00;S;760,00
+4360;Versicherungen;6.160,00;S;880,00
+4530;Laufende Kfz-Betriebskosten;18.900,00;S;2.700,00
+4600;Werbekosten;4.550,00;S;650,00
+4970;Nebenkosten des Geldverkehrs;1.260,00;S;180,00
+4700;Sonstige betriebliche Aufwendungen;8.400,00;S;1.200,00
+1600;Verbindlichkeiten aus L+L;90.000,00;H;12.000,00
+;Summe;426.140,00;S;61.910,00

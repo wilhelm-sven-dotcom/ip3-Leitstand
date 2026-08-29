@@ -25,17 +25,18 @@ Alle Daten bleiben lokal beziehungsweise im Firmen-OneDrive.
 
 ## Stand
 
-**Phase 4 – Ist-Kosten und Nachkalkulation.** Der Leitstand weiß jetzt auch, was ein Projekt
-gekostet hat. Drei Ist-Quellen laufen zusammen: die DATEV-Kostenträgerauswertung (Schlüssel
-KOST2 = Projektnummer), die TimeTac-Stunden mal Verrechnungssatz als kalkulatorische
-Eigenleistung und die bewertete Stückliste aus dem Kalkulationsblatt. Dagegen stehen Erlös und
-Sollwerte; heraus kommt die Marge in € und Prozent mit Ampel gegen die Sollmarge. Jeder
-Importlauf ersetzt seinen Zeitraum, ein nachgelieferter Monat ist damit der Normalfall.
+**Phase 5 – Firmen-Cockpit.** Der Leitstand rechnet jetzt auch auf Firmenebene: Umsatz minus
+variable Kosten ergibt den Deckungsbeitrag, minus Fixkosten die Über- oder Unterdeckung, kumuliert
+über das Jahr. Dazu Break-even-Monatsumsatz, die Reichweite des Auftragsbestands und ein
+Umschalter zwischen gestelltem und bezahltem Umsatz. Die Fixkosten kommen aus der Summen- und
+Saldenliste der Kanzlei, für Zukunftsmonate aus der eigenen Planung; der Zahlungsstatus
+ausschließlich aus der Liste offener Posten. Ausdrücklich eine Steuerungssicht, keine
+handelsrechtliche BWA.
 
 Davor gebaut: Phase 1 (Übernahme der Bestandsdaten, Projekte, Termine, Zahlungsplan), Phase 2
-(Umsatz und Forecast mit Jahresverlauf und Auftragsbestand) und Phase 3 (Fakturierung von der
-Auftragsbestätigung bis zur festgeschriebenen Schlussrechnung mit E-Rechnung). Einzelheiten im
-[CHANGELOG](CHANGELOG.md).
+(Umsatz und Forecast), Phase 3 (Fakturierung bis zur festgeschriebenen Schlussrechnung mit
+E-Rechnung) und Phase 4 (Ist-Kosten aus DATEV, TimeTac und Stückliste, Nachkalkulation je
+Projekt). Einzelheiten im [CHANGELOG](CHANGELOG.md).
 
 ## Schnellstart für die Entwicklung
 

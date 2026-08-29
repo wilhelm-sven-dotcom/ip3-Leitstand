@@ -1,6 +1,6 @@
 # Anforderung an die Steuerkanzlei: Kostenträgerauswertung für den ip³ Leitstand
 
-*Stand 28.08.2026. Dieses Blatt ist zum Weiterleiten an die Kanzlei gedacht.*
+*Stand 29.08.2026. Dieses Blatt ist zum Weiterleiten an die Kanzlei gedacht.*
 
 ## Worum es geht
 
@@ -126,13 +126,57 @@ werden dann einmal neu eingelesen.
 
 ---
 
-## 4. Was später dazukommt (noch nicht jetzt)
+## 4. Zwei weitere monatliche Exporte
 
-Für die nächste Ausbaustufe (Firmen-Cockpit) werden zwei weitere monatliche Exporte gebraucht.
-Sie sind **noch nicht** einzurichten, stehen hier nur zur Vorabinformation:
+Das Firmen-Cockpit ist inzwischen gebaut und braucht zusätzlich zur Kostenträgerauswertung zwei
+Exporte. Sie kommen in denselben Ordner, im selben Rhythmus, im selben Format (CSV).
 
-- **Summen- und Saldenliste** je Monat (`susa_JJJJ-MM.csv`) — für den Fixkostenblock.
-- **OPOS Debitoren** (`opos_JJJJ-TT-MM.csv`) — für den Zahlungsstatus der Ausgangsrechnungen.
+### 4.1 Summen- und Saldenliste — `susa_JJJJ-MM.csv`
+
+Für den Fixkostenblock: was hat die Firma diesen Monat an laufenden Kosten getragen.
+
+| Feld | Zwingend | Wofür |
+|---|---|---|
+| **Konto** (Sachkonto) | ja | Zuordnung zum Kostenblock (Personal, Raum, Fahrzeuge …) |
+| **Saldo** | ja | Der Betrag |
+| **Monatssaldo / Periodensaldo** | **sehr wichtig, siehe unten** | Der Wert des Monats |
+| Kontobezeichnung | erwünscht | Beschriftung, Nachpflege unbekannter Konten |
+| Soll/Haben-Kennzeichen | erwünscht | Vorzeichen; ohne Angabe entscheidet das Vorzeichen des Betrags |
+
+> ⚠️ **Bitte je Periode, nicht kumuliert.** Viele SuSa-Auswertungen führen den Saldo seit
+> Jahresbeginn. Der Leitstand braucht den **Monatswert**. Enthält die Datei beide Spalten,
+> nimmt er automatisch die Periode. Enthält sie nur den kumulierten Saldo, rechnet er damit und
+> vermerkt es im Protokoll — die Fixkosten wären dann ab Februar zu hoch, ohne dass es jemandem
+> auffällt.
+
+### 4.2 Offene Posten Debitoren — `opos_JJJJ-MM-TT.csv`
+
+Für den Zahlungsstatus der Ausgangsrechnungen. **Der Dateiname trägt einen vollen Stichtag**
+(z. B. `opos_2026-07-31.csv`), nicht nur den Monat: eine OPOS-Liste gilt für einen Tag, und der
+Leitstand führt die Stände nebeneinander.
+
+| Feld | Zwingend | Wofür |
+|---|---|---|
+| **Rechnungsnummer / Belegfeld 1** | ja | Zuordnung zur Rechnung des Leitstands |
+| **Offener Betrag** | ja | Was noch aussteht |
+| Rechnungsbetrag | erwünscht | Gegenprobe |
+| Fälligkeit | erwünscht | Unterscheidung offen / überfällig |
+| Kunde / Debitor | erwünscht | Lesbarkeit der Liste |
+
+**Was ip³ damit tut:** Der Leitstand leitet den Zahlungsstatus ausschließlich hieraus ab. Eine
+Rechnung, die nicht mehr in der Liste steht, gilt als bezahlt; ein Restbetrag innerhalb der
+Skonto-Toleranz als „bezahlt mit Abzug". Rechnungen aus der Zeit vor der Einführung des
+Leitstands sind unkritisch — sie stehen im Protokoll und werden übergangen.
+
+### 4.3 Und noch eine Frage zur Kontenzuordnung
+
+Für den Fixkostenblock ordnet der Leitstand Kontenbereiche diesen Blöcken zu: **Personal, Raum,
+Fahrzeuge, Versicherungen, Werbung, Zinsen, Sonstiges** und **neutral** (durchlaufende Posten,
+die nicht in die Fixkosten gehören).
+
+Bitte einmalig eine Liste der Kontenbereiche mit ihrer Zuordnung — das ist dieselbe Frage wie
+unter Punkt 3, nur für die Aufwandsseite im Detail. Konten ohne Zuordnung werden eingelesen,
+zählen aber nicht mit und erscheinen im Leitstand als Pflegehinweis.
 
 Außerdem bittet ip³ um eine **Durchsicht der Verfahrensdokumentation** (`VERFAHRENSDOKU.md`) im
 Hinblick auf die GoBD, sobald der Leitstand im Regelbetrieb ist. Die Ausgangsrechnungen werden

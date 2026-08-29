@@ -270,6 +270,59 @@ kalkuliert. Mit dem Speichern rechnet der Leitstand den Wert sofort und bucht ih
 Solange nichts bestätigt ist, fehlt die Lagerentnahme im Ist und die Marge sieht besser aus, als
 sie ist. Das steht als Anmerkung am Projekt.
 
+## Firmen-Cockpit
+
+Die Sicht auf die ganze Firma statt auf ein Projekt: was bleibt am Monatsende übrig.
+
+> **Es ist keine BWA.** Hier stehen Auftragswerte, kalkulatorische Sätze und Planzahlen neben
+> Buchhaltungswerten. Das Cockpit ist zum Steuern gedacht, nicht zum Abgeben.
+
+### Der Rechenweg
+
+    Umsatz
+    − Material und Fremdleistung
+    = Deckungsbeitrag
+    − Fixkosten
+    = Über- oder Unterdeckung
+
+Der Wasserfall zeigt genau diese fünf Stufen; die Abzüge setzen dort an, wo sie enden, damit man
+sieht, wo das Geld hingeht. Die gestrichelte Linie ist der **Break-even**: der Monatsumsatz, ab
+dem die Fixkosten gedeckt sind.
+
+**Die Arbeitsstunden fehlen hier absichtlich.** Im Projekt zählen sie mit dem Verrechnungssatz,
+hier stehen stattdessen die echten Löhne im Fixkostenblock. Beides zusammen wäre Personal
+doppelt.
+
+### Gestellt oder bezahlt
+
+Der Schalter rechts oben wechselt die Umsatzbasis:
+
+* **gestellt** – die festgeschriebenen Rechnungen des Monats. So wird der Umsatz überall im
+  Leitstand gerechnet.
+* **bezahlt** – davon nur, was laut der Liste offener Posten beglichen ist. Zugeordnet bleibt der
+  Rechnungsmonat, denn eine OPOS-Liste nennt keinen Zahltag.
+
+Weichen beide stark ab, ist der Monat gut gelaufen, aber das Geld noch nicht da.
+
+### Reichweite und Fixkostendeckung
+
+Die **Reichweite** beantwortet zwei Fragen auf einmal: die große Zahl sagt, wie viele Monate der
+offene Auftragsbestand bei durchschnittlichem Umsatz noch Arbeit gibt; die Zeile darunter, wie
+viele Monate Fixkosten der darin steckende Deckungsbeitrag trägt.
+
+Die **Fixkostendeckung** ist der Deckungsbeitrag in Prozent der Fixkosten. Unter 100 % steht sie
+in Akzent-Rot: der Monat hat die laufenden Kosten nicht eingespielt.
+
+### Wenn Zahlen fehlen
+
+Das Cockpit schweigt nicht, wenn etwas fehlt, sondern sagt es:
+
+| Hinweis | Was zu tun ist |
+|---|---|
+| Weder Summen- und Saldenliste noch Planwerte | Die Kanzlei-Datei fehlt für diesen Monat. Für die Zukunft unter **Administration → Fixkosten** planen. |
+| Konten ohne Kostenblock | Unter **Administration → Kontenzuordnung** nachtragen. Die Beträge fehlen so lange in den Fixkosten, und die Überdeckung sieht besser aus, als sie ist. |
+| Durchschnittsmarge steht auf wenigen Monaten | Break-even und Reichweite sind noch grob – im Januar steht die Marge auf einem einzigen Monat. |
+
 ## Importe & Daten
 
 Hier laufen die drei monatlichen Quellen zusammen. Nachts holt der Leitstand sie von selbst; die

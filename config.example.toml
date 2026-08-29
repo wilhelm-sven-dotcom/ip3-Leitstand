@@ -111,6 +111,29 @@ datum = ["Belegdatum", "Datum", "Buchungsdatum"]
 beleg = ["Belegfeld 1", "Belegnummer", "Beleg"]
 buchungstext = ["Buchungstext", "Text", "Bezeichnung"]
 
+[datev.susa]
+# Summen- und Saldenliste aus 02_DATEV (Phase 5) - traegt den Fixkostenblock des Cockpits.
+# Gerechnet wird die Monatsbewegung, nicht der kumulierte Saldo seit Jahresbeginn. Fuehrt die
+# Datei beides, gewinnt die Periode; fuehrt sie nur den Saldo, vermerkt es das Protokoll.
+monatssaldo_bevorzugen = true
+
+[datev.susa.spalten]
+konto = ["Konto", "Sachkonto", "Kontonummer"]
+bezeichnung = ["Kontobezeichnung", "Kontenbeschriftung", "Bezeichnung"]
+saldo = ["Saldo", "Endsaldo", "Saldo kumuliert", "Betrag"]
+soll_haben = ["Soll/Haben-Kennzeichen", "S/H", "SH", "Soll/Haben"]
+monatssaldo = ["Monatssaldo", "Periodensaldo", "Bewegung", "Umsatz Periode"]
+
+[datev.opos.spalten]
+# Offene Posten Debitoren (Phase 5). Der Dateiname traegt einen vollen Stichtag
+# (opos_JJJJ-MM-TT.csv), keinen Monat - eine OPOS-Liste gilt fuer einen Tag.
+rechnung_nr = ["Rechnungsnummer", "Beleg", "Belegfeld 1", "Belegnummer"]
+kunde = ["Kunde", "Debitor", "Name", "Kontobezeichnung"]
+betrag = ["Rechnungsbetrag", "Betrag", "Umsatz", "Bruttobetrag"]
+offen_betrag = ["Offener Betrag", "Offen", "Restbetrag", "Saldo"]
+faellig_am = ["Faelligkeit", "Fälligkeit", "Faellig am", "Fällig am", "Nettofaellig"]
+datum = ["Belegdatum", "Rechnungsdatum", "Datum"]
+
 [stundensaetze]
 # Verrechnungssaetze fuer die kalkulatorische Eigenleistung (Phase 4, PLAN §6.6).
 # ACHTUNG: die Betraege unten sind Platzhalter und noch nicht bestaetigt (PLAN §13.6).

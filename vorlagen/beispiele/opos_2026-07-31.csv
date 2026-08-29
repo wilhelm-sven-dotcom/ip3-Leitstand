@@ -1,0 +1,4 @@
+Rechnungsnummer;Kunde;Rechnungsbetrag;Offener Betrag;Fälligkeit;Belegdatum
+RE-2026-0001;Mustermann GmbH;119.000,00;119.000,00;15.07.2026;01.07.2026
+RE-2026-0002;Schmidt KG;23.800,00;476,00;20.07.2026;06.07.2026
+;Summe Debitor 10001;142.800,00;119.476,00;;

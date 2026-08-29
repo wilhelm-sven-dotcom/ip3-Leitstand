@@ -125,7 +125,7 @@ nächtlicher Lauf auffällt.
 
 ## 6a. Externe Datenquellen (ab Phase 4)
 
-Der Leitstand liest drei externe Quellen. **Er schreibt in keine von ihnen zurück** – weder in
+Der Leitstand liest fünf externe Quellen. **Er schreibt in keine von ihnen zurück** – weder in
 die DATEV-Exporte, noch in TimeTac, noch in die Kalkulationsblätter. Sie bleiben in der Hand
 ihrer jeweiligen Herkunft; der Leitstand nimmt Kopien ihrer Werte in die eigene Datenbank auf.
 
@@ -134,6 +134,8 @@ ihrer jeweiligen Herkunft; der Leitstand nimmt Kopien ihrer Werte in die eigene 
 | Kostenträgerauswertung | Steuerkanzlei, monatlich in `02_DATEV` | Einzelbuchungen mit KOST2 = Projektnummer, verdichtet auf Projekt, Monat und Konto |
 | TimeTac | REST-Schnittstelle v3 bzw. Berichtsexport | Arbeitsstunden je Projekt, Monat und Mitarbeiter |
 | Kalkulationsblatt | Projektleitung, in `03_Kalkulation` | Sollwerte und Stückliste je Projekt |
+| Summen- und Saldenliste | Steuerkanzlei, monatlich in `02_DATEV` | Saldo je Sachkonto und Monat, einem Kostenblock zugeordnet |
+| Offene Posten Debitoren | Steuerkanzlei, monatlich in `02_DATEV` | Restbetrag je Rechnungsnummer zu einem Stichtag |
 
 **Jeder Lauf ist protokolliert.** Neben dem Joblauf (`job_laeufe`) entsteht je Import ein
 Eintrag in `importlaeufe` mit Quelle, Datei, Zeitraum, Kontrollsummen, Einzelbuchungen und allen
@@ -145,6 +147,20 @@ korrigiert, wird er einfach erneut eingelesen; das Löschen des alten Standes un
 neuen stehen in derselben Transaktion. Ein abgebrochener Lauf lässt den vorigen Stand stehen.
 Eine Eindeutigkeitsbedingung auf `ist_kosten` fängt den Fall ab, dass ein künftiger Importweg das
 Löschen vergisst – doppelte Beträge fielen in einer Auswertung sonst nicht auf.
+
+**Der Zahlungsstatus wird nicht abgeleitet, sondern gelesen.** Ob eine Ausgangsrechnung bezahlt
+ist, sagt ausschließlich der OPOS-Import (PLAN §6.7). Der Leitstand hat keinen Zugriff auf
+Kontoauszüge und stellt keine Vermutungen an: eine Rechnung, die jünger ist als der jüngste
+OPOS-Stichtag, trägt den Status „ohne Stand" und nicht „bezahlt". Ein Restbetrag innerhalb der
+konfigurierten Skonto-Toleranz gilt als „bezahlt mit Abzug" (PLAN §6.13); die Toleranz steht in
+der `config.toml` und ist damit nachvollziehbar dokumentiert.
+
+**Das Firmen-Cockpit ist eine Steuerungssicht, keine handelsrechtliche Auswertung.** Es
+vermischt bewusst Buchhaltungswerte (Summen- und Saldenliste), Auftragswerte, kalkulatorische
+Verrechnungssätze und Planzahlen. Es ersetzt keine BWA und wird nicht als solche verwendet; der
+Hinweis steht auf der Ansicht selbst und wird von der Schnittstelle mitgeliefert. Die
+kalkulatorische Eigenleistung aus TimeTac wird auf Firmenebene neutralisiert, damit die echten
+Personalkosten aus der Buchhaltung nicht doppelt zählen (PLAN §6.6).
 
 **Zugangsdaten** zu TimeTac liegen ausschließlich in der Umgebung des Dienstkontos auf dem Host
 (`.env`), nie in der Konfigurationsdatei und nie im Quelltext. Zugangstoken werden im Speicher

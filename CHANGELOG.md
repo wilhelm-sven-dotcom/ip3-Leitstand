@@ -2,6 +2,79 @@
 
 Format: neueste Phase oben. Jede Phase endet lauffähig mit grüner Testsuite (PLAN §7).
 
+## 0.6.0 – Phase 5: Firmen-Cockpit
+
+Der Leitstand rechnet jetzt auch auf Firmenebene. Menüpunkt **Firmen-Cockpit**, sichtbar mit
+`cockpit.lesen`.
+
+### Der Rechenweg
+
+    Umsatz − variable Kosten = Deckungsbeitrag − Fixkosten = Über-/Unterdeckung
+
+kumuliert bis zum gewählten Monat, dazu Break-even-Monatsumsatz, Reichweite des
+Auftragsbestands und der Monatsverlauf. **Steuerungssicht, keine handelsrechtliche BWA** – der
+Hinweis kommt aus der API und steht auf der Seite, weil hier Auftragswerte, kalkulatorische
+Sätze und Planzahlen neben Buchhaltungswerten stehen.
+
+Vier Festlegungen tragen die Zahlen:
+
+* **Die Eigenleistung zählt auf Firmenebene nicht** (PLAN §6.6). Im Projekt-Ist stehen
+  TimeTac-Stunden mal Verrechnungssatz, hier stehen die echten Löhne im Fixkostenblock. Beides
+  zu addieren zählte Personal doppelt.
+* **Fixkosten kommen aus der Summen- und Saldenliste, für Zukunftsmonate aus dem Plan** – nie
+  aus beidem. Die Ansicht sagt, welche Quelle gilt.
+* **Break-even über die Ist-Marge des laufenden Jahres.** Steht das Jahr erst am Anfang, nennt
+  ein Hinweis die Anzahl Monate, statt eine Scheingenauigkeit auszuweisen.
+* **Die Reichweite trägt zwei Antworten:** Bestand durch Durchschnittsumsatz sagt, wie lange die
+  Arbeit reicht; der im Bestand steckende Deckungsbeitrag durch die Monatsfixkosten sagt, wie
+  lange er die Firma trägt.
+
+### Zwei neue Kanzlei-Quellen
+
+* **Summen- und Saldenliste** (`susa_JJJJ-MM.csv`) → Fixkostenblock. Gerechnet wird die
+  **Monatsbewegung**, nicht der kumulierte Saldo; führt die Datei nur den Saldo, sagt es das
+  Protokoll – sonst wüchsen die Fixkosten ab Februar von allein.
+* **Offene Posten** (`opos_JJJJ-MM-TT.csv`) → Zahlungsstatus. Eine OPOS-Liste ist ein
+  **Stichtag**, kein Zeitraum; zwei Stände desselben Monats stehen nebeneinander.
+
+Beide laufen im selben nächtlichen Lauf wie die Kostenträger. Jede Quelle wird für sich
+verarbeitet – eine unlesbare SuSa hält die Kostenträger nicht auf. Eine noch nicht gelieferte
+Quelle wird genannt, macht den Lauf aber nicht zur Warnung: monatelang jede Nacht rot zu melden
+gewöhnt alle daran, den Systemstatus zu übergehen.
+
+### Zahlungsstatus (PLAN §6.7, §6.13)
+
+**Gestellt ist nicht bezahlt.** Der Leitstand kennt keine Kontoauszüge; was bezahlt ist, sagt
+ausschließlich der OPOS-Import – durch Abwesenheit. Drei Fälle haben eigene Zweige, weil die
+naive Lesart dort falsch läge: eine Rechnung jünger als der Stichtag bekommt „ohne Stand" statt
+„bezahlt", ein gezogener Skonto gilt bis zur konfigurierten Toleranz als „bezahlt mit Abzug",
+und Belegnummern ohne Rechnung im Leitstand stehen im Protokoll, ohne zu warnen.
+
+Im Cockpit schaltet ein Knopf die Umsatzbasis zwischen **gestellt** und **bezahlt** um.
+
+### Pflegemasken
+
+Kontenzuordnung (Bereich → Kostenblock) und Fixkosten-Planwerte je Monat, beide mit
+`admin.konfiguration`, Optimistic Locking und Audit. Eine geänderte Zuordnung wirkt
+**rückwirkend** auf schon eingelesene Monate; das Protokoll hält fest, wie viele Salden umgezogen
+sind. „Vormonat übernehmen" kopiert die Planwerte und überschreibt dabei nichts.
+
+### Was der Abnahmelauf zutage brachte
+
+Drei Fehler zeigten sich erst auf der gerenderten Seite und sind behoben: die Ansicht öffnete auf
+dem laufenden Monat, für den die Kanzlei noch nichts geliefert haben kann (jetzt: jüngster Monat
+mit tatsächlichen Zahlen, wobei geplante Zahlungsplanmonate nicht zählen); die Beschriftung des
+höchsten Wasserfallbalkens verschwand hinter ihm; eine Unterdeckung stand ohne Minuszeichen da.
+
+### Offen
+
+* **SuSa und OPOS sind mit der Kanzlei abzustimmen** – bis dahin entwickelt gegen selbst erzeugte
+  Beispieldateien. `docs/KANZLEI-ANFORDERUNG.md` führt beide jetzt als anzufordern.
+* **Die Kontenzuordnung ist leer** und mit der Buchhaltung zu befüllen. Ohne sie bleibt der
+  Fixkostenblock leer, und das Cockpit sagt es.
+
+---
+
 ## 0.5.0 – Phase 4: Ist-Kosten und Nachkalkulation
 
 Der Leitstand weiß jetzt, was ein Projekt gekostet hat. Menüpunkt **Nachkalkulation**, sichtbar

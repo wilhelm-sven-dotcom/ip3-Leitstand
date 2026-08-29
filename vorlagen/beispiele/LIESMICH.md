@@ -13,6 +13,8 @@ Projekten 26001 und 26002.
 | `26001_Beispiel_Kalkulation.xlsx` | `pfade.kalkulation` (`03_Kalkulation`) | Sollwerte für Projekt 26001: Material 232.000,00 €, Dienstleistung 38.000,00 €, 620 Stunden, Soll-Marge 18 %, 7 Stücklistenpositionen (gemischt `lager` und `projektbestellt`) |
 | `26002_Beispiel_Kalkulation.xlsx` | `pfade.kalkulation` (`03_Kalkulation`) | Sollwerte für Projekt 26002: 158.000,00 € / 24.000,00 € / 380 Stunden / 18 %, 4 Positionen |
 | `kostentraeger_2026-07.csv` | `pfade.datev` (`02_DATEV`) | 13 Buchungszeilen im DATEV-Standardformat (Windows-1252, Semikolon) |
+| `susa_2026-07.csv` | `pfade.datev` (`02_DATEV`) | Summen- und Saldenliste für den Fixkostenblock des Cockpits: 10 Konten, kumulierter Saldo **und** Monatsbewegung |
+| `opos_2026-07-31.csv` | `pfade.datev` (`02_DATEV`) | Offene Posten zum Stichtag 31.07. – zwei Rechnungen, eine davon mit Skontoabzug |
 | `timetac_2026-07.csv` | frei wählbar, Pfad wird dem Befehl mitgegeben | 10 Zeiterfassungszeilen für die Rückfallebene `ip3-leitstand timetac-csv` – im Regelbetrieb kommen die Stunden über die Schnittstelle |
 
 ## Absichtliche Stolpersteine
@@ -30,6 +32,23 @@ Importprotokoll Befunde stehen, ist das **das erwartete Ergebnis**, kein Fehler:
 
 Eine Zeile ist eine Lieferantengutschrift (Soll/Haben-Kennzeichen `H`); sie **mindert** die
 Kosten, statt sie zu erhöhen.
+
+**`susa_2026-07.csv`** – zwei Stolpersteine:
+
+- Konto `4700` ist keinem Kostenblock zugeordnet. Es zählt nicht in die Fixkosten und erscheint
+  im Cockpit als Pflegehinweis – ein sichtbar fehlender Betrag ist besser als ein still falsch
+  einsortierter.
+- Konto `1600` (Verbindlichkeiten) steht im Haben und gehört in den Block `neutral`: zugeordnet
+  und trotzdem nicht gerechnet. Das ist etwas anderes als „noch nicht angesehen".
+
+Die Datei führt Saldo **und** Monatsbewegung. Gerechnet wird die Bewegung – der Saldo ist
+kumuliert seit Jahresbeginn und wäre als Monatswert ab Februar zu hoch. Führt der echte
+Kanzlei-Export nur den Saldo, sagt das Importprotokoll es ausdrücklich.
+
+**`opos_2026-07-31.csv`** – der Dateiname trägt einen **vollen Stichtag**, keinen Monat: eine
+OPOS-Liste gilt für einen Tag. `RE-2026-0002` steht mit 476,00 € Rest drin, das sind 2 % von
+23.800,00 € – innerhalb der Skonto-Toleranz, also „bezahlt mit Abzug" statt dauerhaft
+überfällig.
 
 **`timetac_2026-07.csv`** – zwei Stolpersteine:
 
@@ -55,3 +74,18 @@ Kosten, statt sie zu erhöhen.
 4. Bei Projekt 26001 unter **Nachkalkulation** stehen dann Erlös, Soll, Ist je Quelle und die
    Marge gegen die Soll-Marge. Die Lagerentnahme kommt dazu, sobald unter **Mengen-Ist
    bestätigen** gezählt wurde – bis dahin sagt ein Hinweis, dass sie fehlt.
+
+## Für das Firmen-Cockpit
+
+Das Cockpit braucht zusätzlich zweierlei:
+
+**Die Kontenzuordnung.** Ohne sie landet kein Saldo in einem Kostenblock, und der Fixkostenblock
+bleibt leer. Unter **Administration → Kontenzuordnung** die Bereiche eintragen, die zur SuSa
+passen (4100–4199 Personal, 4200–4299 Raum, 4300–4399 Versicherungen, 4500–4599 Fahrzeuge,
+4600–4699 Werbung, 4900–4999 Zinsen, 1600–1699 neutral). Eine Änderung wirkt rückwirkend auf
+schon eingelesene Monate.
+
+**Umsatz.** Das Cockpit rechnet Umsatz aus **festgeschriebenen** Rechnungen (PLAN §6.7). Die
+Demodaten bringen keine mit – solange keine Rechnung festgeschrieben ist, steht der Umsatz auf
+null und die Überdeckung ist rechnerisch die negative Fixkostensumme. Wer das Cockpit mit Zahlen
+sehen will, schreibt unter **Fakturierung** ein, zwei Abschläge fest.

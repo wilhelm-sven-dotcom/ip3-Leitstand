@@ -367,6 +367,8 @@ aus**. Der Systemstatus sagt es, solange einer fehlt.
 | Ordner | Inhalt | Wer legt ab |
 |---|---|---|
 | `02_DATEV` | `kostentraeger_JJJJ-MM.csv` – Kostenträgerauswertung mit Einzelbuchungen, KOST2 = Projektnummer | die Kanzlei, monatlich |
+| `02_DATEV` | `susa_JJJJ-MM.csv` – Summen- und Saldenliste **je Periode** (ab Phase 5) | die Kanzlei, monatlich |
+| `02_DATEV` | `opos_JJJJ-MM-TT.csv` – offene Posten Debitoren zum Stichtag (ab Phase 5) | die Kanzlei, monatlich |
 | `03_Kalkulation` | ein Kalkulationsblatt je Projekt, Dateiname beginnt mit der Projektnummer | Sven bzw. die Projektleitung |
 | `01_Rechnungen` | Ausgangsrechnungen (seit Phase 3) | der Leitstand |
 
@@ -376,6 +378,34 @@ die Spaltennamen ab, werden sie in `config.toml` unter `[datev.kostentraeger.spa
 nachgetragen – der Leitstand muss dafür nicht geändert werden. Ebenso die Kontenbereiche unter
 `kostenkonten`: vorbelegt ist der SKR03-Aufwandsbereich, alles außerhalb bleibt draußen, damit
 kein Erlös als Kosten gebucht wird.
+
+**Die beiden Phase-5-Dateien** liegen im selben Ordner und laufen im selben nächtlichen Lauf.
+Zwei Punkte entscheiden über richtige Zahlen:
+
+* Die **Summen- und Saldenliste** muss die **Monatsbewegung** führen, nicht nur den kumulierten
+  Saldo seit Jahresbeginn. Enthält sie beides, nimmt der Leitstand die Periode. Enthält sie nur
+  den Saldo, rechnet er damit und schreibt es ins Protokoll – die Fixkosten wären dann ab
+  Februar zu hoch.
+* Der **OPOS-Dateiname trägt einen vollen Stichtag** (`opos_2026-07-31.csv`), keinen Monat. Eine
+  OPOS-Liste gilt für einen Tag; zwei Stände desselben Monats stehen nebeneinander, damit der
+  Verlauf erhalten bleibt.
+
+Das vollständige Blatt zum Weiterleiten an die Kanzlei ist
+[`docs/KANZLEI-ANFORDERUNG.md`](docs/KANZLEI-ANFORDERUNG.md).
+
+**Kontenzuordnung einrichten (einmalig, für das Firmen-Cockpit):**
+
+Unter **Administration → Kontenzuordnung** werden Kontenbereiche den Kostenblöcken zugeordnet
+(Personal, Raum, Fahrzeuge, Versicherungen, Werbung, Zinsen, Sonstiges, neutral). Ohne sie bleibt
+der Fixkostenblock leer. Der engste Bereich gewinnt, ein Sonderkonto lässt sich also aus einem
+umgebenden Bereich herauslösen. **Eine Änderung wirkt rückwirkend** auf schon eingelesene Monate.
+
+Konten ohne Zuordnung zählen nicht mit und erscheinen im Cockpit als Pflegehinweis – lieber ein
+sichtbar fehlender Betrag als ein still falsch einsortierter.
+
+**Fixkosten für die Zukunft planen:** Unter **Administration → Fixkosten** je Monat und Block
+einen Planwert eintragen; „Vormonat übernehmen" kopiert die Werte und überschreibt dabei nichts.
+Für Monate mit Summen- und Saldenliste gilt immer die Buchhaltung, nie der Plan.
 
 **TimeTac einrichten:**
 
