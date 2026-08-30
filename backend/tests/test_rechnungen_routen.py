@@ -9,6 +9,7 @@ nächstem Schritt ankommt und nicht als Datenbankfehler (CLAUDE.md Regel 8).
 from __future__ import annotations
 
 from datetime import date
+from pathlib import Path
 
 import pytest
 from sqlalchemy import select
@@ -523,3 +524,121 @@ class TestOhneRechnungsordner:
         assert antwort["beleg"]["rechnung_nr"] == "RE-2026-0001"
         assert antwort["beleg"]["pdf_pfad"] is None
         assert antwort["ablage_offen"] is None
+
+
+class TestFehlendeUnterlagen:
+    """Der Schlussrechnungs-Hinweis aus dem Doku-Scan (PLAN §7 Phase 7, Entscheidung 50)."""
+
+    @staticmethod
+    def _scannen(wurzel: Path, projekt_nr: int, dateien: list[str]) -> None:
+        """Einen Ordner anlegen, füllen und den Scan darüber laufen lassen."""
+        from app.dienste.dokumente import scannen
+
+        ordner = wurzel / str(projekt_nr)
+        ordner.mkdir(parents=True, exist_ok=True)
+        for name in dateien:
+            (ordner / name).write_text("x")
+        with schreib_sitzung() as sitzung:
+            scannen(sitzung, wurzel)
+
+    @staticmethod
+    def _schlussrechnung(sitzung_client, projekt_nr: int) -> dict:
+        antwort = sitzung_client.schreiben(
+            "POST",
+            f"/api/rechnungen/schlussrechnung/{projekt_nr}",
+            json={"leistungszeitraum": "August 2026"},
+        )
+        assert antwort.status_code == 201, antwort.text
+        return antwort.json()
+
+    def test_ohne_scan_wird_nichts_gemeldet(self, buchhaltung, bestand):
+        """Ein Hinweis, nur weil der Scan nie lief, wäre falsch."""
+        beleg = self._schlussrechnung(buchhaltung, 26014)
+        assert beleg["fehlende_unterlagen"] == []
+
+    def test_fehlende_pflichtunterlage_steht_am_entwurf(self, buchhaltung, bestand, tmp_path: Path):
+        self._scannen(tmp_path / "projekte", 26014, ["Abnahmeprotokoll.pdf"])
+        beleg = self._schlussrechnung(buchhaltung, 26014)
+        assert beleg["fehlende_unterlagen"] == ["anlagendoku"]
+
+    def test_vollstaendiger_ordner_meldet_nichts(self, buchhaltung, bestand, tmp_path: Path):
+        self._scannen(tmp_path / "projekte", 26014, ["Anlagendokumentation.pdf"])
+        beleg = self._schlussrechnung(buchhaltung, 26014)
+        assert beleg["fehlende_unterlagen"] == []
+
+    def test_abschlagsrechnung_fragt_nicht_nach_unterlagen(
+        self, buchhaltung, bestand, tmp_path: Path
+    ):
+        """Eine Abschlagsrechnung geht raus, während gebaut wird."""
+        self._scannen(tmp_path / "projekte", 26014, [])
+        beleg = _abschlag(buchhaltung, bestand["positionen"][0])
+        assert beleg["fehlende_unterlagen"] == []
+
+    def test_festschreiben_ohne_unterlagen_ergibt_einen_konflikt(
+        self, buchhaltung, bestand, tmp_path: Path
+    ):
+        self._scannen(tmp_path / "projekte", 26014, [])
+        beleg = self._schlussrechnung(buchhaltung, 26014)
+
+        antwort = buchhaltung.schreiben(
+            "POST", f"/api/rechnungen/{beleg['id']}/festschreiben", json={}
+        )
+
+        assert antwort.status_code == 409
+        koerper = antwort.json()
+        assert koerper["code"] == "unterlagen_fehlen"
+        # Der Datenbankschlüssel gehört nicht auf den Bildschirm.
+        assert "Anlagendokumentation" in koerper["meldung"]
+        assert "anlagendoku" not in koerper["meldung"]
+        assert koerper["naechster_schritt"]
+
+    def test_ausdrueckliche_bestaetigung_laesst_festschreiben_zu(
+        self, buchhaltung, bestand, tmp_path: Path
+    ):
+        """Keine harte Sperre: was auf Papier vorliegt, darf keine Rechnung verhindern."""
+        self._scannen(tmp_path / "projekte", 26014, [])
+        beleg = self._schlussrechnung(buchhaltung, 26014)
+
+        antwort = buchhaltung.schreiben(
+            "POST",
+            f"/api/rechnungen/{beleg['id']}/festschreiben",
+            json={"unterlagen_bestaetigt": True},
+        )
+
+        assert antwort.status_code == 200, antwort.text
+        assert antwort.json()["beleg"]["rechnung_nr"]
+
+    def test_die_bestaetigung_steht_im_aenderungsprotokoll(
+        self, buchhaltung, bestand, tmp_path: Path
+    ):
+        """Eine bewusste Entscheidung eines Menschen gehört ins audit_log (CLAUDE.md Regel 7)."""
+        from app.modelle import AuditEintrag
+
+        self._scannen(tmp_path / "projekte", 26014, [])
+        beleg = self._schlussrechnung(buchhaltung, 26014)
+        buchhaltung.schreiben(
+            "POST",
+            f"/api/rechnungen/{beleg['id']}/festschreiben",
+            json={"unterlagen_bestaetigt": True},
+        )
+
+        with lese_sitzung() as sitzung:
+            eintrag = sitzung.execute(
+                select(AuditEintrag)
+                .where(AuditEintrag.aktion == "beleg.ohne_unterlagen_festgeschrieben")
+                .order_by(AuditEintrag.id.desc())
+                .limit(1)
+            ).scalar_one()
+        assert eintrag.neu["fehlende_unterlagen"] == ["anlagendoku"]
+
+    def test_vollstaendiger_ordner_braucht_keine_bestaetigung(
+        self, buchhaltung, bestand, tmp_path: Path
+    ):
+        self._scannen(tmp_path / "projekte", 26014, ["Anlagendokumentation.pdf"])
+        beleg = self._schlussrechnung(buchhaltung, 26014)
+
+        antwort = buchhaltung.schreiben(
+            "POST", f"/api/rechnungen/{beleg['id']}/festschreiben", json={}
+        )
+
+        assert antwort.status_code == 200, antwort.text

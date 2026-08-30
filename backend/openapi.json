@@ -1451,6 +1451,13 @@
             ],
             "title": "Faellig Am"
           },
+          "fehlende_unterlagen": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fehlende Unterlagen",
+            "type": "array"
+          },
           "festgeschrieben_am": {
             "anyOf": [
               {
@@ -1994,6 +2001,18 @@
           "beleg"
         ],
         "title": "FestschreibenAntwort",
+        "type": "object"
+      },
+      "FestschreibenEingabe": {
+        "description": "Was beim Festschreiben zusätzlich mitkommen kann.\n\nZurzeit genau ein Feld: die Bestätigung, dass eine Schlussrechnung auch ohne die\nPflichtunterlagen im Projektordner rausgehen soll. Sie wird nur verlangt, wenn tatsächlich\netwas fehlt, und landet im ``audit_log``.",
+        "properties": {
+          "unterlagen_bestaetigt": {
+            "default": false,
+            "title": "Unterlagen Bestaetigt",
+            "type": "boolean"
+          }
+        },
+        "title": "FestschreibenEingabe",
         "type": "object"
       },
       "FristAendern": {
@@ -12363,7 +12382,7 @@
     },
     "/api/rechnungen/{beleg_id}/festschreiben": {
       "post": {
-        "description": "Der unumkehrbare Schritt: Nummer, Hash, Sperre, Ablage (PLAN §6.4).\n\nLäuft in einer eigenen Schreibtransaktion (``BEGIN IMMEDIATE``), damit zwei gleichzeitige\nFestschreibungen nicht dieselbe Nummer bekommen. Die Dateien werden erst nach dem Commit\ngeschrieben – scheitert das, bleibt der Beleg gültig und die Antwort sagt, was noch fehlt.",
+        "description": "Der unumkehrbare Schritt: Nummer, Hash, Sperre, Ablage (PLAN §6.4).\n\nLäuft in einer eigenen Schreibtransaktion (``BEGIN IMMEDIATE``), damit zwei gleichzeitige\nFestschreibungen nicht dieselbe Nummer bekommen. Die Dateien werden erst nach dem Commit\ngeschrieben – scheitert das, bleibt der Beleg gültig und die Antwort sagt, was noch fehlt.\n\nFehlen Pflichtunterlagen im Projektordner, verlangt der Leitstand eine ausdrückliche\nBestätigung, bevor er eine Schlussrechnung festschreibt (Entscheidung 50). Er sperrt nicht:\nder Scan sieht nur Dateinamen, und was auf Papier vorliegt, dürfte eine berechtigte\nRechnung nicht verhindern. Die Bestätigung steht im ``audit_log``.",
         "operationId": "rechnungFestschreiben",
         "parameters": [
           {
@@ -12376,6 +12395,23 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/FestschreibenEingabe"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Eingabe"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "content": {

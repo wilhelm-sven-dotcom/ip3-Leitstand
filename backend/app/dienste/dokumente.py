@@ -43,6 +43,17 @@ log = logger(__name__)
 # und „26001_Muster" führen damit alle zum selben Projekt.
 ZIFFERNFOLGE = re.compile(r"\d{4,8}")
 
+# Wie die Typen in Meldungen heißen. Der Datenbankschlüssel ('anlagendoku') gehört nicht auf
+# den Bildschirm – dieselbe Lehre wie beim Projektstatus, der als 'in_bau' dastand.
+TYP_TEXT: dict[str, str] = {
+    "ab": "Auftragsbestätigung",
+    "abnahme": "Abnahmeprotokoll",
+    "anlagendoku": "Anlagendokumentation",
+    "konformitaet": "Konformitätserklärung",
+    "messkonzept": "Messkonzept",
+    "sonstig": "sonstige Unterlage",
+}
+
 
 def vergleichsform(text: str) -> str:
     """Kleinschreibung, aufgelöste Umlaute, keine Trennzeichen.

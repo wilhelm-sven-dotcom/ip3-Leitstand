@@ -44,6 +44,7 @@ from app.dienste.belegarten import (
     summen_setzen,
 )
 from app.dienste.belege import steuer_hinweise
+from app.dienste.dokumente import TYP_TEXT, fehlende_pflicht
 from app.dienste.festschreibung import ablage_wiederholen, dateien_ablegen, festschreiben
 from app.dienste.konflikt import geaenderte_felder, konflikt_uebersetzen, stand_pruefen
 from app.fehler import Konflikt, NichtGefunden
@@ -179,6 +180,21 @@ class BelegAntwort(BaseModel):
     storniert_durch_nr: str | None = None
     aenderbar: bool
     stand: datetime
+    # Pflichtunterlagen, die im Projektordner fehlen (PLAN §7 Phase 7). Nur bei
+    # Schlussrechnungen gefüllt und nur, wenn der Doku-Scan schon einmal gelaufen ist. Die
+    # Maske zeigt sie an; gesperrt wird nichts (Entscheidung 50).
+    fehlende_unterlagen: list[str] = Field(default_factory=list)
+
+
+class FestschreibenEingabe(BaseModel):
+    """Was beim Festschreiben zusätzlich mitkommen kann.
+
+    Zurzeit genau ein Feld: die Bestätigung, dass eine Schlussrechnung auch ohne die
+    Pflichtunterlagen im Projektordner rausgehen soll. Sie wird nur verlangt, wenn tatsächlich
+    etwas fehlt, und landet im ``audit_log``.
+    """
+
+    unterlagen_bestaetigt: bool = False
 
 
 class ZeileAntwort(BaseModel):
@@ -319,7 +335,19 @@ def _als_position(position: Rechnungsposition) -> PositionAntwort:
     )
 
 
-def _als_antwort(beleg: Rechnung) -> BelegAntwort:
+def _fehlende_unterlagen(db: Session, beleg: Rechnung) -> list[str]:
+    """Welche Pflichtunterlagen dem Projekt dieser Schlussrechnung fehlen.
+
+    Nur für ``schluss``: eine Abschlagsrechnung geht raus, während gebaut wird – dort eine
+    Anlagendokumentation zu verlangen wäre unsinnig. Ein festgeschriebener Beleg fragt gar
+    nicht mehr, er ist ohnehin unveränderbar.
+    """
+    if beleg.art != "schluss" or beleg.projekt_id is None or beleg.status != "entwurf":
+        return []
+    return fehlende_pflicht(db, beleg.projekt_id)
+
+
+def _als_antwort(beleg: Rechnung, db: Session | None = None) -> BelegAntwort:
     snapshot = beleg.kunde_snapshot or {}
     return BelegAntwort(
         id=beleg.id,
@@ -374,6 +402,7 @@ def _als_antwort(beleg: Rechnung) -> BelegAntwort:
         ),
         aenderbar=beleg.ist_aenderbar,
         stand=beleg.updated_at,
+        fehlende_unterlagen=_fehlende_unterlagen(db, beleg) if db is not None else [],
     )
 
 
@@ -505,7 +534,7 @@ def lesen(
     zugriff: Zugriff = Depends(benoetigt("rechnungen.lesen")),
     db: Session = Depends(db_sitzung),
 ) -> BelegAntwort:
-    return _als_antwort(_beleg_holen(db, beleg_id, zugriff))
+    return _als_antwort(_beleg_holen(db, beleg_id, zugriff), db)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -552,7 +581,7 @@ def ab_erzeugen(
     _neu_protokollieren(db, zugriff, beleg, "beleg.ab_erzeugt")
     db.commit()
     log.info("Auftragsbestätigung zu Projekt %s als Entwurf angelegt", projekt_nr)
-    return _als_antwort(beleg)
+    return _als_antwort(beleg, db)
 
 
 @router.post(
@@ -589,7 +618,7 @@ def abschlag_erzeugen(
     db.flush()
     _neu_protokollieren(db, zugriff, beleg, "beleg.abschlag_erzeugt")
     db.commit()
-    return _als_antwort(beleg)
+    return _als_antwort(beleg, db)
 
 
 @router.post(
@@ -618,7 +647,7 @@ def schlussrechnung_erzeugen(
     db.flush()
     _neu_protokollieren(db, zugriff, beleg, "beleg.schlussrechnung_erzeugt")
     db.commit()
-    return _als_antwort(beleg)
+    return _als_antwort(beleg, db)
 
 
 @router.post(
@@ -656,7 +685,7 @@ def service_erzeugen(
     db.flush()
     _neu_protokollieren(db, zugriff, beleg, "beleg.service_erzeugt")
     db.commit()
-    return _als_antwort(beleg)
+    return _als_antwort(beleg, db)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -687,7 +716,7 @@ def aendern(
     summen_setzen(beleg)
     unterschiede = geaenderte_felder(vorher, _zustand(beleg))
     if not unterschiede:
-        return _als_antwort(beleg)
+        return _als_antwort(beleg, db)
 
     audit.eintragen(
         db,
@@ -706,7 +735,7 @@ def aendern(
         sperren_uebersetzen(fehler)
         konflikt_uebersetzen(fehler, "Der Beleg")
         raise
-    return _als_antwort(beleg)
+    return _als_antwort(beleg, db)
 
 
 @router.delete(
@@ -774,7 +803,7 @@ def position_anlegen(
         neu={"rechnung_id": beleg.id, **eingabe.model_dump()},
     )
     db.commit()
-    return _als_antwort(beleg)
+    return _als_antwort(beleg, db)
 
 
 @router.put(
@@ -815,7 +844,7 @@ def position_aendern(
         neu=eingabe.model_dump(),
     )
     db.commit()
-    return _als_antwort(beleg)
+    return _als_antwort(beleg, db)
 
 
 @router.delete(
@@ -848,7 +877,7 @@ def position_loeschen(
     beleg.positionen.remove(position)
     summen_setzen(beleg)
     db.commit()
-    return _als_antwort(beleg)
+    return _als_antwort(beleg, db)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -915,7 +944,7 @@ def ablage_nachholen(
         )
     pfade = ablage_wiederholen(db, beleg, ablage)
     log.info("Ablage zu %s nachgeholt: %s", beleg.rechnung_nr, pfade.pdf_pfad)
-    return _als_antwort(beleg)
+    return _als_antwort(beleg, db)
 
 
 @router.post(
@@ -927,6 +956,7 @@ def ablage_nachholen(
 )
 def beleg_festschreiben(
     beleg_id: int,
+    eingabe: FestschreibenEingabe | None = None,
     zugriff: Zugriff = Depends(benoetigt("rechnungen.festschreiben")),
     db: Session = Depends(db_sitzung),
 ) -> FestschreibenAntwort:
@@ -935,10 +965,26 @@ def beleg_festschreiben(
     Läuft in einer eigenen Schreibtransaktion (``BEGIN IMMEDIATE``), damit zwei gleichzeitige
     Festschreibungen nicht dieselbe Nummer bekommen. Die Dateien werden erst nach dem Commit
     geschrieben – scheitert das, bleibt der Beleg gültig und die Antwort sagt, was noch fehlt.
+
+    Fehlen Pflichtunterlagen im Projektordner, verlangt der Leitstand eine ausdrückliche
+    Bestätigung, bevor er eine Schlussrechnung festschreibt (Entscheidung 50). Er sperrt nicht:
+    der Scan sieht nur Dateinamen, und was auf Papier vorliegt, dürfte eine berechtigte
+    Rechnung nicht verhindern. Die Bestätigung steht im ``audit_log``.
     """
     from app.belege import ablage_aus_konfiguration
 
     beleg = _beleg_holen(db, beleg_id, zugriff)
+    fehlend = _fehlende_unterlagen(db, beleg)
+    bestaetigt = bool(eingabe and eingabe.unterlagen_bestaetigt)
+    if fehlend and not bestaetigt:
+        raise Konflikt(
+            "Im Projektordner fehlen Unterlagen: "
+            + ", ".join(TYP_TEXT.get(typ, typ) for typ in fehlend)
+            + ".",
+            "Die Unterlagen ablegen und den Ordner erneut prüfen lassen – oder das "
+            "Festschreiben ausdrücklich bestätigen, wenn sie auf anderem Weg vorliegen.",
+            code="unterlagen_fehlen",
+        )
     ablage = ablage_aus_konfiguration()
     try:
         with schreib_transaktion(db):
@@ -960,13 +1006,23 @@ def beleg_festschreiben(
                     "hash": beleg.hash,
                 },
             )
+            if fehlend:
+                audit.eintragen(
+                    db,
+                    "beleg.ohne_unterlagen_festgeschrieben",
+                    nutzer=zugriff.nutzer,
+                    ip=zugriff.ip,
+                    tabelle="rechnungen",
+                    datensatz_id=beleg.id,
+                    neu={"rechnung_nr": beleg.rechnung_nr, "fehlende_unterlagen": fehlend},
+                )
     except Exception as fehler:
         sperren_uebersetzen(fehler)
         raise
 
     ergebnis = dateien_ablegen(ablage, ergebnis)
     return FestschreibenAntwort(
-        beleg=_als_antwort(beleg),
+        beleg=_als_antwort(beleg, db),
         ablage_offen=ergebnis.ablage_offen,
         freigegebene_positionen=ergebnis.freigegebene_positionen,
         berechnete_positionen=ergebnis.berechnete_positionen,
@@ -997,7 +1053,7 @@ def storno_erzeugen(
     _neu_protokollieren(db, zugriff, beleg, "beleg.storno_erzeugt")
     db.commit()
     log.info("Storno zu %s als Entwurf angelegt", original.rechnung_nr)
-    return _als_antwort(beleg)
+    return _als_antwort(beleg, db)
 
 
 @router.post(
@@ -1023,4 +1079,4 @@ def gutschrift_erzeugen(
     db.flush()
     _neu_protokollieren(db, zugriff, beleg, "beleg.gutschrift_erzeugt")
     db.commit()
-    return _als_antwort(beleg)
+    return _als_antwort(beleg, db)

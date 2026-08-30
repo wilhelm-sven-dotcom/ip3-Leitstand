@@ -1281,6 +1281,11 @@ export interface paths {
          *     Läuft in einer eigenen Schreibtransaktion (``BEGIN IMMEDIATE``), damit zwei gleichzeitige
          *     Festschreibungen nicht dieselbe Nummer bekommen. Die Dateien werden erst nach dem Commit
          *     geschrieben – scheitert das, bleibt der Beleg gültig und die Antwort sagt, was noch fehlt.
+         *
+         *     Fehlen Pflichtunterlagen im Projektordner, verlangt der Leitstand eine ausdrückliche
+         *     Bestätigung, bevor er eine Schlussrechnung festschreibt (Entscheidung 50). Er sperrt nicht:
+         *     der Scan sieht nur Dateinamen, und was auf Papier vorliegt, dürfte eine berechtigte
+         *     Rechnung nicht verhindern. Die Bestätigung steht im ``audit_log``.
          */
         post: operations["rechnungFestschreiben"];
         delete?: never;
@@ -1971,6 +1976,8 @@ export interface components {
             datum: string;
             /** Faellig Am */
             faellig_am?: string | null;
+            /** Fehlende Unterlagen */
+            fehlende_unterlagen?: string[];
             /** Festgeschrieben Am */
             festgeschrieben_am?: string | null;
             /** Hash */
@@ -2132,6 +2139,21 @@ export interface components {
             berechnete_positionen?: number[];
             /** Freigegebene Positionen */
             freigegebene_positionen?: number[];
+        };
+        /**
+         * FestschreibenEingabe
+         * @description Was beim Festschreiben zusätzlich mitkommen kann.
+         *
+         *     Zurzeit genau ein Feld: die Bestätigung, dass eine Schlussrechnung auch ohne die
+         *     Pflichtunterlagen im Projektordner rausgehen soll. Sie wird nur verlangt, wenn tatsächlich
+         *     etwas fehlt, und landet im ``audit_log``.
+         */
+        FestschreibenEingabe: {
+            /**
+             * Unterlagen Bestaetigt
+             * @default false
+             */
+            unterlagen_bestaetigt: boolean;
         };
         /** FristAendern */
         FristAendern: {
@@ -8045,7 +8067,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["FestschreibenEingabe"] | null;
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
