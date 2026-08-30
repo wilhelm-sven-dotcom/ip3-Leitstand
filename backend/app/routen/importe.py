@@ -31,6 +31,7 @@ from app.dienste import pipeline as pipeline_dienst
 from app.fehler import Konflikt
 from app.importe import angebote as angebote_import
 from app.importe import datev as datev_import
+from app.importe import einspeisung as einspeisung_import
 from app.importe import kalkulationsblatt as kalkulation_import
 from app.importe import timetac as timetac_import
 from app.importe.befunde import Befund, als_liste
@@ -648,6 +649,128 @@ def laeufe_lesen(
         )
         for lauf in db.scalars(abfrage)
     ]
+
+
+# ---------------------------------------------------------------------------
+# Netzbetreiber-Abrechnung der eigenen Anlagen (Phase 7)
+# ---------------------------------------------------------------------------
+
+
+def _abrechnungsdatei(werte: Einstellungen) -> Path:
+    """Jüngste Abrechnungsdatei im eingerichteten Ordner.
+
+    Gesucht wird nach ``abrechnung*`` und ``einspeisung*``: welchen Namen der Netzbetreiber
+    vergibt, steht nicht fest, und beide Wörter sind naheliegend. Genommen wird die zuletzt
+    geänderte.
+    """
+    ordner = _ordner(werte.pfade.einspeisung, "die Netzbetreiber-Abrechnung", "einspeisung")
+    if not ordner.is_dir():
+        raise Konflikt(
+            f"Der Abrechnungsordner ist nicht erreichbar: {ordner}",
+            "Prüfen, ob OneDrive den Ordner synchronisiert hat und ob der Pfad in der "
+            "config.toml stimmt.",
+            code="einspeisung_pfad_fehlt",
+        )
+    endungen = (*einspeisung_import.EXCEL_ENDUNGEN, ".csv")
+    dateien = [
+        p
+        for muster in ("abrechnung*", "einspeisung*")
+        for p in ordner.glob(muster)
+        if p.suffix.lower() in endungen
+    ]
+    if not dateien:
+        raise Konflikt(
+            f"Im Ordner {ordner.name} liegt keine Abrechnung.",
+            "Erwartet wird eine Datei, deren Name mit 'abrechnung' oder 'einspeisung' beginnt, "
+            "als .xlsx oder .csv – nicht als PDF. Die Spaltennamen stehen in der config.toml "
+            "unter [einspeisung.spalten].",
+            code="einspeisung_datei_fehlt",
+        )
+    return max(dateien, key=lambda p: p.stat().st_mtime)
+
+
+def _einspeisung_kennung(datei: einspeisung_import.Abrechnungsdatei) -> str:
+    return _kennung(
+        [f"{z.zeile}|{z.anlage_id}|{z.monat}|{z.kwh}|{z.betrag_cent}" for z in datei.zeilen]
+    )
+
+
+@router.get(
+    "/einspeisung/vorschau",
+    response_model=VorschauAntwort,
+    summary="Netzbetreiber-Abrechnung ansehen, ohne zu schreiben",
+    operation_id="importEinspeisungVorschau",
+    responses={**RECHTE, 409: {"description": "Ordner oder Datei fehlt"}},
+)
+def einspeisung_vorschau(
+    zugriff: Zugriff = Depends(benoetigt("einspeisung.schreiben")),
+    db: Session = Depends(db_sitzung),
+    werte: Einstellungen = Depends(konfiguration),
+) -> VorschauAntwort:
+    datei = einspeisung_import.lesen(db, _abrechnungsdatei(werte), werte.einspeisung.spalten)
+    monate = sorted({z.monat for z in datei.zeilen})
+    return VorschauAntwort(
+        quelle="einspeisung",
+        kennung=_einspeisung_kennung(datei),
+        dateien=[datei.pfad.name],
+        zeitraum=f"{monate[0]} bis {monate[-1]}" if monate else None,
+        kontrollsummen={
+            "zeilen": len(datei.zeilen),
+            "kwh": int(sum(z.kwh for z in datei.zeilen)),
+            "betrag_cent": sum(z.betrag_cent for z in datei.zeilen),
+        },
+        befunde=_befunde(datei.befunde),
+        hinweise=[
+            "Ein vermerkter Zahlungseingang bleibt erhalten – der Import überschreibt nur "
+            "Menge und Betrag."
+        ],
+    )
+
+
+@router.post(
+    "/einspeisung/uebernehmen",
+    response_model=UebernahmeAntwort,
+    summary="Netzbetreiber-Abrechnung übernehmen",
+    operation_id="importEinspeisungUebernehmen",
+    responses=UEBERNEHMEN,
+)
+def einspeisung_uebernehmen(
+    eingabe: UebernahmeAnfrage,
+    zugriff: Zugriff = Depends(benoetigt("einspeisung.schreiben")),
+    db: Session = Depends(db_sitzung),
+    werte: Einstellungen = Depends(konfiguration),
+) -> UebernahmeAntwort:
+    datei = einspeisung_import.lesen(db, _abrechnungsdatei(werte), werte.einspeisung.spalten)
+    _kennung_pruefen(eingabe.kennung, _einspeisung_kennung(datei), "die Abrechnung")
+
+    audit.eintragen(
+        db,
+        "import.einspeisung",
+        nutzer=zugriff.nutzer,
+        ip=zugriff.ip,
+        neu={"datei": datei.pfad.name, "zeilen": len(datei.zeilen)},
+    )
+    from app.importe import laeufe
+
+    with schreib_transaktion(db):
+        lauf = laeufe.lauf_beginnen(db, quelle="einspeisung", datei=datei.pfad.name)
+        ergebnis = einspeisung_import.uebernehmen(db, datei)
+        laeufe.lauf_abschliessen(
+            db,
+            lauf,
+            befunde=ergebnis.befunde,
+            kennzahlen={"neu": ergebnis.neu, "aktualisiert": ergebnis.aktualisiert},
+        )
+
+    return UebernahmeAntwort(
+        quelle="einspeisung",
+        meldung=(f"{ergebnis.neu} Abrechnungen neu, {ergebnis.aktualisiert} aktualisiert."),
+        ergebnis={
+            "neu": ergebnis.neu,
+            "aktualisiert": ergebnis.aktualisiert,
+            "befunde": als_liste(ergebnis.befunde),
+        },
+    )
 
 
 def _kennung_pruefen(gesendet: str, erwartet: str, was: str) -> None:

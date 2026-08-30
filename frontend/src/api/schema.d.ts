@@ -327,6 +327,81 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/eigene-anlagen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Eigene Bestandsanlagen auflisten */
+        get: operations["eigeneAnlagenListe"];
+        put?: never;
+        /** Eigene Anlage anlegen */
+        post: operations["eigeneAnlageAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/eigene-anlagen/{anlage_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Eigene Anlage ändern */
+        put: operations["eigeneAnlageAendern"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/eigene-anlagen/{anlage_id}/abrechnungen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Abrechnung eines Monats erfassen oder ändern
+         * @description Je Anlage und Monat gibt es genau eine Zeile – deshalb PUT und nicht POST.
+         *
+         *     Von Hand erfasst oder aus der Abrechnungsdatei eingelesen: derselbe Datensatz. Wer den
+         *     Zahlungseingang vermerkt, ändert nur ``bezahlt_am``; ein späterer Import lässt das stehen.
+         */
+        put: operations["einspeiseAbrechnungPflegen"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/einspeisung": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Erwartete Gutschrift gegen Abrechnung */
+        get: operations["einspeisungBild"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/fristen": {
         parameters: {
             query?: never;
@@ -477,6 +552,40 @@ export interface paths {
         };
         /** DATEV-Kostenträger ansehen, ohne zu schreiben */
         get: operations["importDatevVorschau"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/importe/einspeisung/uebernehmen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Netzbetreiber-Abrechnung übernehmen */
+        post: operations["importEinspeisungUebernehmen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/importe/einspeisung/vorschau": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Netzbetreiber-Abrechnung ansehen, ohne zu schreiben */
+        get: operations["importEinspeisungVorschau"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1476,6 +1585,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/unterlagen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Projektordner und ihre Unterlagen */
+        get: operations["unterlagenUebersicht"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/unterlagen/scannen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Projektordner jetzt prüfen
+         * @description Den Scan von Hand anstoßen – sonst läuft er nachts.
+         *
+         *     Der Lauf ändert nichts an den Ordnern; er stellt nur fest, was darin liegt.
+         */
+        post: operations["unterlagenScannen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/zahlungsplan/{position_id}": {
         parameters: {
             query?: never;
@@ -1537,6 +1685,50 @@ export interface components {
              * @default true
              */
             abgemeldet: boolean;
+        };
+        /** AbrechnungAntwort */
+        AbrechnungAntwort: {
+            /** Anlage Id */
+            anlage_id: number;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Betrag Cent */
+            betrag_cent: number;
+            /** Bezahlt Am */
+            bezahlt_am?: string | null;
+            /** Eingelesen Am */
+            eingelesen_am?: string | null;
+            /** Id */
+            id: number;
+            /** Kwh */
+            kwh: number;
+            /** Monat */
+            monat: string;
+            /** Quelle Datei */
+            quelle_datei?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+        };
+        /**
+         * AbrechnungEingabe
+         * @description Eine Abrechnung von Hand erfassen oder ändern.
+         */
+        AbrechnungEingabe: {
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Betrag Cent */
+            betrag_cent: number;
+            /** Bezahlt Am */
+            bezahlt_am?: string | null;
+            /** Kwh */
+            kwh: number;
+            /** Monat */
+            monat: string;
+            /** Stand */
+            stand?: string | null;
         };
         /** AbsetzungAntwort */
         AbsetzungAntwort: {
@@ -1738,70 +1930,6 @@ export interface components {
              */
             wartungsvertrag: boolean;
         };
-        /** AnlageAntwort */
-        AnlageAntwort: {
-            /** Abnahme Datum */
-            abnahme_datum?: string | null;
-            /** Bemerkung */
-            bemerkung?: string | null;
-            /** Fristen */
-            fristen?: components["schemas"]["FristAntwort"][];
-            /** Gewaehrleistung Ende */
-            gewaehrleistung_ende?: string | null;
-            /** Id */
-            id: number;
-            /** Inbetriebnahme */
-            inbetriebnahme?: string | null;
-            /** Kunde */
-            kunde: string;
-            /** Kunde Id */
-            kunde_id: number;
-            /** Mastr Nr */
-            mastr_nr?: string | null;
-            /** Projekt Nr */
-            projekt_nr?: number | null;
-            /** Pv Kwp */
-            pv_kwp?: number | null;
-            /** Servicehistorie */
-            servicehistorie?: components["schemas"]["ServicezeileAntwort"][];
-            /** Speicher Kwh */
-            speicher_kwh?: number | null;
-            /**
-             * Stand
-             * Format: date-time
-             */
-            stand: string;
-            /** Standort */
-            standort?: string | null;
-            /** Wartungsvertrag */
-            wartungsvertrag: boolean;
-        };
-        /** AnlageEingabe */
-        AnlageEingabe: {
-            /** Abnahme Datum */
-            abnahme_datum?: string | null;
-            /** Bemerkung */
-            bemerkung?: string | null;
-            /** Gewaehrleistung Ende */
-            gewaehrleistung_ende?: string | null;
-            /** Inbetriebnahme */
-            inbetriebnahme?: string | null;
-            /** Kunde Id */
-            kunde_id: number;
-            /** Mastr Nr */
-            mastr_nr?: string | null;
-            /** Pv Kwp */
-            pv_kwp?: number | null;
-            /** Speicher Kwh */
-            speicher_kwh?: number | null;
-            /** Standort */
-            standort?: string | null;
-            /**
-             * Wartungsvertrag
-             * @default false
-             */
-            wartungsvertrag: boolean;
-        };
         /**
          * AnlageZeile
          * @description Anlage in der Liste.
@@ -1845,6 +1973,29 @@ export interface components {
             seite: number;
             /** Seiten */
             seiten: number;
+        };
+        /** AnlagenbildAntwort */
+        AnlagenbildAntwort: {
+            /** Abgerechnet Cent */
+            abgerechnet_cent: number;
+            /** Anlage Id */
+            anlage_id: number;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Erwartet Cent */
+            erwartet_cent: number;
+            /** Hinweise */
+            hinweise?: string[];
+            /** Kwh Gesamt */
+            kwh_gesamt: number;
+            /** Monate */
+            monate?: components["schemas"]["app__routen__einspeisung__MonatAntwort"][];
+            /** Offen Cent */
+            offen_cent: number;
+            /** Verguetung Ct Kwh */
+            verguetung_ct_kwh?: number | null;
+            /** Verguetungsart */
+            verguetungsart: string;
         };
         /**
          * AnmeldeDaten
@@ -2085,6 +2236,25 @@ export interface components {
             positionen: components["schemas"]["app__routen__stueckliste__PositionAntwort"][];
             /** Projekt Nr */
             projekt_nr: number;
+        };
+        /** BildAntwort */
+        BildAntwort: {
+            /** Abgerechnet Cent */
+            abgerechnet_cent: number;
+            /** Anlagen */
+            anlagen?: components["schemas"]["AnlagenbildAntwort"][];
+            /** Bis */
+            bis: string;
+            /** Einordnung */
+            einordnung: string;
+            /** Erwartet Cent */
+            erwartet_cent: number;
+            /** Hinweise */
+            hinweise?: string[];
+            /** Offen Cent */
+            offen_cent: number;
+            /** Von */
+            von: string;
         };
         /** CockpitAntwort */
         CockpitAntwort: {
@@ -2831,6 +3001,31 @@ export interface components {
             /** Stunden */
             stunden: number;
         };
+        /** OrdnerAntwort */
+        OrdnerAntwort: {
+            /** Dateien */
+            dateien: number;
+            /** Fehlende Pflicht */
+            fehlende_pflicht?: string[];
+            /** Gefunden */
+            gefunden: boolean;
+            /** Geprueft Am */
+            geprueft_am?: string | null;
+            /** Mehrdeutig Mit */
+            mehrdeutig_mit?: string | null;
+            /** Pfad */
+            pfad?: string | null;
+            /** Projekt Bezeichnung */
+            projekt_bezeichnung?: string | null;
+            /** Projekt Id */
+            projekt_id: number;
+            /** Projekt Nr */
+            projekt_nr: number;
+            /** Status */
+            status: string;
+            /** Unterlagen */
+            unterlagen?: components["schemas"]["UnterlageAntwort"][];
+        };
         /** PasswortDaten */
         PasswortDaten: {
             /** Altes Passwort */
@@ -3222,6 +3417,23 @@ export interface components {
             /** Ust */
             ust: number;
         };
+        /** ScanAntwort */
+        ScanAntwort: {
+            /** Mehrdeutig */
+            mehrdeutig: number;
+            /** Meldung */
+            meldung: string;
+            /** Mit Ordner */
+            mit_ordner: number;
+            /** Ohne Ordner */
+            ohne_ordner: number;
+            /** Projekte */
+            projekte: number;
+            /** Unvollstaendig */
+            unvollstaendig: number;
+            /** Verwaist */
+            verwaist?: string[];
+        };
         /** ServiceEingabe */
         ServiceEingabe: {
             /** Datum */
@@ -3334,26 +3546,18 @@ export interface components {
             /** Uebersprungen */
             uebersprungen: number;
         };
-        /** UebersichtAntwort */
-        UebersichtAntwort: {
-            /** Ampel Gelb Promille */
-            ampel_gelb_promille: number;
-            /** Anzahl */
-            anzahl: number;
-            /** Erloes Netto */
-            erloes_netto: number;
-            /** Ist Netto */
-            ist_netto: number;
-            /** Marge Netto */
-            marge_netto: number;
-            /** Marge Promille */
-            marge_promille: number | null;
-            /** Mit Hinweis */
-            mit_hinweis: number;
-            /** Ohne Kalkulation */
-            ohne_kalkulation: number;
-            /** Projekte */
-            projekte: components["schemas"]["app__routen__nachkalkulation__ProjektAntwort"][];
+        /** UnterlageAntwort */
+        UnterlageAntwort: {
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Pfad */
+            pfad?: string | null;
+            /** Pflicht */
+            pflicht: boolean;
+            /** Typ */
+            typ: string;
+            /** Vorhanden */
+            vorhanden: boolean;
         };
         /**
          * UnterminiertAntwort
@@ -3566,6 +3770,70 @@ export interface components {
             /** Zeilen */
             zeilen: number[];
         };
+        /** AnlageAntwort */
+        app__routen__anlagen__AnlageAntwort: {
+            /** Abnahme Datum */
+            abnahme_datum?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Fristen */
+            fristen?: components["schemas"]["FristAntwort"][];
+            /** Gewaehrleistung Ende */
+            gewaehrleistung_ende?: string | null;
+            /** Id */
+            id: number;
+            /** Inbetriebnahme */
+            inbetriebnahme?: string | null;
+            /** Kunde */
+            kunde: string;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Mastr Nr */
+            mastr_nr?: string | null;
+            /** Projekt Nr */
+            projekt_nr?: number | null;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Servicehistorie */
+            servicehistorie?: components["schemas"]["ServicezeileAntwort"][];
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Standort */
+            standort?: string | null;
+            /** Wartungsvertrag */
+            wartungsvertrag: boolean;
+        };
+        /** AnlageEingabe */
+        app__routen__anlagen__AnlageEingabe: {
+            /** Abnahme Datum */
+            abnahme_datum?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Gewaehrleistung Ende */
+            gewaehrleistung_ende?: string | null;
+            /** Inbetriebnahme */
+            inbetriebnahme?: string | null;
+            /** Kunde Id */
+            kunde_id: number;
+            /** Mastr Nr */
+            mastr_nr?: string | null;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /** Standort */
+            standort?: string | null;
+            /**
+             * Wartungsvertrag
+             * @default false
+             */
+            wartungsvertrag: boolean;
+        };
         /** MonatAntwort */
         app__routen__cockpit__MonatAntwort: {
             /** Db Promille */
@@ -3586,6 +3854,121 @@ export interface components {
             umsatz_netto: number;
             /** Variable Kosten */
             variable_kosten: number;
+        };
+        /** UebersichtAntwort */
+        app__routen__dokumente__UebersichtAntwort: {
+            /** Einordnung */
+            einordnung: string;
+            /** Gesamt */
+            gesamt: number;
+            /** Mehrdeutig */
+            mehrdeutig: number;
+            /** Nie Geprueft */
+            nie_geprueft: number;
+            /** Ohne Ordner */
+            ohne_ordner: number;
+            /** Ordner */
+            ordner?: components["schemas"]["OrdnerAntwort"][];
+            /** Unvollstaendig */
+            unvollstaendig: number;
+        };
+        /** AnlageAntwort */
+        app__routen__einspeisung__AnlageAntwort: {
+            /** Aktiv */
+            aktiv: boolean;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Id */
+            id: number;
+            /** Inbetriebnahme */
+            inbetriebnahme?: string | null;
+            /** Mastr Nr */
+            mastr_nr?: string | null;
+            /** Netzbetreiber */
+            netzbetreiber?: string | null;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Standort */
+            standort?: string | null;
+            /** Verguetung Ct Kwh */
+            verguetung_ct_kwh?: number | null;
+            /** Verguetungsart */
+            verguetungsart: string;
+            /** Vermarkter */
+            vermarkter?: string | null;
+            /** Vermarkter Entgelt Ct Kwh */
+            vermarkter_entgelt_ct_kwh?: number | null;
+            /** Zaehler Nr */
+            zaehler_nr?: string | null;
+        };
+        /** AnlageEingabe */
+        app__routen__einspeisung__AnlageEingabe: {
+            /**
+             * Aktiv
+             * @default true
+             */
+            aktiv: boolean;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bezeichnung */
+            bezeichnung: string;
+            /** Inbetriebnahme */
+            inbetriebnahme?: string | null;
+            /** Mastr Nr */
+            mastr_nr?: string | null;
+            /** Netzbetreiber */
+            netzbetreiber?: string | null;
+            /** Pv Kwp */
+            pv_kwp?: number | null;
+            /** Speicher Kwh */
+            speicher_kwh?: number | null;
+            /** Stand */
+            stand?: string | null;
+            /** Standort */
+            standort?: string | null;
+            /** Verguetung Ct Kwh */
+            verguetung_ct_kwh?: number | null;
+            /**
+             * Verguetungsart
+             * @default einspeisung
+             */
+            verguetungsart: string;
+            /** Vermarkter */
+            vermarkter?: string | null;
+            /** Vermarkter Entgelt Ct Kwh */
+            vermarkter_entgelt_ct_kwh?: number | null;
+            /** Zaehler Nr */
+            zaehler_nr?: string | null;
+        };
+        /** MonatAntwort */
+        app__routen__einspeisung__MonatAntwort: {
+            /** Abgerechnet Cent */
+            abgerechnet_cent: number;
+            /** Abweichung Cent */
+            abweichung_cent?: number | null;
+            /** Abweichung Promille */
+            abweichung_promille?: number | null;
+            /** Bezahlt Am */
+            bezahlt_am?: string | null;
+            /** Erwartet Cent */
+            erwartet_cent?: number | null;
+            /** Kwh */
+            kwh: number;
+            /** Monat */
+            monat: string;
+            /** Offen */
+            offen: boolean;
+            /** Quelle Datei */
+            quelle_datei?: string | null;
         };
         /** UebernahmeAnfrage */
         app__routen__importe__UebernahmeAnfrage: {
@@ -3742,6 +4125,27 @@ export interface components {
             stunden_abweichung: string | null;
             /** Stunden Ist */
             stunden_ist: string;
+        };
+        /** UebersichtAntwort */
+        app__routen__nachkalkulation__UebersichtAntwort: {
+            /** Ampel Gelb Promille */
+            ampel_gelb_promille: number;
+            /** Anzahl */
+            anzahl: number;
+            /** Erloes Netto */
+            erloes_netto: number;
+            /** Ist Netto */
+            ist_netto: number;
+            /** Marge Netto */
+            marge_netto: number;
+            /** Marge Promille */
+            marge_promille: number | null;
+            /** Mit Hinweis */
+            mit_hinweis: number;
+            /** Ohne Kalkulation */
+            ohne_kalkulation: number;
+            /** Projekte */
+            projekte: components["schemas"]["app__routen__nachkalkulation__ProjektAntwort"][];
         };
         /** ProjektAntwort */
         app__routen__projekte__ProjektAntwort: {
@@ -4244,7 +4648,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AnlageEingabe"];
+                "application/json": components["schemas"]["app__routen__anlagen__AnlageEingabe"];
             };
         };
         responses: {
@@ -4254,7 +4658,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AnlageAntwort"];
+                    "application/json": components["schemas"]["app__routen__anlagen__AnlageAntwort"];
                 };
             };
             /** @description Nicht angemeldet */
@@ -4313,7 +4717,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AnlageAntwort"];
+                    "application/json": components["schemas"]["app__routen__anlagen__AnlageAntwort"];
                 };
             };
             /** @description Nicht angemeldet */
@@ -4369,7 +4773,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AnlageAntwort"];
+                    "application/json": components["schemas"]["app__routen__anlagen__AnlageAntwort"];
                 };
             };
             /** @description Nicht angemeldet */
@@ -4823,6 +5227,289 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    eigeneAnlagenListe: {
+        parameters: {
+            query?: {
+                /** @description Stillgelegte Anlagen ausblenden */
+                nur_aktive?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__einspeisung__AnlageAntwort"][];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung einspeisung.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    eigeneAnlageAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__routen__einspeisung__AnlageEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__einspeisung__AnlageAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung einspeisung.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Anlage oder Abrechnung nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    eigeneAnlageAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                anlage_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__routen__einspeisung__AnlageEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__einspeisung__AnlageAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung einspeisung.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Anlage oder Abrechnung nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    einspeiseAbrechnungPflegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                anlage_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AbrechnungEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AbrechnungAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung einspeisung.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Anlage oder Abrechnung nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    einspeisungBild: {
+        parameters: {
+            query?: {
+                /** @description Wie viele Monate zurück */
+                monate?: number;
+                /** @description Letzter Monat, Format JJJJ-MM */
+                bis?: string | null;
+                /** @description Stillgelegte Anlagen ausblenden */
+                nur_aktive?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BildAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung einspeisung.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };
@@ -5283,6 +5970,101 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+        };
+    };
+    importEinspeisungUebernehmen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__routen__importe__UebernahmeAnfrage"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__importe__UebernahmeAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datei zwischenzeitlich geändert oder Ordner nicht eingerichtet */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importEinspeisungVorschau: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__importe__VorschauAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ordner oder Datei fehlt */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -6629,7 +7411,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UebersichtAntwort"];
+                    "application/json": components["schemas"]["app__routen__nachkalkulation__UebersichtAntwort"];
                 };
             };
             /** @description Nicht angemeldet */
@@ -8671,6 +9453,95 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+        };
+    };
+    unterlagenUebersicht: {
+        parameters: {
+            query?: {
+                /** @description Nur Projekte mit fehlender Pflichtunterlage */
+                nur_unvollstaendig?: boolean;
+                /** @description Auf einen Projektstatus einschränken */
+                status?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__dokumente__UebersichtAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung projekte.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unterlagenScannen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScanAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Kein Projektordner konfiguriert oder nicht erreichbar */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

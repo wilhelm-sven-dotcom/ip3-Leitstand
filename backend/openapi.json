@@ -12,6 +12,152 @@
         "title": "Abmeldung",
         "type": "object"
       },
+      "AbrechnungAntwort": {
+        "properties": {
+          "anlage_id": {
+            "title": "Anlage Id",
+            "type": "integer"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "betrag_cent": {
+            "title": "Betrag Cent",
+            "type": "integer"
+          },
+          "bezahlt_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezahlt Am"
+          },
+          "eingelesen_am": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eingelesen Am"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kwh": {
+            "title": "Kwh",
+            "type": "number"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "quelle_datei": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quelle Datei"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "anlage_id",
+          "monat",
+          "kwh",
+          "betrag_cent",
+          "stand"
+        ],
+        "title": "AbrechnungAntwort",
+        "type": "object"
+      },
+      "AbrechnungEingabe": {
+        "description": "Eine Abrechnung von Hand erfassen oder ändern.",
+        "properties": {
+          "bemerkung": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "betrag_cent": {
+            "title": "Betrag Cent",
+            "type": "integer"
+          },
+          "bezahlt_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezahlt Am"
+          },
+          "kwh": {
+            "minimum": 0.0,
+            "title": "Kwh",
+            "type": "number"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "stand": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stand"
+          }
+        },
+        "required": [
+          "monat",
+          "kwh",
+          "betrag_cent"
+        ],
+        "title": "AbrechnungEingabe",
+        "type": "object"
+      },
       "AbsetzungAntwort": {
         "properties": {
           "brutto": {
@@ -639,271 +785,6 @@
         "title": "AnlageAendern",
         "type": "object"
       },
-      "AnlageAntwort": {
-        "properties": {
-          "abnahme_datum": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Abnahme Datum"
-          },
-          "bemerkung": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bemerkung"
-          },
-          "fristen": {
-            "items": {
-              "$ref": "#/components/schemas/FristAntwort"
-            },
-            "title": "Fristen",
-            "type": "array"
-          },
-          "gewaehrleistung_ende": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Gewaehrleistung Ende"
-          },
-          "id": {
-            "title": "Id",
-            "type": "integer"
-          },
-          "inbetriebnahme": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Inbetriebnahme"
-          },
-          "kunde": {
-            "title": "Kunde",
-            "type": "string"
-          },
-          "kunde_id": {
-            "title": "Kunde Id",
-            "type": "integer"
-          },
-          "mastr_nr": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Mastr Nr"
-          },
-          "projekt_nr": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Projekt Nr"
-          },
-          "pv_kwp": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Pv Kwp"
-          },
-          "servicehistorie": {
-            "items": {
-              "$ref": "#/components/schemas/ServicezeileAntwort"
-            },
-            "title": "Servicehistorie",
-            "type": "array"
-          },
-          "speicher_kwh": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Speicher Kwh"
-          },
-          "stand": {
-            "format": "date-time",
-            "title": "Stand",
-            "type": "string"
-          },
-          "standort": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Standort"
-          },
-          "wartungsvertrag": {
-            "title": "Wartungsvertrag",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "id",
-          "kunde_id",
-          "kunde",
-          "wartungsvertrag",
-          "stand"
-        ],
-        "title": "AnlageAntwort",
-        "type": "object"
-      },
-      "AnlageEingabe": {
-        "properties": {
-          "abnahme_datum": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Abnahme Datum"
-          },
-          "bemerkung": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bemerkung"
-          },
-          "gewaehrleistung_ende": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Gewaehrleistung Ende"
-          },
-          "inbetriebnahme": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Inbetriebnahme"
-          },
-          "kunde_id": {
-            "title": "Kunde Id",
-            "type": "integer"
-          },
-          "mastr_nr": {
-            "anyOf": [
-              {
-                "maxLength": 100,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Mastr Nr"
-          },
-          "pv_kwp": {
-            "anyOf": [
-              {
-                "maximum": 100000.0,
-                "minimum": 0.0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Pv Kwp"
-          },
-          "speicher_kwh": {
-            "anyOf": [
-              {
-                "maximum": 100000.0,
-                "minimum": 0.0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Speicher Kwh"
-          },
-          "standort": {
-            "anyOf": [
-              {
-                "maxLength": 200,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Standort"
-          },
-          "wartungsvertrag": {
-            "default": false,
-            "title": "Wartungsvertrag",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "kunde_id"
-        ],
-        "title": "AnlageEingabe",
-        "type": "object"
-      },
       "AnlageZeile": {
         "description": "Anlage in der Liste.",
         "properties": {
@@ -1047,6 +928,74 @@
           "seiten"
         ],
         "title": "AnlagenListe",
+        "type": "object"
+      },
+      "AnlagenbildAntwort": {
+        "properties": {
+          "abgerechnet_cent": {
+            "title": "Abgerechnet Cent",
+            "type": "integer"
+          },
+          "anlage_id": {
+            "title": "Anlage Id",
+            "type": "integer"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "erwartet_cent": {
+            "title": "Erwartet Cent",
+            "type": "integer"
+          },
+          "hinweise": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hinweise",
+            "type": "array"
+          },
+          "kwh_gesamt": {
+            "title": "Kwh Gesamt",
+            "type": "number"
+          },
+          "monate": {
+            "items": {
+              "$ref": "#/components/schemas/app__routen__einspeisung__MonatAntwort"
+            },
+            "title": "Monate",
+            "type": "array"
+          },
+          "offen_cent": {
+            "title": "Offen Cent",
+            "type": "integer"
+          },
+          "verguetung_ct_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verguetung Ct Kwh"
+          },
+          "verguetungsart": {
+            "title": "Verguetungsart",
+            "type": "string"
+          }
+        },
+        "required": [
+          "anlage_id",
+          "bezeichnung",
+          "verguetungsart",
+          "kwh_gesamt",
+          "erwartet_cent",
+          "abgerechnet_cent",
+          "offen_cent"
+        ],
+        "title": "AnlagenbildAntwort",
         "type": "object"
       },
       "AnmeldeDaten": {
@@ -1832,6 +1781,58 @@
           "meldung"
         ],
         "title": "BewertungAntwort",
+        "type": "object"
+      },
+      "BildAntwort": {
+        "properties": {
+          "abgerechnet_cent": {
+            "title": "Abgerechnet Cent",
+            "type": "integer"
+          },
+          "anlagen": {
+            "items": {
+              "$ref": "#/components/schemas/AnlagenbildAntwort"
+            },
+            "title": "Anlagen",
+            "type": "array"
+          },
+          "bis": {
+            "title": "Bis",
+            "type": "string"
+          },
+          "einordnung": {
+            "title": "Einordnung",
+            "type": "string"
+          },
+          "erwartet_cent": {
+            "title": "Erwartet Cent",
+            "type": "integer"
+          },
+          "hinweise": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hinweise",
+            "type": "array"
+          },
+          "offen_cent": {
+            "title": "Offen Cent",
+            "type": "integer"
+          },
+          "von": {
+            "title": "Von",
+            "type": "string"
+          }
+        },
+        "required": [
+          "von",
+          "bis",
+          "erwartet_cent",
+          "abgerechnet_cent",
+          "offen_cent",
+          "einordnung"
+        ],
+        "title": "BildAntwort",
         "type": "object"
       },
       "CockpitAntwort": {
@@ -4122,6 +4123,98 @@
         "title": "OhneTerminAntwort",
         "type": "object"
       },
+      "OrdnerAntwort": {
+        "properties": {
+          "dateien": {
+            "title": "Dateien",
+            "type": "integer"
+          },
+          "fehlende_pflicht": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fehlende Pflicht",
+            "type": "array"
+          },
+          "gefunden": {
+            "title": "Gefunden",
+            "type": "boolean"
+          },
+          "geprueft_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geprueft Am"
+          },
+          "mehrdeutig_mit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mehrdeutig Mit"
+          },
+          "pfad": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pfad"
+          },
+          "projekt_bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Bezeichnung"
+          },
+          "projekt_id": {
+            "title": "Projekt Id",
+            "type": "integer"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "unterlagen": {
+            "items": {
+              "$ref": "#/components/schemas/UnterlageAntwort"
+            },
+            "title": "Unterlagen",
+            "type": "array"
+          }
+        },
+        "required": [
+          "projekt_id",
+          "projekt_nr",
+          "status",
+          "gefunden",
+          "dateien"
+        ],
+        "title": "OrdnerAntwort",
+        "type": "object"
+      },
       "PasswortDaten": {
         "properties": {
           "altes_passwort": {
@@ -5500,6 +5593,51 @@
         "title": "SatzAntwort",
         "type": "object"
       },
+      "ScanAntwort": {
+        "properties": {
+          "mehrdeutig": {
+            "title": "Mehrdeutig",
+            "type": "integer"
+          },
+          "meldung": {
+            "title": "Meldung",
+            "type": "string"
+          },
+          "mit_ordner": {
+            "title": "Mit Ordner",
+            "type": "integer"
+          },
+          "ohne_ordner": {
+            "title": "Ohne Ordner",
+            "type": "integer"
+          },
+          "projekte": {
+            "title": "Projekte",
+            "type": "integer"
+          },
+          "unvollstaendig": {
+            "title": "Unvollstaendig",
+            "type": "integer"
+          },
+          "verwaist": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Verwaist",
+            "type": "array"
+          }
+        },
+        "required": [
+          "projekte",
+          "mit_ordner",
+          "ohne_ordner",
+          "mehrdeutig",
+          "unvollstaendig",
+          "meldung"
+        ],
+        "title": "ScanAntwort",
+        "type": "object"
+      },
       "ServiceEingabe": {
         "properties": {
           "datum": {
@@ -5877,67 +6015,43 @@
         "title": "UebernahmeErgebnis",
         "type": "object"
       },
-      "UebersichtAntwort": {
+      "UnterlageAntwort": {
         "properties": {
-          "ampel_gelb_promille": {
-            "title": "Ampel Gelb Promille",
-            "type": "integer"
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
           },
-          "anzahl": {
-            "title": "Anzahl",
-            "type": "integer"
-          },
-          "erloes_netto": {
-            "title": "Erloes Netto",
-            "type": "integer"
-          },
-          "ist_netto": {
-            "title": "Ist Netto",
-            "type": "integer"
-          },
-          "marge_netto": {
-            "title": "Marge Netto",
-            "type": "integer"
-          },
-          "marge_promille": {
+          "pfad": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Marge Promille"
+            "title": "Pfad"
           },
-          "mit_hinweis": {
-            "title": "Mit Hinweis",
-            "type": "integer"
+          "pflicht": {
+            "title": "Pflicht",
+            "type": "boolean"
           },
-          "ohne_kalkulation": {
-            "title": "Ohne Kalkulation",
-            "type": "integer"
+          "typ": {
+            "title": "Typ",
+            "type": "string"
           },
-          "projekte": {
-            "items": {
-              "$ref": "#/components/schemas/app__routen__nachkalkulation__ProjektAntwort"
-            },
-            "title": "Projekte",
-            "type": "array"
+          "vorhanden": {
+            "title": "Vorhanden",
+            "type": "boolean"
           }
         },
         "required": [
-          "projekte",
-          "erloes_netto",
-          "ist_netto",
-          "marge_netto",
-          "marge_promille",
-          "anzahl",
-          "ohne_kalkulation",
-          "mit_hinweis",
-          "ampel_gelb_promille"
+          "typ",
+          "bezeichnung",
+          "vorhanden",
+          "pflicht"
         ],
-        "title": "UebersichtAntwort",
+        "title": "UnterlageAntwort",
         "type": "object"
       },
       "UnterminiertAntwort": {
@@ -6549,6 +6663,271 @@
         "title": "ZuordnungAntwort",
         "type": "object"
       },
+      "app__routen__anlagen__AnlageAntwort": {
+        "properties": {
+          "abnahme_datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abnahme Datum"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "fristen": {
+            "items": {
+              "$ref": "#/components/schemas/FristAntwort"
+            },
+            "title": "Fristen",
+            "type": "array"
+          },
+          "gewaehrleistung_ende": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gewaehrleistung Ende"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "inbetriebnahme": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbetriebnahme"
+          },
+          "kunde": {
+            "title": "Kunde",
+            "type": "string"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "mastr_nr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mastr Nr"
+          },
+          "projekt_nr": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Nr"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "servicehistorie": {
+            "items": {
+              "$ref": "#/components/schemas/ServicezeileAntwort"
+            },
+            "title": "Servicehistorie",
+            "type": "array"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "wartungsvertrag": {
+            "title": "Wartungsvertrag",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "kunde_id",
+          "kunde",
+          "wartungsvertrag",
+          "stand"
+        ],
+        "title": "AnlageAntwort",
+        "type": "object"
+      },
+      "app__routen__anlagen__AnlageEingabe": {
+        "properties": {
+          "abnahme_datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abnahme Datum"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "gewaehrleistung_ende": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gewaehrleistung Ende"
+          },
+          "inbetriebnahme": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbetriebnahme"
+          },
+          "kunde_id": {
+            "title": "Kunde Id",
+            "type": "integer"
+          },
+          "mastr_nr": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mastr Nr"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "wartungsvertrag": {
+            "default": false,
+            "title": "Wartungsvertrag",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kunde_id"
+        ],
+        "title": "AnlageEingabe",
+        "type": "object"
+      },
       "app__routen__cockpit__MonatAntwort": {
         "properties": {
           "db_promille": {
@@ -6612,6 +6991,462 @@
           "deckung",
           "db_promille",
           "fixkostendeckung_promille"
+        ],
+        "title": "MonatAntwort",
+        "type": "object"
+      },
+      "app__routen__dokumente__UebersichtAntwort": {
+        "properties": {
+          "einordnung": {
+            "title": "Einordnung",
+            "type": "string"
+          },
+          "gesamt": {
+            "title": "Gesamt",
+            "type": "integer"
+          },
+          "mehrdeutig": {
+            "title": "Mehrdeutig",
+            "type": "integer"
+          },
+          "nie_geprueft": {
+            "title": "Nie Geprueft",
+            "type": "integer"
+          },
+          "ohne_ordner": {
+            "title": "Ohne Ordner",
+            "type": "integer"
+          },
+          "ordner": {
+            "items": {
+              "$ref": "#/components/schemas/OrdnerAntwort"
+            },
+            "title": "Ordner",
+            "type": "array"
+          },
+          "unvollstaendig": {
+            "title": "Unvollstaendig",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "gesamt",
+          "ohne_ordner",
+          "unvollstaendig",
+          "mehrdeutig",
+          "nie_geprueft",
+          "einordnung"
+        ],
+        "title": "UebersichtAntwort",
+        "type": "object"
+      },
+      "app__routen__einspeisung__AnlageAntwort": {
+        "properties": {
+          "aktiv": {
+            "title": "Aktiv",
+            "type": "boolean"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bezeichnung": {
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "inbetriebnahme": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbetriebnahme"
+          },
+          "mastr_nr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mastr Nr"
+          },
+          "netzbetreiber": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Netzbetreiber"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "verguetung_ct_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verguetung Ct Kwh"
+          },
+          "verguetungsart": {
+            "title": "Verguetungsart",
+            "type": "string"
+          },
+          "vermarkter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vermarkter"
+          },
+          "vermarkter_entgelt_ct_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vermarkter Entgelt Ct Kwh"
+          },
+          "zaehler_nr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zaehler Nr"
+          }
+        },
+        "required": [
+          "id",
+          "bezeichnung",
+          "verguetungsart",
+          "aktiv",
+          "stand"
+        ],
+        "title": "AnlageAntwort",
+        "type": "object"
+      },
+      "app__routen__einspeisung__AnlageEingabe": {
+        "properties": {
+          "aktiv": {
+            "default": true,
+            "title": "Aktiv",
+            "type": "boolean"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bezeichnung": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Bezeichnung",
+            "type": "string"
+          },
+          "inbetriebnahme": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbetriebnahme"
+          },
+          "mastr_nr": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mastr Nr"
+          },
+          "netzbetreiber": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Netzbetreiber"
+          },
+          "pv_kwp": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Kwp"
+          },
+          "speicher_kwh": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speicher Kwh"
+          },
+          "stand": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stand"
+          },
+          "standort": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standort"
+          },
+          "verguetung_ct_kwh": {
+            "anyOf": [
+              {
+                "maximum": 1000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verguetung Ct Kwh"
+          },
+          "verguetungsart": {
+            "default": "einspeisung",
+            "title": "Verguetungsart",
+            "type": "string"
+          },
+          "vermarkter": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vermarkter"
+          },
+          "vermarkter_entgelt_ct_kwh": {
+            "anyOf": [
+              {
+                "maximum": 1000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vermarkter Entgelt Ct Kwh"
+          },
+          "zaehler_nr": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zaehler Nr"
+          }
+        },
+        "required": [
+          "bezeichnung"
+        ],
+        "title": "AnlageEingabe",
+        "type": "object"
+      },
+      "app__routen__einspeisung__MonatAntwort": {
+        "properties": {
+          "abgerechnet_cent": {
+            "title": "Abgerechnet Cent",
+            "type": "integer"
+          },
+          "abweichung_cent": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abweichung Cent"
+          },
+          "abweichung_promille": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abweichung Promille"
+          },
+          "bezahlt_am": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezahlt Am"
+          },
+          "erwartet_cent": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erwartet Cent"
+          },
+          "kwh": {
+            "title": "Kwh",
+            "type": "number"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "offen": {
+            "title": "Offen",
+            "type": "boolean"
+          },
+          "quelle_datei": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quelle Datei"
+          }
+        },
+        "required": [
+          "monat",
+          "kwh",
+          "abgerechnet_cent",
+          "offen"
         ],
         "title": "MonatAntwort",
         "type": "object"
@@ -7139,6 +7974,69 @@
           "hinweise"
         ],
         "title": "ProjektAntwort",
+        "type": "object"
+      },
+      "app__routen__nachkalkulation__UebersichtAntwort": {
+        "properties": {
+          "ampel_gelb_promille": {
+            "title": "Ampel Gelb Promille",
+            "type": "integer"
+          },
+          "anzahl": {
+            "title": "Anzahl",
+            "type": "integer"
+          },
+          "erloes_netto": {
+            "title": "Erloes Netto",
+            "type": "integer"
+          },
+          "ist_netto": {
+            "title": "Ist Netto",
+            "type": "integer"
+          },
+          "marge_netto": {
+            "title": "Marge Netto",
+            "type": "integer"
+          },
+          "marge_promille": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marge Promille"
+          },
+          "mit_hinweis": {
+            "title": "Mit Hinweis",
+            "type": "integer"
+          },
+          "ohne_kalkulation": {
+            "title": "Ohne Kalkulation",
+            "type": "integer"
+          },
+          "projekte": {
+            "items": {
+              "$ref": "#/components/schemas/app__routen__nachkalkulation__ProjektAntwort"
+            },
+            "title": "Projekte",
+            "type": "array"
+          }
+        },
+        "required": [
+          "projekte",
+          "erloes_netto",
+          "ist_netto",
+          "marge_netto",
+          "marge_promille",
+          "anzahl",
+          "ohne_kalkulation",
+          "mit_hinweis",
+          "ampel_gelb_promille"
+        ],
+        "title": "UebersichtAntwort",
         "type": "object"
       },
       "app__routen__projekte__ProjektAntwort": {
@@ -8275,7 +9173,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AnlageEingabe"
+                "$ref": "#/components/schemas/app__routen__anlagen__AnlageEingabe"
               }
             }
           },
@@ -8286,7 +9184,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnlageAntwort"
+                  "$ref": "#/components/schemas/app__routen__anlagen__AnlageAntwort"
                 }
               }
             },
@@ -8341,7 +9239,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnlageAntwort"
+                  "$ref": "#/components/schemas/app__routen__anlagen__AnlageAntwort"
                 }
               }
             },
@@ -8401,7 +9299,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnlageAntwort"
+                  "$ref": "#/components/schemas/app__routen__anlagen__AnlageAntwort"
                 }
               }
             },
@@ -8869,6 +9767,324 @@
         "summary": "Zahlungslage der festgeschriebenen Rechnungen",
         "tags": [
           "Firmen-Cockpit"
+        ]
+      }
+    },
+    "/api/eigene-anlagen": {
+      "get": {
+        "operationId": "eigeneAnlagenListe",
+        "parameters": [
+          {
+            "description": "Stillgelegte Anlagen ausblenden",
+            "in": "query",
+            "name": "nur_aktive",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Stillgelegte Anlagen ausblenden",
+              "title": "Nur Aktive",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/app__routen__einspeisung__AnlageAntwort"
+                  },
+                  "title": "Response Eigeneanlagenliste",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung einspeisung.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Eigene Bestandsanlagen auflisten",
+        "tags": [
+          "Einspeisung"
+        ]
+      },
+      "post": {
+        "operationId": "eigeneAnlageAnlegen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__routen__einspeisung__AnlageEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__einspeisung__AnlageAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung einspeisung.schreiben fehlt"
+          },
+          "404": {
+            "description": "Anlage oder Abrechnung nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Eigene Anlage anlegen",
+        "tags": [
+          "Einspeisung"
+        ]
+      }
+    },
+    "/api/eigene-anlagen/{anlage_id}": {
+      "put": {
+        "operationId": "eigeneAnlageAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "anlage_id",
+            "required": true,
+            "schema": {
+              "title": "Anlage Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__routen__einspeisung__AnlageEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__einspeisung__AnlageAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung einspeisung.schreiben fehlt"
+          },
+          "404": {
+            "description": "Anlage oder Abrechnung nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Eigene Anlage ändern",
+        "tags": [
+          "Einspeisung"
+        ]
+      }
+    },
+    "/api/eigene-anlagen/{anlage_id}/abrechnungen": {
+      "put": {
+        "description": "Je Anlage und Monat gibt es genau eine Zeile – deshalb PUT und nicht POST.\n\nVon Hand erfasst oder aus der Abrechnungsdatei eingelesen: derselbe Datensatz. Wer den\nZahlungseingang vermerkt, ändert nur ``bezahlt_am``; ein späterer Import lässt das stehen.",
+        "operationId": "einspeiseAbrechnungPflegen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "anlage_id",
+            "required": true,
+            "schema": {
+              "title": "Anlage Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AbrechnungEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbrechnungAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung einspeisung.schreiben fehlt"
+          },
+          "404": {
+            "description": "Anlage oder Abrechnung nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Abrechnung eines Monats erfassen oder ändern",
+        "tags": [
+          "Einspeisung"
+        ]
+      }
+    },
+    "/api/einspeisung": {
+      "get": {
+        "operationId": "einspeisungBild",
+        "parameters": [
+          {
+            "description": "Wie viele Monate zurück",
+            "in": "query",
+            "name": "monate",
+            "required": false,
+            "schema": {
+              "default": 12,
+              "description": "Wie viele Monate zurück",
+              "maximum": 60,
+              "minimum": 1,
+              "title": "Monate",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Letzter Monat, Format JJJJ-MM",
+            "in": "query",
+            "name": "bis",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Letzter Monat, Format JJJJ-MM",
+              "title": "Bis"
+            }
+          },
+          {
+            "description": "Stillgelegte Anlagen ausblenden",
+            "in": "query",
+            "name": "nur_aktive",
+            "required": false,
+            "schema": {
+              "default": true,
+              "description": "Stillgelegte Anlagen ausblenden",
+              "title": "Nur Aktive",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BildAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung einspeisung.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Erwartete Gutschrift gegen Abrechnung",
+        "tags": [
+          "Einspeisung"
         ]
       }
     },
@@ -9364,6 +10580,86 @@
           }
         },
         "summary": "DATEV-Kostenträger ansehen, ohne zu schreiben",
+        "tags": [
+          "Importe"
+        ]
+      }
+    },
+    "/api/importe/einspeisung/uebernehmen": {
+      "post": {
+        "operationId": "importEinspeisungUebernehmen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__routen__importe__UebernahmeAnfrage"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__importe__UebernahmeAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "Datei zwischenzeitlich geändert oder Ordner nicht eingerichtet"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Netzbetreiber-Abrechnung übernehmen",
+        "tags": [
+          "Importe"
+        ]
+      }
+    },
+    "/api/importe/einspeisung/vorschau": {
+      "get": {
+        "operationId": "importEinspeisungVorschau",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__importe__VorschauAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "Ordner oder Datei fehlt"
+          }
+        },
+        "summary": "Netzbetreiber-Abrechnung ansehen, ohne zu schreiben",
         "tags": [
           "Importe"
         ]
@@ -10823,7 +12119,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UebersichtAntwort"
+                  "$ref": "#/components/schemas/app__routen__nachkalkulation__UebersichtAntwort"
                 }
               }
             },
@@ -13083,6 +14379,106 @@
         "summary": "Umsatz je Monat als Ist und Plan",
         "tags": [
           "Umsatz"
+        ]
+      }
+    },
+    "/api/unterlagen": {
+      "get": {
+        "operationId": "unterlagenUebersicht",
+        "parameters": [
+          {
+            "description": "Nur Projekte mit fehlender Pflichtunterlage",
+            "in": "query",
+            "name": "nur_unvollstaendig",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Nur Projekte mit fehlender Pflichtunterlage",
+              "title": "Nur Unvollstaendig",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Auf einen Projektstatus einschränken",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Auf einen Projektstatus einschränken",
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__dokumente__UebersichtAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung projekte.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Projektordner und ihre Unterlagen",
+        "tags": [
+          "Unterlagen"
+        ]
+      }
+    },
+    "/api/unterlagen/scannen": {
+      "post": {
+        "description": "Den Scan von Hand anstoßen – sonst läuft er nachts.\n\nDer Lauf ändert nichts an den Ordnern; er stellt nur fest, was darin liegt.",
+        "operationId": "unterlagenScannen",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScanAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "Kein Projektordner konfiguriert oder nicht erreichbar"
+          }
+        },
+        "summary": "Projektordner jetzt prüfen",
+        "tags": [
+          "Unterlagen"
         ]
       }
     },
