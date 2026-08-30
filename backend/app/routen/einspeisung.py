@@ -114,6 +114,7 @@ class AnlagenbildAntwort(BaseModel):
     bezeichnung: str
     verguetungsart: str
     verguetung_ct_kwh: float | None = None
+    vermarkter_entgelt_ct_kwh: float | None = None
     kwh_gesamt: float
     erwartet_cent: int
     abgerechnet_cent: int
@@ -471,6 +472,11 @@ def bild(
                 verguetungsart=teil.verguetungsart,
                 verguetung_ct_kwh=(
                     float(teil.verguetung_ct_kwh) if teil.verguetung_ct_kwh is not None else None
+                ),
+                vermarkter_entgelt_ct_kwh=(
+                    float(teil.vermarkter_entgelt_ct_kwh)
+                    if teil.vermarkter_entgelt_ct_kwh is not None
+                    else None
                 ),
                 kwh_gesamt=float(teil.kwh_gesamt),
                 erwartet_cent=teil.erwartet_cent,

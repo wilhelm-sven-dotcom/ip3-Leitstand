@@ -22,7 +22,12 @@ import { KpiTile } from "@/komponenten/KpiTile";
 import { Meldung } from "@/komponenten/Meldung";
 import { api } from "@/api/client";
 import { euro, monatKurz, zahl } from "@/format/formate";
-import { abweichungText, verguetungsart, zahlungslage } from "./begriffe";
+import {
+  abweichungText,
+  verguetungsart,
+  zahlungslage,
+  zeitraumText,
+} from "./begriffe";
 
 type Monat = {
   monat: string;
@@ -40,6 +45,7 @@ type Anlagenbild = {
   bezeichnung: string;
   verguetungsart: string;
   verguetung_ct_kwh: number | null;
+  vermarkter_entgelt_ct_kwh: number | null;
   kwh_gesamt: number;
   erwartet_cent: number;
   abgerechnet_cent: number;
@@ -71,7 +77,12 @@ export function Einspeisung() {
     { kopf: "Anlage", hervorgehoben: true, zelle: (a) => a.bezeichnung },
     {
       kopf: "Vergütung",
-      zelle: (a) => verguetungsart(a.verguetungsart, a.verguetung_ct_kwh),
+      zelle: (a) =>
+        verguetungsart(
+          a.verguetungsart,
+          a.verguetung_ct_kwh,
+          a.vermarkter_entgelt_ct_kwh,
+        ),
     },
     {
       kopf: "Menge (kWh)",
@@ -148,7 +159,7 @@ export function Einspeisung() {
           <KpiTile
             label="Erwartet"
             wert={euro(daten.erwartet_cent)}
-            zusatz={`${monatKurz(daten.von)} bis ${monatKurz(daten.bis)}`}
+            zusatz={zeitraumText(daten.von, daten.bis)}
           />
           <KpiTile label="Abgerechnet" wert={euro(daten.abgerechnet_cent)} />
           <KpiTile

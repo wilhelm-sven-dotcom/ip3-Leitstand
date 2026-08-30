@@ -6,13 +6,17 @@ describe("ordnerlage", () => {
     // Sonst stünde für jedes neue Projekt eine Warnung da, die niemand abstellen kann.
     const lage = ordnerlage({ gefunden: false, dateien: 0, geprueft_am: null });
     expect(lage.art).toBe("neutral");
-    expect(lage.text).toBe("nie geprüft");
+    expect(lage.text).toBe("Nie geprüft");
   });
 
   it("kein Ordner ist der Fehlerfall", () => {
-    const lage = ordnerlage({ gefunden: false, dateien: 0, geprueft_am: "2026-08-30" });
+    const lage = ordnerlage({
+      gefunden: false,
+      dateien: 0,
+      geprueft_am: "2026-08-30",
+    });
     expect(lage.art).toBe("fehler");
-    expect(lage.text).toBe("kein Ordner");
+    expect(lage.text).toBe("Kein Ordner");
   });
 
   it("mehrdeutig geht vor allem anderen", () => {
@@ -25,28 +29,35 @@ describe("ordnerlage", () => {
       geprueft_am: "2026-08-30",
     });
     expect(lage.art).toBe("warnung");
-    expect(lage.text).toBe("mehrdeutig");
+    expect(lage.text).toBe("Mehrdeutig");
   });
 
   it("ein leerer Ordner ist etwas anderes als kein Ordner", () => {
-    const lage = ordnerlage({ gefunden: true, dateien: 0, geprueft_am: "2026-08-30" });
+    const lage = ordnerlage({
+      gefunden: true,
+      dateien: 0,
+      geprueft_am: "2026-08-30",
+    });
     expect(lage.art).toBe("warnung");
-    expect(lage.text).toBe("leer");
+    expect(lage.text).toBe("Leer");
   });
 
   it("zählt Dateien im richtigen Numerus", () => {
-    expect(ordnerlage({ gefunden: true, dateien: 1, geprueft_am: "2026-08-30" }).text).toBe(
-      "1 Datei",
-    );
-    expect(ordnerlage({ gefunden: true, dateien: 7, geprueft_am: "2026-08-30" }).text).toBe(
-      "7 Dateien",
-    );
+    expect(
+      ordnerlage({ gefunden: true, dateien: 1, geprueft_am: "2026-08-30" })
+        .text,
+    ).toBe("1 Datei");
+    expect(
+      ordnerlage({ gefunden: true, dateien: 7, geprueft_am: "2026-08-30" })
+        .text,
+    ).toBe("7 Dateien");
   });
 
   it("setzt ein geschütztes Leerzeichen vor die Einheit", () => {
-    expect(ordnerlage({ gefunden: true, dateien: 3, geprueft_am: "2026-08-30" }).text).toContain(
-      " ",
-    );
+    expect(
+      ordnerlage({ gefunden: true, dateien: 3, geprueft_am: "2026-08-30" })
+        .text,
+    ).toContain(" ");
   });
 });
 

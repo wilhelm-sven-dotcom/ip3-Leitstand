@@ -135,9 +135,9 @@ Die Steuernummer bleibt wünschenswert, ist aber keine Voraussetzung.
     häufiger als eine Konfiguration und sollen gepflegt werden, ohne dass jemand auf den Host
     muss. Eine abgeleitete Kapazität hätte den Fehler, dass eine Woche mit Krankheit dauerhaft
     die Erwartung senkt.
-41. **Nur Kapazität und Pipeline.** Der Doku-Vollständigkeitsscan der Projektordner und das
-    Vergütungs-Controlling für eigene Bestandsanlagen bleiben vorerst außen vor (PLAN §7
-    nennt sie als Teil der Phase).
+41. ~~**Nur Kapazität und Pipeline.**~~ – **überholt am 30.08.2026:** der Doku-Scan und das
+    Vergütungs-Controlling sind nachgezogen, Phase 7 ist damit vollständig (Entscheidungen
+    49 bis 53).
 
 **Von mir entschieden (technisch, im Code kommentiert), zur Kenntnis:**
 
@@ -160,6 +160,66 @@ Die Steuernummer bleibt wünschenswert, ist aber keine Voraussetzung.
     zeigt Stunden und ist der eigene Terminplan.
 48. **Ein gewonnenes Angebot braucht ein Projekt.** Sonst stünde sein Wert weder in der
     Pipeline noch im Auftragsbestand. Ein Import überschreibt ein gewonnenes Angebot nie.
+
+## Entschieden für den Rest von Phase 7 (30.08.2026)
+
+49. **Pflicht vor der Schlussrechnung ist allein die Anlagendokumentation.** Abnahmeprotokoll,
+    Konformitätserklärung und Messkonzept werden mitgescannt und angezeigt, lösen aber keinen
+    Hinweis aus. Was Pflicht ist, steht in der `config.toml` unter `[dokumente] pflicht` und
+    lässt sich ohne Codeänderung ändern.
+50. **Warnen statt sperren.** Fehlt eine Pflichtunterlage, verlangt das Festschreiben einer
+    Schlussrechnung eine ausdrückliche Bestätigung; die steht dann im `audit_log`. Eine harte
+    Sperre wäre der teurere Fehler: der Scan sieht nur Dateinamen, und was auf Papier vorliegt,
+    dürfte keine berechtigte Rechnung verhindern.
+51. **Die Vergütungsart hängt an der einzelnen Anlage.** Einspeisung und Direktvermarktung
+    laufen nebeneinander. Bei Einspeisung ist der hinterlegte Satz der EEG-Satz, bei
+    Direktvermarktung der anzulegende Wert abzüglich Vermarkterentgelt.
+52. **Die Abrechnung des Netzbetreibers ist die Quelle** für Menge und Betrag – als `.csv` oder
+    `.xlsx`, **nicht als PDF**. Aus einem PDF Zahlen zu ziehen ist ratebehaftet, und bei einer
+    Zahl, die gegen einen Zahlungseingang geprüft wird, ist Raten das Gegenteil dessen, was
+    gebraucht wird. Kommt nur ein PDF, sind die zwei Zahlen je Monat und Anlage von Hand
+    schneller erfasst als jede Erkennung.
+
+**Von mir entschieden (technisch, im Code kommentiert), zur Kenntnis:**
+
+53. **Eigene Anlagen stehen in einer eigenen Tabelle**, nicht in `anlagen`. Die dortigen Anlagen
+    gehören Kunden und sind Bezugspunkt für Service, Wartung und Gewährleistung; `kunde_id` ist
+    dort nicht ohne Grund NOT NULL. Eine eigene Anlage hätte dort keinen Kunden und keine
+    Gewährleistung, dafür einen Vergütungssatz und eine Zählernummer. Die Buchhaltung bekommt
+    `einspeisung.lesen` **und** `.schreiben` – sie verarbeitet die Abrechnungen.
+54. **Ohne Vergütungssatz gibt es keine Erwartung, nicht 0,00 €.** Eine Null läse sich als
+    „nichts zu erwarten", und genau diese Anlage wäre dann die, bei der niemand nachsieht.
+55. **„Kein Ordner" und „Ordner da, Unterlage fehlt" bleiben getrennt** – in der Zählung wie in
+    der Anzeige. Das Erste ist fast immer ein Namensproblem, das Zweite eine echte Lücke in der
+    Mappe, und die beiden führen zu verschiedenen Handgriffen.
+56. **Ein Projekt, über dessen Ordner nie gescannt wurde, meldet nichts.** Ein Hinweis „alles
+    fehlt", nur weil der Scan nie lief, wäre falsch und nach zweimal Wegklicken tot.
+
+## Was der Rest-Phase-7-Abnahmelauf zutage brachte
+
+**Vier Fehler im eigenen Code, alle behoben – drei davon hat erst der Bildschirm gezeigt:**
+
+| Was | Warum es zählt |
+|---|---|
+| Ein Projekt **ohne** Ordner wurde als „Ordner ohne vollständige Pflichtdoku" mitgezählt. Dasselbe Projekt stand zweimal in den Zahlen, und das Wort „Ordner" beschrieb einen, den es nicht gibt. | Zwei Zahlen, die dasselbe Projekt zählen, machen jede Summe wertlos. |
+| `quantize(Decimal("1"))` rundet **zur geraden Zahl**, nicht kaufmännisch – entgegen dem eigenen Kommentar und dem Rest des Hauses. Bei 651.562,5 ct ergab das einen Cent Unterschied. | Eine Kontrollrechnung, die anders rundet als die Abrechnung, meldet eine Abweichung, die keine ist. |
+| Die Anlagenliste zeigte bei Direktvermarktung **6,50 ct/kWh**, rechnete aber mit 6,25 (abzüglich Vermarkterentgelt). Die API lieferte das Entgelt gar nicht mit. | 202.650 kWh mal 6,50 sind 13.172,25 €, dastand 12.665,63 €. Wer nachrechnet, misstraut danach der ganzen Ansicht. |
+| Auf dem Reiter „Eigene Anlagen" stand „0 Anlagen im Register" über einer Liste mit drei Anlagen; die Zeitraumangabe lautete „Sep bis Aug" ohne Jahreszahl. | Beides sind Zahlen, die etwas anderes behaupten als das, was darunter steht. |
+
+**Und der dritte Numerus-Fehler dieses Projekts:** „1 Monat weichen um mehr als 2 % ab", „1 Monat
+sind abgerechnet". Das Zählwort allein reicht nicht – das Verb muss mit. Dafür gibt es jetzt
+`_monatssatz()` und einen eigenen Test.
+
+**Für Sven, bevor das Vergütungs-Controlling in Betrieb geht:**
+
+| Was | Warum |
+|---|---|
+| **Eine echte Abrechnung des Netzbetreibers liefern** (eine genügt) | Der Leser ist gegen erfundene Spaltennamen entwickelt. Sie stehen in der `config.toml` unter `[einspeisung.spalten]` und sind ohne Codeänderung nachzuziehen – aber erst die echte Datei zeigt, ob die Liste passt. |
+| **Ordner für die Abrechnungen festlegen** | `[pfade] einspeisung`. Erwartet wird eine Datei, deren Name mit `abrechnung` oder `einspeisung` beginnt, als `.csv` oder `.xlsx`. |
+| **Die eigenen Anlagen erfassen**, mit Vergütungssatz und Zählernummer | Ohne Satz gibt es keine Erwartung, ohne Zählernummer keine Zuordnung der Abrechnung. |
+| **Zahlungseingänge vermerken** | Die Abrechnung sagt, was der Netzbetreiber zahlen *will*. Ob das Geld angekommen ist, weiß nur der Kontoauszug – und den liest der Leitstand nicht (PLAN §2). |
+| **Wurzel der Projektordner festlegen** | `[pfade] projekte`. Ein Ordner je Projekt, die Nummer im Namen. Ohne sie läuft der Doku-Scan nicht. |
+| **Prüfen, ob die Pflichtliste stimmt** | Zurzeit nur die Anlagendokumentation. Was dauerhaft rot steht, liest nach zwei Wochen niemand mehr – deshalb lieber kurz halten. |
 
 ## Was der Phase-7-Abnahmelauf zutage brachte
 

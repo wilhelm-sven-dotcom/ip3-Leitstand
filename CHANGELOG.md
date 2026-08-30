@@ -2,6 +2,69 @@
 
 Format: neueste Phase oben. Jede Phase endet lauffähig mit grüner Testsuite (PLAN §7).
 
+## 0.9.0 – Phase 7 vollständig: Unterlagen und eigene Anlagen
+
+Die zwei Punkte, die in 0.8.0 offengeblieben waren (PLAN §7). Phase 7 ist damit gebaut, und
+mit ihr der Phasenplan.
+
+### Doku-Vollständigkeitsscan der Projektordner
+
+Ein nächtlicher Lauf liest die Ordner unter `[pfade] projekte`, ordnet jeden über die
+Projektnummer im Namen einem Projekt zu und jede Datei über ihren Namen einem Dokumenttyp.
+Erkannt wird über konfigurierbare Muster – kleingeschrieben, mit aufgelösten Umlauten und ohne
+Trennzeichen, damit `Abnahmeprotokoll_Müller-2026.pdf` und `abnahme protokoll mueller.pdf`
+dasselbe treffen.
+
+**Der Leitstand liest dabei ausschließlich.** Er legt keinen Ordner an, verschiebt nichts und
+benennt nichts um.
+
+Drei Zustände bleiben getrennt, weil sie zu drei verschiedenen Handgriffen führen:
+
+* **nie geprüft** – der Scan lief für dieses Projekt noch nicht. Es fehlt nichts, es ist nur
+  nichts bekannt.
+* **kein Ordner** – fast immer ein Namensproblem.
+* **Ordner da, Unterlage fehlt** – die einzige echte Lücke in der Mappe.
+
+Liegen zwei Ordner mit derselben Nummer da, nimmt der Scan den ersten und **nennt den zweiten**.
+Das ist die einzige Lage, in der der Lauf zur Warnung wird; ein unvollständiger Ordner färbt den
+Systemstatus nicht ein, weil er bei laufenden Projekten der Normalfall ist.
+
+Am Entwurf einer Schlussrechnung steht, was im Projektordner fehlt. Das Festschreiben verlangt
+dann eine ausdrückliche Bestätigung und vermerkt sie im `audit_log` – **gesperrt wird nicht**
+(Entscheidung 50). Der Scan sieht nur Dateinamen; was auf Papier vorliegt, dürfte keine
+berechtigte Rechnung verhindern.
+
+### Vergütungs-Controlling der eigenen Bestandsanlagen
+
+Kommt für den eingespeisten Strom das an, was ankommen müsste? Der Leitstand rechnet die
+Erwartung aus den hinterlegten Sätzen und stellt sie der Abrechnung des Netzbetreibers
+gegenüber. Das ist eine **Kontrollrechnung, keine Buchung** – verbindlich bleibt die Abrechnung.
+
+Beide Vergütungsarten laufen nebeneinander (Entscheidung 51): bei Einspeisung ist die Erwartung
+Menge mal EEG-Satz, bei Direktvermarktung Menge mal anzulegendem Wert abzüglich
+Vermarkterentgelt. Angezeigt wird immer der Satz, mit dem tatsächlich gerechnet wurde.
+
+Gemeldet wird dreierlei: Monate über der Toleranz, Monate ohne Abrechnung (erst ab
+Inbetriebnahme und erst, wenn der Monat vorbei ist) und abgerechnete Gutschriften ohne
+Zahlungseingang. **Ohne hinterlegten Satz gibt es keine Erwartung, nicht 0,00 €** – eine Null
+läse sich als „nichts zu erwarten".
+
+Die Abrechnung kommt als `.csv` oder `.xlsx` mit konfigurierbaren Spaltennamen; zugeordnet wird
+über Zählernummer oder MaStR-Nummer. **Als PDF geht es nicht** (Entscheidung 52). Ein zweiter
+Lauf aktualisiert, statt zu verdoppeln, und lässt einen von Hand vermerkten Zahlungseingang
+stehen.
+
+### Sonst
+
+* Neue Seite **Unterlagen** (`projekte.lesen`) und ein dritter Reiter **Eigene Anlagen** unter
+  Service & Anlagen (`einspeisung.lesen`).
+* Schema 0009: `projektordner`, `eigene_anlagen`, `einspeise_abrechnungen`, dazu der
+  eindeutige Index auf `dokumente(projekt_id, typ)`, der seit Phase 0 fehlte.
+* Zwei Helfer sind dorthin gewandert, wo sie hingehören: die Excel-Kopfzeilenerkennung in den
+  gemeinsamen `csv_leser`, die Monatsarithmetik nach `app/zeit.py`.
+* Der Abnahmelauf hat vier Fehler im eigenen Code gefunden, drei davon erst auf dem Bildschirm –
+  sie stehen in `docs/OFFENE-PUNKTE.md`.
+
 ## 0.8.0 – Phase 7: Kapazität und Angebotspipeline
 
 Zwei Ansichten, die dieselbe Frage von zwei Seiten stellen – **reicht es?** Menüpunkt

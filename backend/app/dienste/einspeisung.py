@@ -28,7 +28,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, timedelta
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -49,7 +49,11 @@ def erwartung_cent(anlage: EigeneAnlage, kwh: Decimal | float | None) -> int | N
     if anlage.verguetungsart == "direktvermarktung" and anlage.vermarkter_entgelt_ct_kwh:
         satz -= Decimal(str(anlage.vermarkter_entgelt_ct_kwh))
     # ct/kWh mal kWh ergibt Cent – die Einheit passt ohne Umrechnung (CLAUDE.md Regel 3).
-    return int((Decimal(str(kwh)) * satz).quantize(Decimal("1")))
+    # Ausdrücklich ROUND_HALF_UP: ``quantize`` rundet ohne Angabe zur geraden Zahl, und ein
+    # halber Cent fällt dann mal hoch, mal runter. Der Rest des Hauses rechnet kaufmännisch
+    # (``kapazitaet``, ``pipeline``), und eine Kontrollrechnung, die um einen Cent anders
+    # rundet als die Abrechnung, meldet eine Abweichung, die keine ist.
+    return int((Decimal(str(kwh)) * satz).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
 
 
 @dataclass
@@ -89,6 +93,10 @@ class Anlagenbild:
     bezeichnung: str
     verguetungsart: str
     verguetung_ct_kwh: Decimal | None
+    # Ohne das Entgelt lässt sich die Erwartung nicht nachrechnen: bei Direktvermarktung
+    # rechnet der Dienst mit dem anzulegenden Wert **minus** Entgelt, und eine Ansicht, die
+    # nur den Bruttosatz zeigt, widerspricht der Zahl daneben.
+    vermarkter_entgelt_ct_kwh: Decimal | None = None
     monate: list[Monatszeile] = field(default_factory=list)
     hinweise: list[str] = field(default_factory=list)
 
@@ -183,6 +191,11 @@ def bild(
                 if anlage.verguetung_ct_kwh is not None
                 else None
             ),
+            vermarkter_entgelt_ct_kwh=(
+                Decimal(str(anlage.vermarkter_entgelt_ct_kwh))
+                if anlage.vermarkter_entgelt_ct_kwh is not None
+                else None
+            ),
         )
         vorhanden = je_anlage.get(anlage.id, {})
         for monat in fenster:
@@ -250,7 +263,7 @@ def _hinweise(
     ]
     if auffaellig:
         hinweise.append(
-            f"{_monatswort(len(auffaellig))} weichen um mehr als "
+            f"{_monatssatz(len(auffaellig), 'weicht', 'weichen')} um mehr als "
             f"{toleranz_promille / 10:.0f} % von der Erwartung ab: "
             + ", ".join(_monat_text(z.monat) for z in auffaellig[:6])
             + ("…" if len(auffaellig) > 6 else "")
@@ -263,8 +276,8 @@ def _hinweise(
     ]
     if ueberfaellig:
         hinweise.append(
-            f"{_monatswort(len(ueberfaellig))} sind abgerechnet, aber seit mehr als "
-            f"{zahlungsziel_tage} Tagen nicht als bezahlt vermerkt."
+            f"{_monatssatz(len(ueberfaellig), 'ist', 'sind')} abgerechnet, aber seit mehr "
+            f"als {zahlungsziel_tage} Tagen nicht als bezahlt vermerkt."
         )
     return hinweise
 
@@ -272,6 +285,16 @@ def _hinweise(
 def _monatswort(anzahl: int) -> str:
     """„1 Monat", „3 Monate" – Zahl und Wort im gleichen Numerus."""
     return "1 Monat" if anzahl == 1 else f"{anzahl} Monate"
+
+
+def _monatssatz(anzahl: int, einzahl: str, mehrzahl: str) -> str:
+    """Wie :func:`_monatswort`, aber mit dem Verb.
+
+    Das Zählwort allein reicht nicht: „1 Monat weichen ab" ist genauso falsch wie
+    „1 Monate weicht ab". Das Verb steht deshalb hier und nicht im Satzbaustein darüber –
+    es ist beim Zählen schon dreimal danebengegangen.
+    """
+    return f"{_monatswort(anzahl)} {einzahl if anzahl == 1 else mehrzahl}"
 
 
 def _monat_text(monat: str) -> str:

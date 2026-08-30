@@ -6,7 +6,7 @@
  * von den Komponenten, weil sich Text prüfen lässt und Text am ehesten falsch wird.
  */
 
-import { NBSP, datum, euro } from "@/format/formate";
+import { NBSP, datum, euro, monatKurz } from "@/format/formate";
 
 const FRIST_TYPEN: Record<string, string> = {
   mastr: "MaStR-Registrierung",
@@ -113,17 +113,41 @@ export function anlagenZusatz(
  * Der Satz gehört dazu, weil er die Erwartung erklärt: eine Abweichung ist fast immer ein
  * falsch abgeschriebener Satz, und wer ihn nicht sieht, sucht an der falschen Stelle.
  */
-export function verguetungsart(art: string, satz: number | null): string {
+export function verguetungsart(
+  art: string,
+  satz: number | null,
+  entgelt: number | null = null,
+): string {
   const name =
     art === "direktvermarktung" ? "Direktvermarktung" : "Einspeisung";
   if (satz === null) {
     return `${name} · Satz fehlt`;
   }
-  const gerundet = satz.toLocaleString("de-DE", {
+  // Bei Direktvermarktung steht hier der Satz **nach** Abzug des Vermarkterentgelts – also
+  // der, mit dem die Erwartung daneben gerechnet ist. Den anzulegenden Wert anzuzeigen und
+  // mit einem anderen zu rechnen wäre der schlimmere Fehler: wer nachrechnet, käme auf eine
+  // andere Zahl und misstraute danach der ganzen Ansicht.
+  const wirksam =
+    art === "direktvermarktung" && entgelt ? satz - entgelt : satz;
+  const gerundet = wirksam.toLocaleString("de-DE", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 4,
   });
-  return `${name} · ${gerundet}${NBSP}ct/kWh`;
+  const zusatz =
+    art === "direktvermarktung" && entgelt
+      ? ` (${satz.toLocaleString("de-DE", { minimumFractionDigits: 2 })} abzgl. Entgelt)`
+      : "";
+  return `${name} · ${gerundet}${NBSP}ct/kWh${zusatz}`;
+}
+
+/** „Sep 2025 bis Aug 2026" – ohne Jahreszahl liest sich ein Zwölfmonatsfenster wie Unsinn. */
+export function zeitraumText(von: string, bis: string): string {
+  return `${monatMitJahr(von)} bis ${monatMitJahr(bis)}`;
+}
+
+function monatMitJahr(wert: string): string {
+  if (!wert || wert.length !== 7) return "–";
+  return `${monatKurz(wert)}${NBSP}${wert.slice(0, 4)}`;
 }
 
 /**

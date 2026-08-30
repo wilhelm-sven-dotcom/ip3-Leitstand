@@ -25,6 +25,13 @@ Alle Daten bleiben lokal beziehungsweise im Firmen-OneDrive.
 
 ## Stand
 
+**Phase 7 vollständig – Unterlagen und eigene Anlagen.** Der Doku-Scan liest nachts die
+Projektordner und hält fest, welche Mappe unvollständig ist; am Entwurf einer Schlussrechnung
+steht, was fehlt, und das Festschreiben verlangt dann eine ausdrückliche Bestätigung – gesperrt
+wird nicht, denn der Scan sieht nur Dateinamen. Das Vergütungs-Controlling stellt der Abrechnung
+des Netzbetreibers gegenüber, was aus den hinterlegten Sätzen zu erwarten wäre: eine
+Kontrollrechnung, keine Buchung. Damit ist der Phasenplan aus PLAN §7 gebaut.
+
 **Phase 7 – Kapazität und Angebotspipeline.** Zwei Ansichten, die dieselbe Frage von zwei
 Seiten stellen: reicht es? Die Kapazität stellt den Sollstunden aus der Kalkulation die
 Wochenstunden der Mannschaft gegenüber, Woche für Woche, und sagt dazu, was an der Antwort

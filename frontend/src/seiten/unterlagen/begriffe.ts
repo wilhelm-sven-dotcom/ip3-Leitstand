@@ -29,16 +29,16 @@ export type Lage = {
  */
 export function ordnerlage(befund: Ordnerbefund): Lage {
   if (!befund.geprueft_am) {
-    return { art: "neutral", text: "nie geprüft" };
+    return { art: "neutral", text: "Nie geprüft" };
   }
   if (befund.mehrdeutig_mit) {
-    return { art: "warnung", text: "mehrdeutig" };
+    return { art: "warnung", text: "Mehrdeutig" };
   }
   if (!befund.gefunden) {
-    return { art: "fehler", text: "kein Ordner" };
+    return { art: "fehler", text: "Kein Ordner" };
   }
   if (befund.dateien === 0) {
-    return { art: "warnung", text: "leer" };
+    return { art: "warnung", text: "Leer" };
   }
   return {
     art: "erfolg",

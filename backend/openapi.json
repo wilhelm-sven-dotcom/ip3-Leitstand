@@ -984,6 +984,17 @@
           "verguetungsart": {
             "title": "Verguetungsart",
             "type": "string"
+          },
+          "vermarkter_entgelt_ct_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vermarkter Entgelt Ct Kwh"
           }
         },
         "required": [

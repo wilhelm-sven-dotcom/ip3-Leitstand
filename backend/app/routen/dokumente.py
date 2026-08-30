@@ -164,7 +164,7 @@ def uebersicht(
     return UebersichtAntwort(
         gesamt=len(projekte),
         ohne_ordner=sum(1 for p in projekte if not (ordner.get(p.id) and ordner[p.id].gefunden)),
-        unvollstaendig=sum(1 for z in zeilen if z.fehlende_pflicht),
+        unvollstaendig=sum(1 for z in zeilen if z.gefunden and z.fehlende_pflicht),
         mehrdeutig=sum(1 for p in projekte if ordner.get(p.id) and ordner[p.id].mehrdeutig_mit),
         nie_geprueft=sum(
             1 for p in projekte if not (ordner.get(p.id) and ordner[p.id].geprueft_am)

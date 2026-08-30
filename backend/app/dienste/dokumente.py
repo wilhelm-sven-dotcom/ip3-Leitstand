@@ -277,7 +277,11 @@ def scannen(
             zeile.vorhanden = datei is not None
             zeile.geprueft_am = stichtag
 
-        if [typ for typ in werte.pflicht if typ not in befund.gefunden]:
+        # Nur ein *vorhandener* Ordner kann unvollständig sein. Ein Projekt ohne Ordner steht
+        # schon in `ohne_ordner`, und die beiden Lagen haben verschiedene Ursachen: dort ein
+        # Namensproblem, hier eine echte Lücke in der Mappe. Beides zusammenzuzählen meldete
+        # dasselbe Projekt zweimal und nannte es obendrein „Ordner", den es nicht gibt.
+        if befund.hat_ordner and [typ for typ in werte.pflicht if typ not in befund.gefunden]:
             ergebnis.unvollstaendig += 1
 
     sitzung.flush()

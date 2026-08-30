@@ -203,7 +203,9 @@ export function Anlagen() {
     <div>
       <PageTitle
         meta={
-          liste.data
+          // Nur auf dem Anlagenreiter: „0 Anlagen im Register" über einer Liste eigener
+          // Anlagen wäre schlicht falsch – die Zahl gehört zum Kundenregister.
+          reiter === "anlagen" && liste.data
             ? `${anzahlText(liste.data.gesamt, "Anlage", "Anlagen")} im Register`
             : undefined
         }

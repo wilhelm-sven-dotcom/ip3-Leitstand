@@ -123,7 +123,10 @@ export function Unterlagen() {
     {
       kopf: "Unterlagen",
       zelle: (z) =>
-        z.geprueft_am === null || z.geprueft_am === undefined ? (
+        // Ohne Ordner lässt sich über einzelne Unterlagen nichts sagen – dann fünf Marken
+        // zu zeigen, von denen eine rot ist, behauptet mehr als der Scan weiß, und die
+        // Kennzahl darüber zählt dieses Projekt zu Recht nicht mit.
+        !z.geprueft_am || !z.gefunden ? (
           <span className="unterlagen__leer">–</span>
         ) : (
           <ul className="unterlagen__marken">

@@ -1996,6 +1996,8 @@ export interface components {
             verguetung_ct_kwh?: number | null;
             /** Verguetungsart */
             verguetungsart: string;
+            /** Vermarkter Entgelt Ct Kwh */
+            vermarkter_entgelt_ct_kwh?: number | null;
         };
         /**
          * AnmeldeDaten

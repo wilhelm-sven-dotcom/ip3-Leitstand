@@ -88,6 +88,18 @@ class TestErwartung:
         )
         assert dienst.erwartung_cent(anlage, Decimal("1000")) == 8000
 
+    def test_rundet_kaufmaennisch_nicht_zur_geraden_zahl(self):
+        """``quantize`` ohne Angabe rundet zur geraden Zahl – ein halber Cent fiele mal hoch,
+        mal runter, und die Kontrollrechnung meldete eine Abweichung, die keine ist."""
+        anlage = EigeneAnlage(
+            bezeichnung="Freifläche",
+            verguetungsart="direktvermarktung",
+            verguetung_ct_kwh=Decimal("6.50"),
+            vermarkter_entgelt_ct_kwh=Decimal("0.25"),
+        )
+        # 104.250 kWh mal 6,25 ct = 651.562,5 ct – genau ein halber Cent.
+        assert dienst.erwartung_cent(anlage, Decimal("104250")) == 651563
+
     def test_ohne_satz_gibt_es_keine_erwartung(self):
         """``None`` ist etwas anderes als 0,00 €: eine Null läse sich als „nichts zu erwarten"."""
         anlage = EigeneAnlage(bezeichnung="Neu", verguetungsart="einspeisung")
@@ -165,7 +177,8 @@ class TestBild:
         bild = _bild(heute=date(2026, 8, 30), toleranz_promille=20)
 
         hinweise = bild.anlagen[0].hinweise
-        assert any("weichen um mehr als" in h for h in hinweise)
+        # Einzahl: „1 Monat weicht", nicht „weichen" – siehe TestNumerus.
+        assert any("um mehr als" in h for h in hinweise)
         assert any("07/2026" in h for h in hinweise)
 
     def test_kleine_abweichung_bleibt_stumm(self, gesäte_db):
@@ -177,7 +190,7 @@ class TestBild:
 
         bild = _bild(heute=date(2026, 8, 30), toleranz_promille=20)
 
-        assert not any("weichen um mehr als" in h for h in bild.anlagen[0].hinweise)
+        assert not any("um mehr als" in h for h in bild.anlagen[0].hinweise)
 
     def test_fehlender_monat_wird_gemeldet(self, gesäte_db):
         anlage_id = _anlage(
@@ -429,3 +442,33 @@ class TestLeser:
     )
     def test_monatsschreibweisen(self, roh: str, erwartet: str | None):
         assert leser.monat_lesen(roh) == erwartet
+
+
+class TestNumerus:
+    """„1 Monat weichen ab" liest sich wie eine Maschinenausgabe – und wird dann überlesen.
+
+    Das Zählwort allein reicht nicht, das Verb muss mit. Beim Zählen ist das in diesem
+    Projekt schon dreimal danebengegangen; deshalb steht es hier als eigener Test.
+    """
+
+    def test_zaehlwort(self):
+        assert dienst._monatswort(1) == "1 Monat"
+        assert dienst._monatswort(3) == "3 Monate"
+
+    def test_verb_stimmt_mit(self):
+        assert dienst._monatssatz(1, "weicht", "weichen") == "1 Monat weicht"
+        assert dienst._monatssatz(4, "weicht", "weichen") == "4 Monate weichen"
+        assert dienst._monatssatz(1, "ist", "sind") == "1 Monat ist"
+        assert dienst._monatssatz(2, "ist", "sind") == "2 Monate sind"
+
+    def test_im_hinweis_selbst(self, gesäte_db):
+        anlage_id = _anlage(
+            "Halle Süd", verguetungsart="einspeisung", verguetung_ct_kwh=Decimal("8.00")
+        )
+        _abrechnung(anlage_id, "2026-05", "10000", 70000)  # abweichend und unbezahlt
+
+        hinweise = _bild(heute=date(2026, 8, 30)).anlagen[0].hinweise
+
+        assert any("1 Monat weicht um mehr als" in h for h in hinweise)
+        assert any("1 Monat ist abgerechnet" in h for h in hinweise)
+        assert not any("1 Monat weichen" in h or "1 Monat sind" in h for h in hinweise)
