@@ -1,0 +1,229 @@
+/* Kapazität und Pipeline (PLAN §7 Phase 7).
+ *
+ * Farben nur aus den Tokens (PLAN §11). Überbuchte Wochen tragen Akzent-Rot – den einzigen
+ * Akzent, den das Corporate Design kennt. Freie Wochen bleiben ip³ Blau: eine leere Woche ist
+ * keine gute Nachricht, sondern eine Beobachtung, und eine Ampel gibt es hier bewusst nicht.
+ */
+
+/* --- Wochenliste ------------------------------------------------------- */
+
+.wochen {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  background: var(--weiss);
+  overflow: hidden;
+}
+
+.wochen__zeile {
+  display: grid;
+  grid-template-columns: 96px 1fr 150px 92px;
+  align-items: center;
+  gap: var(--abstand-4);
+  padding: var(--abstand-3) var(--abstand-4);
+  border-bottom: 1px solid var(--linie);
+}
+
+.wochen__zeile:last-child {
+  border-bottom: none;
+}
+
+.wochen__zeile:nth-child(even) {
+  background: var(--flaeche-info);
+}
+
+.wochen__kw {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: var(--text-m);
+  color: var(--ip3-blau);
+}
+
+.wochen__ab {
+  display: block;
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+/* Der Balken: die volle Breite ist die Kapazität der Woche, der Riegel der Bedarf. Über 100 %
+   läuft er nicht heraus, sondern färbt sich – sonst müsste die Skala aller Wochen mitwachsen
+   und die Unterschiede unter 100 % wären nicht mehr zu sehen. */
+.wochen__balken {
+  position: relative;
+  height: 18px;
+  border-radius: var(--radius-s);
+  background: var(--flaeche-info);
+  border: 1px solid var(--linie);
+  overflow: hidden;
+}
+
+.wochen__zeile:nth-child(even) .wochen__balken {
+  background: var(--weiss);
+}
+
+.wochen__fuellung {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--ip3-blau);
+}
+
+.wochen__fuellung--voll {
+  background: var(--chart-4);
+}
+
+.wochen__fuellung--eng {
+  background: var(--akzent-rot);
+}
+
+/* Marke bei 100 %: ohne sie ist nicht zu sehen, wo „voll" liegt. */
+.wochen__marke {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: var(--ip3-navy);
+  opacity: 0.45;
+}
+
+.wochen__zahlen {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.wochen__auslastung {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-m);
+  font-weight: 600;
+  text-align: right;
+}
+
+.wochen__auslastung--eng {
+  color: var(--akzent-rot);
+}
+
+.wochen__projekte {
+  grid-column: 2 / -1;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  margin-top: 2px;
+}
+
+/* --- Kopfzeile mit Zusatz ---------------------------------------------- */
+
+.planung__kopf {
+  display: flex;
+  align-items: baseline;
+  gap: var(--abstand-3);
+  margin: var(--abstand-5) 0 var(--abstand-3);
+}
+
+.planung__zusatz {
+  font-family: var(--font-zahl);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+}
+
+.planung__zusatz--warnung {
+  color: var(--akzent-rot);
+}
+
+/* Einordnung unter der Überschrift: was die Zahlen nicht sind. Grau und klein, aber immer da. */
+.planung__einordnung {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  max-width: 70ch;
+  margin: 0 0 var(--abstand-4);
+  line-height: 1.5;
+}
+
+/* --- Pipeline ----------------------------------------------------------- */
+
+/* Zwei Balken je Monat: roh als Kontur, gewichtet gefüllt. Beides nebeneinander, immer –
+   nur die gewichtete Summe zu zeigen verschweigt das Risiko. */
+.pipeline {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--abstand-2);
+  height: 140px;
+  padding: var(--abstand-4);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  background: var(--weiss);
+}
+
+.pipeline__monat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--abstand-2);
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.pipeline__saeule {
+  position: relative;
+  width: 100%;
+  max-width: 42px;
+}
+
+.pipeline__roh {
+  width: 100%;
+  border: 1px solid var(--chart-4);
+  border-bottom: none;
+  border-radius: var(--radius-s) var(--radius-s) 0 0;
+  background: transparent;
+}
+
+.pipeline__gewichtet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--chart-4);
+  border-radius: var(--radius-s) var(--radius-s) 0 0;
+}
+
+.pipeline__beschriftung {
+  font-size: var(--text-xs);
+  color: var(--text-sekundaer);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pipeline__legende {
+  display: flex;
+  gap: var(--abstand-4);
+  align-items: center;
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  margin-top: var(--abstand-3);
+}
+
+.pipeline__marke {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  margin-right: var(--abstand-2);
+  vertical-align: -1px;
+}
+
+.pipeline__marke--roh {
+  border: 1px solid var(--chart-4);
+}
+
+.pipeline__marke--gewichtet {
+  background: var(--chart-4);
+}

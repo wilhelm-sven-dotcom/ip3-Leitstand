@@ -128,6 +128,62 @@ Die Steuernummer bleibt wünschenswert, ist aber keine Voraussetzung.
 39. **Der Zeitplan startet jetzt immer.** Bis Phase 5 blieb er aus, wenn kein Import eingerichtet
     war; der Fristenwächter braucht weder Ordner noch Zugangsdaten.
 
+## Entschieden für Phase 7 (30.08.2026)
+
+40. **Wochenstunden je Mitarbeiter in der Oberfläche pflegen.** Nicht als feste Wochenkapazität
+    in der `config.toml` und nicht aus den TimeTac-Ist-Stunden abgeleitet. Sie ändern sich
+    häufiger als eine Konfiguration und sollen gepflegt werden, ohne dass jemand auf den Host
+    muss. Eine abgeleitete Kapazität hätte den Fehler, dass eine Woche mit Krankheit dauerhaft
+    die Erwartung senkt.
+41. **Nur Kapazität und Pipeline.** Der Doku-Vollständigkeitsscan der Projektordner und das
+    Vergütungs-Controlling für eigene Bestandsanlagen bleiben vorerst außen vor (PLAN §7
+    nennt sie als Teil der Phase).
+
+**Von mir entschieden (technisch, im Code kommentiert), zur Kenntnis:**
+
+42. **Verteilt wird über die geplanten Montagewochen**, nicht gleichmäßig über die
+    Projektlaufzeit. Ein Projekt bindet Mannschaft, wenn montiert wird – nicht während es auf
+    den Netzbetreiber wartet. Welche Meilensteine als Montage gelten, steht in der
+    `config.toml`.
+43. **Was keine geplante Woche hat, verschwindet nicht.** Solche Projekte stehen als „ohne
+    Montagetermin" daneben, mit dem Hinweis, dass die Auslastung dadurch zu günstig aussieht.
+44. **Urlaub und Krankheit sind nicht abgebildet.** Die Wochenstunden sind die Regelarbeitszeit.
+    Eine Abwesenheitsplanung gehört nicht in ein Werkzeug, das ausdrücklich keine
+    Personalverwaltung ist (PLAN §12). Die Ansicht sagt das dazu.
+45. **Die Pipeline steht neben dem Forecast, nie darin.** Eigener Dienst, eigene Klassen,
+    eigenes Band in der Umsatzansicht. Was nicht zusammen in einer Struktur steht, kann auch
+    nicht versehentlich zusammen addiert werden.
+46. **Gewichtet und roh stehen immer nebeneinander.** Nur die gewichtete Summe zu zeigen
+    verschweigt das Risiko, nur die rohe die Wahrscheinlichkeit.
+47. **`angebote.lesen` hat nur die Geschäftsführung**, `kapazitaet.lesen` auch das Team. Eine
+    Angebotssumme ist ein Betrag und damit Finanzsichtbarkeit (PLAN §4); die Wochenauslastung
+    zeigt Stunden und ist der eigene Terminplan.
+48. **Ein gewonnenes Angebot braucht ein Projekt.** Sonst stünde sein Wert weder in der
+    Pipeline noch im Auftragsbestand. Ein Import überschreibt ein gewonnenes Angebot nie.
+
+## Was der Phase-7-Abnahmelauf zutage brachte
+
+**Ein Fehler im eigenen Code, behoben – und es war derselbe wie in Phase 5:**
+
+| Was | Warum es zählt |
+|---|---|
+| Die Pipeline öffnete auf dem **laufenden Jahr**, während alle Angebote im Folgejahr lagen. Kopfzeile und Diagramm zeigten 310.000 €, die Tabelle darunter 2,9 Mio. €. | Eine Ansicht, die beim Aufrufen auf ein leeres Jahr zeigt, sieht kaputt aus. Jetzt geht sie auf dem nächsten Jahr mit offenen Angeboten auf – wie das Cockpit auf dem jüngsten Monat mit Zahlen. |
+
+Dazu drei Kleinigkeiten aus derselben Durchsicht: die Mannschaftssumme zählte auch, wer erst im
+Oktober anfängt (jetzt steht dort die Kapazität der laufenden Woche); der Projektstatus stand als
+Datenbankschlüssel da (`in_bau`); und die Pipelinesumme auf der Umsatzseite war in Akzent-Rot
+gesetzt, der Farbe für Überfälligkeit.
+
+**Für Sven, bevor die Pipeline in Betrieb geht:**
+
+| Was | Warum |
+|---|---|
+| **Die Datei des Angebots-Tools liefern** (eine Beispielausgabe genügt) | Der Import ist gebaut und liest `.xlsx` wie `.csv`, die Spaltennamen stehen in der `config.toml` unter `[angebote.spalten]`. Er ist gegen erfundene Spaltennamen entwickelt – erst die echte Datei zeigt, ob die Liste passt. Ohne sie wird die Pipeline von Hand gepflegt, was ebenfalls vollständig geht. |
+| **Ordner für die Angebotsliste festlegen** | `[pfade] angebote` in der `config.toml`. Erwartet wird eine Datei, deren Name mit `angebote` beginnt. |
+| **Mitarbeiter mit Wochenstunden erfassen** | Ohne sie gibt es keine Auslastung, nur den Bedarf. Die Schreibweise der Namen muss der in TimeTac entsprechen – sonst zählen die Stunden in der Nachkalkulation und die Person fehlt in der Kapazität. Der Leitstand nennt solche Namen. |
+| **Montagetermine als Kalenderwoche pflegen** | Ein Projekt ohne geplante Montagewoche fehlt in jeder Woche der Auslastung. Der Leitstand zeigt diese Projekte gesondert, aber die Zahl oben bleibt zu günstig. |
+| **Prüfen, ob das Team die Auslastung sehen soll** | Zurzeit ja: `kapazitaet.lesen` steckt in der Rolle `team`. Die Ansicht zeigt Stunden und Projektnummern, keine Beträge. |
+
 ## Was der Phase-6-Abnahmelauf zutage brachte
 
 **Zwei Fehler im eigenen Code, behoben:**

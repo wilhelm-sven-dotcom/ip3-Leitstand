@@ -29,7 +29,7 @@ from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 
 from app.dienste.suche import AUFGELOEST
-from app.formate import mit_einheit
+from app.formate import mehrzahl, mit_einheit
 from app.modelle import (
     Meilenstein,
     Mitarbeiter,
@@ -255,11 +255,11 @@ def _hinweise(sitzung: Session, ergebnis: Kapazitaetsbild) -> list[str]:
 
     if ergebnis.ohne_termin:
         hinweise.append(
-            f"{len(ergebnis.ohne_termin)} Projekte mit zusammen "
-            f"{mit_einheit(ergebnis.stunden_ohne_termin, 'Stunden')} haben keine geplante "
-            "Montagewoche. "
-            "Sie fehlen in jeder Woche unten – die Auslastung ist damit zu günstig. Nächster "
-            "Schritt: im Projekt die Montagetermine als Kalenderwoche eintragen."
+            f"{mehrzahl(len(ergebnis.ohne_termin), 'Projekt hat', 'Projekte haben')} "
+            f"{mit_einheit(ergebnis.stunden_ohne_termin, 'Sollstunden')} ohne geplante "
+            "Montagewoche. Diese Stunden fehlen in jeder Woche unten – die Auslastung ist "
+            "damit zu günstig. Nächster Schritt: im Projekt die Montagetermine als "
+            "Kalenderwoche eintragen."
         )
 
     if ergebnis.ohne_sollwert:

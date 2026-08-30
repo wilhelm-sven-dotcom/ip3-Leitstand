@@ -28,6 +28,7 @@ import { Cockpit } from "@/seiten/cockpit/Cockpit";
 import { Nachkalkulation } from "@/seiten/nachkalkulation/Nachkalkulation";
 import { Umsatz } from "@/seiten/umsatz/Umsatz";
 import { Anlagen } from "@/seiten/service/Anlagen";
+import { Planung } from "@/seiten/planung/Planung";
 import { useSitzung } from "@/sitzung/SitzungKontext";
 
 function Ladeflaeche() {
@@ -181,6 +182,15 @@ export function AppRouten() {
         element={
           <GeschuetzteRoute>
             <Anlagen />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/planung"
+        element={
+          <GeschuetzteRoute>
+            <Planung />
           </GeschuetzteRoute>
         }
       />

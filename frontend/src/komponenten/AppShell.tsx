@@ -25,7 +25,7 @@ type Menuepunkt = {
   abPhase?: number;
 };
 
-const AKTUELLE_PHASE = 6;
+const AKTUELLE_PHASE = 7;
 
 export const MENUE: Menuepunkt[] = [
   { pfad: "/", beschriftung: "Start" },
@@ -72,6 +72,14 @@ export const MENUE: Menuepunkt[] = [
     beschriftung: "Service & Anlagen",
     recht: "anlagen.lesen",
     abPhase: 6,
+  },
+  {
+    pfad: "/planung",
+    beschriftung: "Kapazität & Pipeline",
+    // Das breitere der beiden Rechte: der Pipeline-Reiter braucht zusätzlich angebote.lesen
+    // und erscheint ohne es gar nicht.
+    recht: "kapazitaet.lesen",
+    abPhase: 7,
   },
   {
     pfad: "/importe",

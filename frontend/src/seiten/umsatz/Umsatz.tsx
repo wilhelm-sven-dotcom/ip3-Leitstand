@@ -29,11 +29,13 @@ import { MonthBars } from "@/komponenten/MonthBars";
 import { PageTitle } from "@/komponenten/PageTitle";
 import { ProjektStatusBadge } from "@/komponenten/ProjektStatusBadge";
 import { api, fehlerAuslesen } from "@/api/client";
+import { useSitzung } from "@/sitzung/SitzungKontext";
 import {
   anzahl as anzahlText,
   euro,
   euroKurz,
   monat as monatText,
+  monatKurz,
   zahl,
 } from "@/format/formate";
 import {
@@ -92,6 +94,7 @@ type Bestandszeile = {
 
 export function Umsatz() {
   const navigate = useNavigate();
+  const { darf } = useSitzung();
   const [jahr, setJahr] = useState<number>(new Date().getFullYear());
   const [status, setStatus] = useState("alle");
   const [projektleiter, setProjektleiter] = useState("alle");
@@ -145,6 +148,20 @@ export function Umsatz() {
   const monatsliste = (monate.data?.monate ?? []) as MonatAusApi[];
   const rest = planRestjahr(monatsliste, jahr);
   const unterminiert = monate.data?.unterminiert;
+
+  // Die Pipeline steht **neben** dem Forecast, nie darin (PLAN §7 Phase 7). Sie erscheint nur
+  // mit `angebote.lesen`: Angebotssummen sind Beträge und damit Finanzsichtbarkeit (PLAN §4).
+  const pipeline = useQuery({
+    queryKey: ["pipeline", jahr],
+    enabled: darf("angebote.lesen"),
+    queryFn: async () => {
+      const { data, error } = await api.GET("/api/angebote/pipeline", {
+        params: { query: { jahr } },
+      });
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const monatsspalten: Spalte<MonatAusApi>[] = [
     { kopf: "Monat", hervorgehoben: true, zelle: (m) => monatText(m.monat) },
@@ -389,6 +406,35 @@ export function Umsatz() {
         beschriftung={`Monatssummen ${jahr}`}
         leer={<EmptyState titel="Keine Monatswerte" ohneZeichen />}
       />
+
+      {pipeline.data && pipeline.data.monate.some((m) => m.anzahl > 0) ? (
+        <>
+          <h2 className="abschnittstitel">Pipeline {jahr}</h2>
+          <p className="verlauf__einordnung">{pipeline.data.einordnung}</p>
+          <div className="verlauf">
+            <MonthBars
+              werte={pipeline.data.monate.map((m) => ({
+                monat: m.monat,
+                beschriftung: monatKurz(m.monat),
+                betrag: m.gewichtet_netto,
+                plan: true,
+                titel: `${monatText(m.monat)}: ${euro(m.roh_netto)} angeboten, ${euro(
+                  m.gewichtet_netto,
+                )} gewichtet`,
+              }))}
+              hoehe={90}
+            />
+            <p className="verlauf__legende">
+              <span className="verlauf__marke verlauf__marke--plan" />{" "}
+              gewichtete Angebotssumme
+              <span className="verlauf__nebenbei">
+                {euro(pipeline.data.roh_netto)} angeboten, davon{" "}
+                {euro(pipeline.data.gewichtet_netto)} gewichtet
+              </span>
+            </p>
+          </div>
+        </>
+      ) : null}
 
       <div className="abschnittskopf">
         <h2 className="abschnittstitel">Auftragsbestand</h2>

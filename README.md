@@ -25,6 +25,13 @@ Alle Daten bleiben lokal beziehungsweise im Firmen-OneDrive.
 
 ## Stand
 
+**Phase 7 – Kapazität und Angebotspipeline.** Zwei Ansichten, die dieselbe Frage von zwei
+Seiten stellen: reicht es? Die Kapazität stellt den Sollstunden aus der Kalkulation die
+Wochenstunden der Mannschaft gegenüber, Woche für Woche, und sagt dazu, was an der Antwort
+unsicher ist – unverplante Projekte, fehlende Sollstunden, Namen aus TimeTac ohne
+Mitarbeiterdatensatz. Die Pipeline zeigt, was angeboten ist, roh und mit der Wahrscheinlichkeit
+gewichtet: **Angebote, keine Aufträge**, deshalb getrennt vom Forecast und nie darin.
+
 **Phase 6 – Service, Anlagen und Fristen.** Was nach dem Bau kommt, hat jetzt einen Ort. Wechselt
 ein Projekt auf „abgeschlossen", entsteht daraus eine Anlage samt Gewährleistungsfrist: vier Jahre
 nach VOB, fünf nach BGB, gerechnet ab der Abnahme. Der Fristenwächter leitet die Frist zur

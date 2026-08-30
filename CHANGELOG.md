@@ -2,6 +2,83 @@
 
 Format: neueste Phase oben. Jede Phase endet lauffähig mit grüner Testsuite (PLAN §7).
 
+## 0.8.0 – Phase 7: Kapazität und Angebotspipeline
+
+Zwei Ansichten, die dieselbe Frage von zwei Seiten stellen – **reicht es?** Menüpunkt
+**Kapazität & Pipeline**; der Kapazitätsreiter ist mit `kapazitaet.lesen` sichtbar, der
+Pipelinereiter braucht zusätzlich `angebote.lesen`.
+
+Vom Umfang der Phase (PLAN §7) sind diese beiden gebaut. Der Doku-Vollständigkeitsscan der
+Projektordner und das Vergütungs-Controlling für eigene Bestandsanlagen bleiben vorerst außen
+vor (Entscheidung 41).
+
+### Auslastung je Kalenderwoche
+
+Die Sollstunden aus der Kalkulation gegen die Wochenstunden der Mannschaft, Woche für Woche.
+Vier Festlegungen tragen die Zahlen:
+
+* **Verteilt wird über die geplanten Montagewochen**, nicht gleichmäßig über die Projektlaufzeit.
+  Ein Projekt bindet Mannschaft, wenn montiert wird – nicht während es auf den Netzbetreiber
+  wartet. Welche Meilensteine als Montage gelten, steht in der `config.toml`.
+* **Was keine geplante Woche hat, verschwindet nicht.** Solche Projekte stehen als „ohne
+  Montagetermin" daneben, mit dem Hinweis, dass die Auslastung dadurch zu günstig aussieht.
+  Unverplante Arbeit ist der Grund, warum eine Woche später überraschend voll ist.
+* **Erledigte Meilensteine binden nichts mehr**, und eine Montage außerhalb des Fensters bindet
+  noch nichts.
+* **Urlaub und Krankheit sind nicht abgebildet.** Die Wochenstunden sind die Regelarbeitszeit;
+  eine Abwesenheitsplanung gehört nicht in ein Werkzeug, das ausdrücklich keine
+  Personalverwaltung ist (PLAN §12). Der Hinweis steht in der API-Antwort, damit die Oberfläche
+  ihn nicht weglassen kann.
+
+Gerechnet wird nach ISO 8601. Der Wochenschlüssel trägt das **ISO-Jahr**, nicht das
+Kalenderjahr: der 1. Januar 2027 liegt in der 53. Woche von 2026, und eine Montage in „KW 01"
+läge sonst im falschen Jahr. Gelesen werden „29/26" aus der Teamliste ebenso wie „KW 29/26" und
+„2026-W29"; was sich nicht lesen lässt, wird genannt statt verschluckt.
+
+Die Wochenstunden je Person stehen in der Datenbank und werden in der Oberfläche gepflegt
+(Entscheidung 40) – Ein- und Austrittsdatum begrenzen sie zeitlich. Wer in TimeTac bucht, aber
+keinen Mitarbeiterdatensatz hat, fällt auf: ohne diesen Hinweis wäre ein Tippfehler unsichtbar,
+die Stunden zählten in der Nachkalkulation und die Person fehlte in der Kapazität.
+
+### Angebotspipeline
+
+**Angebote, keine Aufträge.** Die Pipeline steht neben dem Forecast, nie darin: eigener Dienst,
+eigene Klassen, eigenes Band in der Umsatzansicht. Was nicht zusammen in einer Struktur steht,
+kann auch nicht versehentlich zusammen addiert werden – ein gewichtetes Angebot als Umsatz zu
+zählen wäre die gefährlichste Kennzahl des ganzen Werkzeugs.
+
+Gewichtet und roh stehen immer nebeneinander: nur die gewichtete Summe zu zeigen verschweigt das
+Risiko, nur die rohe die Wahrscheinlichkeit. Angebote unter 20 % werden eigens genannt, weil sie
+die rohe Summe aufblähen und zur gewichteten fast nichts beitragen. Ein gewonnenes Angebot
+braucht ein Projekt – sonst stünde sein Wert weder in der Pipeline noch im Auftragsbestand.
+Verloren wird gesetzt, nicht gelöscht: die Trefferquote der Vergangenheit ist die einzige
+Grundlage, auf der sich künftige Wahrscheinlichkeiten begründen lassen.
+
+### Import aus dem Angebots-Tool
+
+**Die Datei liegt noch nicht vor.** Der Leser ist deshalb so gebaut, dass er sich an sie
+anpassen lässt, ohne dass Code geändert wird: Spaltennamen und die Übersetzung der Statuswerte
+stehen in der `config.toml` unter `[angebote]`, genau wie bei DATEV und TimeTac. Gelesen werden
+Excel-Mappen und CSV; eine Überschrift über der Tabelle stört nicht.
+
+Wiedererkannt wird über die Angebotsnummer, damit ein zweiter Lauf aktualisiert statt anzuhäufen.
+Führt die Datei keine, sagt ein Befund, dass Dubletten entstehen. Ein bereits gewonnenes Angebot
+wird nie überschrieben – daran hängt ein Projekt, und ein Import darf den Auftragsbestand nicht
+verändern. Unlesbare Summen, unbekannte Statuswerte, Wahrscheinlichkeiten über 100 %: alles wird
+übernommen, soweit es geht, und erscheint als Befund.
+
+### Was der Abnahmelauf zutage brachte
+
+Ein Fehler im eigenen Code, und es war derselbe wie in Phase 5: die Pipeline öffnete auf dem
+laufenden Jahr, während alle Angebote im Folgejahr lagen – Kopfzeile und Diagramm zeigten
+310.000 €, die Tabelle darunter 2,9 Mio. €. Jetzt geht sie auf dem nächsten Jahr mit offenen
+Angeboten auf. Dazu drei Kleinigkeiten: die Mannschaftssumme zählte auch, wer erst im Oktober
+anfängt; der Projektstatus stand als Datenbankschlüssel da; und die Pipelinesumme war in
+Akzent-Rot gesetzt, der Farbe für Überfälligkeit.
+
+Migration 0008 legt `mitarbeiter` und `angebote` an. Neu in der Konfiguration: `[kapazitaet]`,
+`[angebote]` und der Pfad `[pfade] angebote`.
+
 ## 0.7.0 – Phase 6: Service, Anlagen und Fristen
 
 Was nach dem Bau kommt, hat jetzt einen Ort. Menüpunkt **Service & Anlagen**, sichtbar mit

@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.formate import prozent
+from app.formate import mehrzahl, prozent
 from app.geld import formatiere_euro
 from app.modelle import Angebot
 
@@ -109,9 +109,9 @@ def _hinweise(sitzung: Session, bild: Pipelinebild) -> list[str]:
 
     if bild.unterminiert.anzahl:
         hinweise.append(
-            f"{bild.unterminiert.anzahl} offene Angebote haben keinen erwarteten "
-            "Auftragsmonat. Sie zählen in der Gesamtsumme, aber in keinem Monat. Nächster "
-            "Schritt: den erwarteten Monat am Angebot nachtragen."
+            f"{mehrzahl(bild.unterminiert.anzahl, 'offenes Angebot hat', 'offene Angebote haben')}"
+            " keinen erwarteten Auftragsmonat. Solche Angebote zählen in der Gesamtsumme, aber "
+            "in keinem Monat. Nächster Schritt: den erwarteten Monat am Angebot nachtragen."
         )
 
     ohne_projekt = sitzung.scalars(
@@ -119,10 +119,13 @@ def _hinweise(sitzung: Session, bild: Pipelinebild) -> list[str]:
     ).all()
     if ohne_projekt:
         namen = ", ".join(a.angebot_nr or a.kunde_name for a in ohne_projekt[:5])
+        gezaehlt = mehrzahl(
+            len(ohne_projekt), "gewonnenes Angebot hängt", "gewonnene Angebote hängen"
+        )
         hinweise.append(
-            f"{len(ohne_projekt)} gewonnene Angebote hängen an keinem Projekt ({namen}). Ihr "
-            "Wert steht weder in der Pipeline noch im Auftragsbestand. Nächster Schritt: das "
-            "Projekt anlegen und am Angebot verknüpfen."
+            f"{gezaehlt} an keinem Projekt ({namen}). Der Wert steht weder in der Pipeline noch "
+            "im Auftragsbestand. Nächster Schritt: das Projekt anlegen und am Angebot "
+            "verknüpfen."
         )
 
     gering = sitzung.scalars(
@@ -134,10 +137,10 @@ def _hinweise(sitzung: Session, bild: Pipelinebild) -> list[str]:
     if gering:
         summe = sum(a.summe_netto for a in gering)
         hinweise.append(
-            f"{len(gering)} Angebote stehen unter {prozent(GERINGE_CHANCE_PROMILLE)} "
-            f"Wahrscheinlichkeit und machen zusammen {formatiere_euro(summe)} der rohen Summe "
-            "aus. In der gewichteten Summe tragen sie fast nichts bei – die rohe Summe ist "
-            "dadurch deutlich größer, als es der Erwartung entspricht."
+            f"Unter {prozent(GERINGE_CHANCE_PROMILLE)} Wahrscheinlichkeit: "
+            f"{mehrzahl(len(gering), 'Angebot', 'Angebote')} mit {formatiere_euro(summe)} der "
+            "rohen Summe. In der gewichteten Summe trägt das fast nichts bei – die rohe Summe "
+            "ist dadurch deutlich größer, als es der Erwartung entspricht."
         )
 
     return hinweise
@@ -146,6 +149,26 @@ def _hinweise(sitzung: Session, bild: Pipelinebild) -> list[str]:
 def jahre_mit_angeboten(sitzung: Session) -> list[int]:
     """Jahre, für die überhaupt Angebote vorliegen – für die Jahresauswahl der Ansicht."""
     monate = sitzung.scalars(
-        select(Angebot.erwarteter_monat).where(Angebot.erwarteter_monat.is_not(None)).distinct()
+        select(Angebot.erwarteter_monat)
+        .where(Angebot.erwarteter_monat.is_not(None), Angebot.status == "offen")
+        .distinct()
     ).all()
     return sorted({int(m[:4]) for m in monate if m})
+
+
+def jahr_mit_angeboten(sitzung: Session, heute: int) -> int:
+    """Das Jahr, mit dem die Ansicht aufgehen soll.
+
+    Nicht stur das laufende: eine Pipeline zeigt nach vorn, und Angebote werden im Herbst für
+    das Folgejahr geschrieben. Eine Ansicht, die beim Aufrufen auf ein leeres Jahr zeigt,
+    während die Liste darunter voller Angebote steht, sieht kaputt aus – im Abnahmelauf war
+    genau das der erste Eindruck (derselbe Fehler wie im Cockpit, Phase 5).
+
+    Genommen wird deshalb das nächste Jahr mit offenen Angeboten ab dem laufenden; gibt es
+    keines mehr, das jüngste vergangene; gibt es gar keine, das laufende.
+    """
+    jahre = jahre_mit_angeboten(sitzung)
+    kuenftig = [jahr for jahr in jahre if jahr >= heute]
+    if kuenftig:
+        return min(kuenftig)
+    return max(jahre) if jahre else heute

@@ -527,7 +527,7 @@ def pipeline(
     db: Session = Depends(db_sitzung),
 ) -> PipelineAntwort:
     """Die Pipeline steht **neben** dem Forecast, nie darin (PLAN §7 Phase 7)."""
-    gewaehlt = jahr or heute_ortszeit().year
+    gewaehlt = jahr or pipelinedienst.jahr_mit_angeboten(db, heute_ortszeit().year)
     bild = pipelinedienst.jahresverlauf(db, gewaehlt)
     return PipelineAntwort(
         jahr=bild.jahr,

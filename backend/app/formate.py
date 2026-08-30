@@ -59,3 +59,13 @@ def prozent(satz_promille: int) -> str:
 def anzahl(wert: int) -> str:
     """Ganze Zahl mit Tausenderpunkt, z. B. ``5.848``."""
     return dezimal(wert, stellen=0)
+
+
+def mehrzahl(wert: int, einzahl: str, mehrzahlform: str) -> str:
+    """``1 Frist``, ``3 Fristen`` – Zahl und Wort im gleichen Numerus.
+
+    Eine Meldung mit falschem Numerus („1 Projekte haben") liest sich wie eine
+    Maschinenausgabe und wird dann auch so behandelt: überlesen. Der Helfer steht hier, weil
+    es inzwischen die dritte Stelle ist, an der Hinweistexte gezählte Dinge nennen.
+    """
+    return f"1 {einzahl}" if wert == 1 else f"{anzahl(wert)} {mehrzahlform}"

@@ -7,6 +7,15 @@
   margin: var(--abstand-5) 0 var(--abstand-4);
 }
 
+/* Einordnung über einem Verlauf: was die Zahlen nicht sind. Grau und klein, aber immer da. */
+.verlauf__einordnung {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  max-width: 70ch;
+  margin: 0 0 var(--abstand-3);
+  line-height: 1.5;
+}
+
 .verlauf {
   background: var(--weiss);
   border: 1px solid var(--linie);
@@ -46,4 +55,11 @@
 .verlauf__ausserhalb {
   margin-left: auto;
   color: var(--akzent-rot);
+}
+
+/* Wie `--ausserhalb`, aber sachlich: eine Pipelinesumme ist keine Überfälligkeit. Akzent-Rot
+   ist der einzige Akzent des Corporate Designs und soll etwas bedeuten (PLAN §11). */
+.verlauf__nebenbei {
+  margin-left: auto;
+  color: var(--text-sekundaer);
 }

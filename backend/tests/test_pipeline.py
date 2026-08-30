@@ -144,6 +144,8 @@ def test_geringe_chancen_werden_benannt(gesäte_db) -> None:
     # Deutsche Zahlen mit geschütztem Leerzeichen vor der Einheit (CLAUDE.md Regel 11).
     hinweis = next(h for h in bild.hinweise if "20\u00a0%" in h)
     assert "500.000,00\u00a0€" in hinweis
+    # Numerus stimmt auch bei genau einem Angebot.
+    assert "1 Angebot mit" in hinweis
 
 
 # ---------------------------------------------------------------------------
@@ -401,3 +403,34 @@ def test_kunde_wird_ueber_den_namen_zugeordnet(gesäte_db, tmp_path: Path) -> No
     assert zuordnung["A-1"] is not None
     # Ein Interessent ist noch kein Kunde – die Zuordnung bleibt leer, der Name steht daneben.
     assert zuordnung["A-2"] is None
+
+
+def test_ansicht_oeffnet_auf_dem_jahr_mit_angeboten(gesäte_db) -> None:
+    """Nicht stur das laufende Jahr – sonst zeigt die Seite leer, während die Liste voll ist.
+
+    Derselbe Fehler wie im Cockpit der Phase 5: eine Ansicht, die beim Aufrufen auf Nullen
+    zeigt, sieht kaputt aus statt leer.
+    """
+    _angebot(angebot_nr="A-1", erwarteter_monat="2028-04")
+
+    with lese_sitzung() as sitzung:
+        # Nächstes Jahr mit Angeboten ab dem laufenden.
+        assert dienst.jahr_mit_angeboten(sitzung, 2026) == 2028
+        assert dienst.jahr_mit_angeboten(sitzung, 2028) == 2028
+        # Liegt alles in der Vergangenheit, das jüngste davon.
+        assert dienst.jahr_mit_angeboten(sitzung, 2030) == 2028
+
+
+def test_ohne_angebote_bleibt_das_laufende_jahr(gesäte_db) -> None:
+    with lese_sitzung() as sitzung:
+        assert dienst.jahr_mit_angeboten(sitzung, 2026) == 2026
+
+
+def test_gewonnene_angebote_bestimmen_das_jahr_nicht(gesäte_db) -> None:
+    """Sie stehen im Auftragsbestand; die Pipeline soll auf offene Angebote aufgehen."""
+    _angebot(angebot_nr="A-1", erwarteter_monat="2028-04", status="gewonnen", projekt_id=None)
+    _angebot(angebot_nr="A-2", erwarteter_monat="2029-01", status="offen")
+
+    with lese_sitzung() as sitzung:
+        assert dienst.jahre_mit_angeboten(sitzung) == [2029]
+        assert dienst.jahr_mit_angeboten(sitzung, 2026) == 2029

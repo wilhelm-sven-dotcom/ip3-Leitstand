@@ -255,10 +255,12 @@ def test_projekt_ohne_montagewoche_wird_genannt(gesäte_db) -> None:
     bild = _bild()
     assert [o.projekt_nr for o in bild.ohne_termin] == [26310]
     assert bild.stunden_ohne_termin == Decimal("90.00")
-    assert any("keine geplante Montagewoche" in h for h in bild.hinweise)
+    assert any("ohne geplante Montagewoche" in h for h in bild.hinweise)
     assert any("zu günstig" in h for h in bild.hinweise)
-    # Deutsche Zahlen mit geschütztem Leerzeichen vor der Einheit (CLAUDE.md Regel 11).
-    assert any("90,00\u00a0Stunden" in h for h in bild.hinweise)
+    # Deutsche Zahlen mit geschütztem Leerzeichen vor der Einheit (CLAUDE.md Regel 11),
+    # und der richtige Numerus: „1 Projekt hat", nicht „1 Projekte haben".
+    hinweis = next(h for h in bild.hinweise if "Montagewoche" in h)
+    assert hinweis.startswith("1 Projekt hat 90,00\u00a0Sollstunden ohne geplante Montagewoche")
 
 
 def test_projekt_ohne_sollwert_wird_genannt(gesäte_db) -> None:
