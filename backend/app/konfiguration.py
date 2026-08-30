@@ -474,6 +474,99 @@ class FristenEinstellungen(BaseModel):
     mastr_tage: int = Field(default=30, ge=1, le=365)
 
 
+class KapazitaetEinstellungen(BaseModel):
+    """Kapazitätsplanung je Kalenderwoche (PLAN §7 Phase 7).
+
+    Die Wochenstunden je Person stehen in der Datenbank, nicht hier (Entscheidung 40). In der
+    Konfiguration steht nur, **wie** gerechnet und angezeigt wird.
+    """
+
+    # Wie viele Wochen die Ansicht nach vorn zeigt. Ein Quartal ist der Horizont, in dem sich
+    # eine Montage noch verschieben lässt; alles darüber ist Kaffeesatz.
+    wochen_voraus: int = Field(default=13, ge=1, le=52)
+    # Ab welcher Auslastung die Woche als eng gilt (900 Promille = 90 %).
+    warnung_ab_promille: int = Field(default=900, ge=0, le=2000)
+    # Meilensteine, über deren geplante Kalenderwochen die Sollstunden verteilt werden. Der
+    # Terminblock der Teamliste kann sich ändern, deshalb hier und nicht im Code.
+    montage_meilensteine: list[str] = Field(
+        default_factory=lambda: ["montage_uk", "montage_elektro", "zaehlerschrank", "montage"]
+    )
+    # Projektstatus, deren Sollstunden Kapazität binden. Ein Angebot bindet keine Mannschaft,
+    # ein abgeschlossenes Projekt auch nicht mehr.
+    status_mit_bedarf: list[str] = Field(default_factory=lambda: ["beauftragt", "in_bau"])
+
+    @field_validator("montage_meilensteine")
+    @classmethod
+    def bekannte_meilensteine(cls, werte: list[str]) -> list[str]:
+        """Ein Tippfehler hier wäre unsichtbar: die Woche bliebe einfach leer."""
+        from app.modelle.projekte import MEILENSTEIN_TYPEN
+
+        unbekannt = [w for w in werte if w not in MEILENSTEIN_TYPEN]
+        if unbekannt:
+            raise ValueError(
+                f"Unbekannte Meilensteine: {', '.join(unbekannt)}. "
+                f"Erlaubt sind: {', '.join(MEILENSTEIN_TYPEN)}."
+            )
+        return werte
+
+    @field_validator("status_mit_bedarf")
+    @classmethod
+    def bekannter_status(cls, werte: list[str]) -> list[str]:
+        from app.modelle.projekte import PROJEKT_STATUS
+
+        unbekannt = [w for w in werte if w not in PROJEKT_STATUS]
+        if unbekannt:
+            raise ValueError(
+                f"Unbekannter Projektstatus: {', '.join(unbekannt)}. "
+                f"Erlaubt sind: {', '.join(PROJEKT_STATUS)}."
+            )
+        return werte
+
+
+class AngebotEinstellungen(BaseModel):
+    """Angebotspipeline und der Import aus dem Angebots-Tool (PLAN §7 Phase 7).
+
+    Die Spaltenzuordnung steht wie bei DATEV und TimeTac in der Konfiguration. Das ist hier
+    besonders wichtig: die Datei des Angebots-Tools liegt noch nicht vor. Kommt sie, passt der
+    Import über diese Namen – ohne Codeänderung (offener Punkt in docs/OFFENE-PUNKTE.md).
+    """
+
+    # Vorbelegung für ein neu erfasstes Angebot: 500 Promille sind 50 %.
+    standard_wahrscheinlichkeit_promille: int = Field(default=500, ge=0, le=1000)
+    spalten: dict[str, list[str]] = Field(
+        default_factory=lambda: {
+            "angebot_nr": ["Angebotsnummer", "Angebot-Nr.", "Angebot Nr", "Nummer", "Nr."],
+            "kunde": ["Kunde", "Kundenname", "Interessent", "Firma", "Name"],
+            "bezeichnung": ["Bezeichnung", "Projekt", "Vorhaben", "Betreff"],
+            "summe": ["Angebotssumme", "Summe netto", "Nettosumme", "Summe", "Betrag"],
+            "wahrscheinlichkeit": [
+                "Wahrscheinlichkeit",
+                "Chance",
+                "Trefferquote",
+                "Abschlusswahrscheinlichkeit",
+            ],
+            "erwarteter_monat": ["Erwarteter Auftrag", "Auftragsmonat", "Erwartet", "Monat"],
+            "status": ["Status", "Stand"],
+            "datum": ["Angebotsdatum", "Datum", "Erstellt am"],
+        }
+    )
+    # Wie die Statuswerte der Datei zu 'offen', 'gewonnen' und 'verloren' werden. Was hier nicht
+    # steht, gilt als offen und wird im Protokoll genannt – nicht stillschweigend verworfen.
+    status_zuordnung: dict[str, str] = Field(
+        default_factory=lambda: {
+            "offen": "offen",
+            "versendet": "offen",
+            "in verhandlung": "offen",
+            "gewonnen": "gewonnen",
+            "beauftragt": "gewonnen",
+            "auftrag": "gewonnen",
+            "verloren": "verloren",
+            "abgelehnt": "verloren",
+            "abgesagt": "verloren",
+        }
+    )
+
+
 class JobEinstellungen(BaseModel):
     backup_uhrzeit: str = "01:30"
     backup_generationen: int = 30
@@ -572,6 +665,8 @@ class Einstellungen(BaseSettings):
         default_factory=GewaehrleistungEinstellungen
     )
     fristen: FristenEinstellungen = Field(default_factory=FristenEinstellungen)
+    kapazitaet: KapazitaetEinstellungen = Field(default_factory=KapazitaetEinstellungen)
+    angebote: AngebotEinstellungen = Field(default_factory=AngebotEinstellungen)
     nachkalkulation: NachkalkulationEinstellungen = Field(
         default_factory=NachkalkulationEinstellungen
     )

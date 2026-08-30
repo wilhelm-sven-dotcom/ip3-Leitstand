@@ -240,3 +240,71 @@ def test_relative_pfade_beziehen_sich_auf_die_projektwurzel(
     werte = konfiguration.laden()
     assert werte.pfade.datenbank.is_absolute()
     assert werte.pfade.datenbank.name == "eigene.sqlite3"
+
+
+# ---------------------------------------------------------------------------
+# Kapazität und Angebote (Phase 7)
+# ---------------------------------------------------------------------------
+
+
+def test_kapazitaet_hat_brauchbare_vorbelegung():
+    from app.konfiguration import KapazitaetEinstellungen
+
+    werte = KapazitaetEinstellungen()
+    assert werte.wochen_voraus == 13
+    assert werte.warnung_ab_promille == 900
+    assert "montage_uk" in werte.montage_meilensteine
+    # Ein Angebot bindet keine Mannschaft, ein abgeschlossenes Projekt auch nicht mehr.
+    assert werte.status_mit_bedarf == ["beauftragt", "in_bau"]
+
+
+def test_unbekannter_meilenstein_wird_abgewiesen():
+    """Ein Tippfehler hier wäre unsichtbar: die Woche bliebe einfach leer."""
+    from app.konfiguration import KapazitaetEinstellungen
+
+    with pytest.raises(ValueError) as fehler:
+        KapazitaetEinstellungen(montage_meilensteine=["montage_uk", "kaffeepause"])
+    assert "kaffeepause" in str(fehler.value)
+    assert "montage_elektro" in str(fehler.value)
+
+
+def test_unbekannter_projektstatus_wird_abgewiesen():
+    from app.konfiguration import KapazitaetEinstellungen
+
+    with pytest.raises(ValueError) as fehler:
+        KapazitaetEinstellungen(status_mit_bedarf=["in_bau", "unterwegs"])
+    assert "unterwegs" in str(fehler.value)
+
+
+def test_angebotsspalten_decken_die_pflichtfelder_ab():
+    """Ohne Kunde und Summe ist eine Zeile kein Angebot."""
+    from app.konfiguration import AngebotEinstellungen
+
+    werte = AngebotEinstellungen()
+    for feld in ("angebot_nr", "kunde", "summe", "wahrscheinlichkeit", "erwarteter_monat"):
+        assert werte.spalten[feld], feld
+    assert werte.standard_wahrscheinlichkeit_promille == 500
+
+
+def test_statuszuordnung_kennt_alle_drei_zustaende():
+    from app.konfiguration import AngebotEinstellungen
+
+    zuordnung = AngebotEinstellungen().status_zuordnung
+    assert set(zuordnung.values()) == {"offen", "gewonnen", "verloren"}
+
+
+def test_beispielkonfiguration_traegt_die_neuen_abschnitte(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    """config.example.toml ist die Vorlage für den Host – fehlt ein Abschnitt, fehlt er dort."""
+    from app.konfiguration import einstellungen, projektwurzel, zuruecksetzen
+
+    monkeypatch.setenv("IP3_CONFIG", str(projektwurzel() / "config.example.toml"))
+    zuruecksetzen()
+    try:
+        werte = einstellungen()
+        assert werte.kapazitaet.montage_meilensteine
+        assert werte.angebote.spalten["kunde"]
+        assert werte.angebote.status_zuordnung["in verhandlung"] == "offen"
+    finally:
+        zuruecksetzen()

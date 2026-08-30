@@ -16,6 +16,7 @@ from app.modelle.basis import Base, Cent, UtcDateTime, ZeitstempelMixin
 from app.modelle.fakturierung import Absetzung, Nummernkreis, Rechnung, Rechnungsposition
 from app.modelle.finanzen import DatevSaldo, FixkostenPlan, KontenMapping, Opos
 from app.modelle.kalkulation import IstKosten, SollKalkulation, Stuecklistenposition, Stunden
+from app.modelle.planung import Angebot, Mitarbeiter
 from app.modelle.projekte import (
     Dokument,
     Meilenstein,
@@ -38,6 +39,7 @@ from app.modelle.system import (
 
 __all__ = [
     "Absetzung",
+    "Angebot",
     "Anlage",
     "Ansprechpartner",
     "AuditEintrag",
@@ -55,6 +57,7 @@ __all__ = [
     "KontenMapping",
     "Kunde",
     "Meilenstein",
+    "Mitarbeiter",
     "Nachtrag",
     "Nummernkreis",
     "Opos",
@@ -102,6 +105,9 @@ ERWARTETE_TABELLEN = frozenset(
         # Anlagen und Fristen
         "anlagen",
         "fristen",
+        # Kapazität und Pipeline
+        "mitarbeiter",
+        "angebote",
         # Firmen-Cockpit
         "fixkosten_plan",
         "datev_salden",
