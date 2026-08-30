@@ -179,6 +179,86 @@ def datenbank_pruefen(
         raise typer.Exit(code=1)
 
 
+@anwendung.command("bereitschaft")
+def bereitschaft_pruefen(
+    ohne_daten: bool = typer.Option(
+        False, "--ohne-daten", help="Datenbankinhalte nicht prüfen (falls noch keine da ist)"
+    ),
+) -> None:
+    """Vor der Inbetriebnahme: prüfen, was noch fehlt.
+
+    Ein Lauf über Konfiguration, Datenbank, Ordner, Rechnungs-PDF und Datenstand. Der Befehl
+    ändert nichts – er stellt fest und sagt zu jedem Punkt den nächsten Schritt.
+
+    Rückgabewert 1, wenn etwas den Start verhindert; 0, wenn der Leitstand laufen kann. Offene
+    Hinweise ändern den Rückgabewert **nicht**: eine fehlende TimeTac-Anbindung ist kein Grund,
+    den Leitstand nicht zu starten.
+    """
+    from pathlib import Path
+
+    from app.werkzeuge.bereitschaft import bericht_erstellen
+
+    try:
+        werte = einstellungen()
+    except KonfigurationsFehler as fehler:
+        _fehler_ausgeben(fehler)
+        raise typer.Exit(code=2) from fehler
+
+    sitzung = None
+    schliessen = None
+    if not ohne_daten and Path(werte.pfade.datenbank).exists():
+        from app.datenbank import lese_sitzung
+
+        schliessen = lese_sitzung()
+        sitzung = schliessen.__enter__()
+    try:
+        bericht = bericht_erstellen(werte, sitzung)
+    finally:
+        if schliessen is not None:
+            schliessen.__exit__(None, None, None)
+
+    zeichen = {"ok": "erledigt", "hinweis": "offen", "blockiert": "BLOCKIERT"}
+    farben = {
+        "ok": typer.colors.GREEN,
+        "hinweis": typer.colors.YELLOW,
+        "blockiert": typer.colors.RED,
+    }
+
+    for bereich in bericht.bereiche():
+        typer.echo("")
+        typer.secho(bereich, bold=True)
+        for befund in (b for b in bericht.befunde if b.bereich == bereich):
+            typer.secho(
+                f"  [{zeichen[befund.lage]:>9}] {befund.titel}",
+                fg=farben[befund.lage],
+            )
+            if befund.text:
+                typer.echo(f"              {befund.text}")
+            if befund.naechster_schritt:
+                typer.echo(f"              Nächster Schritt: {befund.naechster_schritt}")
+
+    typer.echo("")
+    typer.echo(
+        f"{len(bericht.erledigt)} erledigt, {len(bericht.hinweise)} offen, "
+        f"{len(bericht.blockiert)} blockierend."
+    )
+    if bericht.blockiert:
+        typer.secho(
+            "Der Leitstand startet so nicht. Zuerst die blockierenden Punkte beheben.",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=1)
+    if bericht.hinweise:
+        typer.secho(
+            "Der Leitstand startet. Die offenen Punkte begrenzen, was er kann – "
+            "siehe docs/INBETRIEBNAHME.md.",
+            fg=typer.colors.YELLOW,
+        )
+    else:
+        typer.secho("Vollständig eingerichtet.", fg=typer.colors.GREEN)
+
+
 @anwendung.command("seed")
 def seed_ausfuehren(
     demodaten: bool = typer.Option(

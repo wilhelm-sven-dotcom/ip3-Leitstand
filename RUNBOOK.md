@@ -437,18 +437,34 @@ Der Befehl zeigt erst die erkannten Buchungen mit Projektzuordnung und Satz und 
 weil er die enthaltenen Monate **ersetzt**; `--ja` überspringt die Rückfrage, `--monat JJJJ-MM`
 grenzt auf einen Monat ein. Das Ergebnis ist dasselbe wie beim nächtlichen Abgleich.
 
-## 12. Was in späteren Phasen dazukommt
+## 12. Vor der Inbetriebnahme
 
-* **Vor der ersten Rechnung:** Die Anschriften der Bestandskunden nachtragen. Die Teamliste führte
-  keine: von 484 übernommenen Kunden hat keiner Straße und PLZ, 454 haben einen Ort. § 14 UStG
-  verlangt die vollständige Anschrift, deshalb weist die Festschreibung einen solchen Beleg ab.
-  Ebenso das Kennzeichen Privat- oder Geschäftskunde – davon hängt ab, ob eine E-Rechnung
-  entsteht (Pflicht ab 1.1.2027).
-* **Vor Phase 4:** TimeTac-Zugangsdaten, DATEV-Exportpfade im OneDrive (`02_DATEV`),
-  Kalkulationsordner (`03_Kalkulation`).
-* **WeasyPrint braucht auf Windows die GTK/Pango-Bibliotheken.** Ohne sie startet die
-  PDF-Erzeugung nicht. Unter Linux liegen sie in der Regel schon vor; auf dem Windows-Host das
-  GTK-Runtime-Paket installieren und danach `uv run python -c "import weasyprint"` prüfen.
-* **Ordner `01_Rechnungen`** einrichten, in `config.toml` unter `[pfade] rechnungen` eintragen und
-  die Schreibrechte des Dienstkontos prüfen. Fehlt der Eintrag, lassen sich Belege festschreiben,
-  aber nicht ablegen – der Systemstatus weist darauf hin.
+Alle Phasen aus PLAN §7 sind gebaut. Was zwischen „installiert" und „läuft produktiv" steht,
+ist keine Software mehr, sondern Einrichtung und Zulieferung – und es steht der Reihe nach in
+**[docs/INBETRIEBNAHME.md](docs/INBETRIEBNAHME.md)**.
+
+Der Befehl, der den Stand jederzeit feststellt:
+
+```bash
+cd backend
+uv run ip3-leitstand bereitschaft
+```
+
+Er prüft Konfiguration, Datenbank, Ordner (samt Schreibrecht des Dienstkontos), die
+Grafikbibliotheken für das Rechnungs-PDF, die Verrechnungssätze und den Datenstand. Er ändert
+nichts und nennt zu jedem offenen Punkt den nächsten Schritt. Rückgabewert 1, wenn etwas den
+Start verhindert – offene Hinweise allein ändern ihn nicht.
+
+Drei Dinge daraus, weil sie am häufigsten übersehen werden:
+
+* **Die Anschriften der Bestandskunden.** Von 484 übernommenen Kunden hat keiner Straße und
+  PLZ, 454 haben einen Ort – die Teamliste führte keine. § 14 UStG verlangt die vollständige
+  Anschrift, deshalb weist die Festschreibung einen solchen Beleg ab. Ebenso das Kennzeichen
+  Privat- oder Geschäftskunde: davon hängt ab, ob eine E-Rechnung entsteht (Pflicht ab
+  1.1.2027).
+* **WeasyPrint braucht auf Windows die GTK/Pango-Bibliotheken.** Ohne sie wirft der erste Klick
+  auf „PDF-Vorschau" einen Fehler – genau dann, wenn eine Rechnung rausgehen soll. Unter Linux
+  liegen sie in der Regel vor; `ip3-leitstand bereitschaft` prüft es im Voraus.
+* **Der Leitstand legt keine Ordner an.** Ein Werkzeug, das ungefragt Verzeichnisse im
+  Firmen-OneDrive anlegt, wäre schlimmer als eines, das sie vermisst. Fehlt einer, sagt die
+  Bereitschaftsprüfung welcher und wofür er gebraucht wird.
