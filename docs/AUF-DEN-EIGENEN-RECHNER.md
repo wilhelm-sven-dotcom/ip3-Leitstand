@@ -27,9 +27,18 @@ kommt:
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-Der Installer fragt nach dem Anmeldepasswort und sagt am Ende, welche zwei Zeilen noch in die
-Datei `~/.zprofile` gehören – diese Zeilen ausführen, sonst kennt das Terminal `brew` nicht.
-Danach:
+> **Beim Passwort erscheint nichts – das ist so gewollt.** Gefragt ist das **Anmeldepasswort
+> dieses Macs**, nicht das von GitHub und nicht die Apple-ID. Während des Tippens bleibt die
+> Zeile leer: keine Punkte, keine Sternchen, der Cursor rührt sich nicht. Blind eintippen und
+> Enter drücken.
+>
+> Kommt `Sorry, try again`, stimmt das Passwort nicht. Meist ist die Feststelltaste an oder die
+> Tastaturbelegung eine andere als gedacht – auf der deutschen sind `y` und `z` vertauscht, das
+> `@` liegt auf Alt+L. Nach drei Fehlversuchen bricht `sudo` ab und der Installer steigt aus.
+> Dabei geht nichts kaputt: denselben Befehl noch einmal ausführen.
+
+Der Installer sagt am Ende, welche zwei Zeilen noch in die Datei `~/.zprofile` gehören – diese
+Zeilen ausführen, sonst kennt das Terminal `brew` nicht. Danach:
 
 ```bash
 brew install git node uv pango
@@ -243,6 +252,8 @@ beschrieben im RUNBOOK) – sie gehört nicht in einen Wegwerf-Ordner.
 
 | Was auf dem Bildschirm steht | Was zu tun ist |
 |---|---|
+| `Sorry, try again` beim Homebrew-Installer | Das Anmeldepasswort dieses Macs stimmt nicht. Beim Tippen erscheint bewusst nichts – blind eingeben. Feststelltaste prüfen, und daran denken, dass auf der deutschen Tastatur `y` und `z` vertauscht sind. Nach drei Fehlversuchen bricht der Installer ab; den Befehl einfach erneut ausführen. Kommt danach `is not in the sudoers file`, ist dieses Konto kein Administrator (Systemeinstellungen → Benutzer & Gruppen). |
+| Homebrew scheidet aus (Konto ohne Administratorrechte) | Notlösung: `uv` lässt sich ohne Administratorrechte nach `~/.local/bin` installieren – `curl -LsSf https://astral.sh/uv/install.sh \| sh`. `git` bringen die Xcode-Kommandozeilenwerkzeuge mit (`xcode-select --install`), `node` gibt es als Archiv von nodejs.org zum Auspacken ins Benutzerverzeichnis. Ohne `pango` bleiben die Rechnungs-PDFs allerdings tot – wie unter Windows. |
 | `zsh: command not found: brew` | Homebrew ist installiert, aber nicht im Pfad. Die zwei Zeilen ausführen, die der Installer am Ende genannt hat, oder Terminal schließen und neu öffnen. |
 | `zsh: command not found: uv` (nach `brew install`) | Terminal schließen und neu öffnen. |
 | `fatal: could not read Username` oder `Authentication failed` | Die GitHub-Anmeldung fehlt. `brew install gh && gh auth login`, danach `git clone` erneut. |
