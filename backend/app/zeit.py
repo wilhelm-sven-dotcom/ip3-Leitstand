@@ -8,7 +8,8 @@ den Monat aus dem UTC-Zeitstempel liest, ordnet sie dem März zu und verschiebt 
 
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
+import re
+from datetime import UTC, date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 ORTSZEIT = ZoneInfo("Europe/Berlin")
@@ -80,3 +81,68 @@ def alter_in_stunden(zeitpunkt: datetime, bezug: datetime | None = None) -> floa
         zeitpunkt = zeitpunkt.replace(tzinfo=UTC)
     vergleich = bezug or jetzt_utc()
     return (vergleich - zeitpunkt).total_seconds() / 3600.0
+
+
+# ---------------------------------------------------------------------------
+# Kalenderwochen (Phase 7)
+# ---------------------------------------------------------------------------
+#
+# Gerechnet wird nach ISO 8601, wie überall in Deutschland: die Woche beginnt am Montag, und
+# Woche 1 ist die mit dem ersten Donnerstag des Jahres. Das ist kein Detail – Ende Dezember
+# gehören Tage zur ersten Woche des Folgejahres, und eine Montage in „KW 01" liegt dann im
+# alten Jahr. Deshalb trägt der Schlüssel immer das **ISO-Jahr**, nicht das Kalenderjahr.
+
+WOCHE_MUSTER = re.compile(
+    r"^(?:KW\s*)?(?P<woche>\d{1,2})\s*[/\-.]\s*(?P<jahr>\d{2}|\d{4})$", re.IGNORECASE
+)
+ISO_MUSTER = re.compile(r"^(?P<jahr>\d{4})-?W(?P<woche>\d{1,2})$", re.IGNORECASE)
+
+
+def woche_lesen(wert: str | None) -> tuple[int, int] | None:
+    """Kalenderwoche aus der Teamliste oder der Maske lesen: ``(ISO-Jahr, Woche)``.
+
+    Erlaubt sind ``'29/26'`` (Schreibweise der Teamliste), ``'29/2026'``, ``'KW 29/26'`` und
+    ``'2026-W29'``. Alles andere ergibt ``None`` – der Aufrufer meldet es, statt zu raten.
+    Zweistellige Jahre gelten als 20JJ; ein Bauprojekt aus dem letzten Jahrhundert gibt es nicht.
+    """
+    if not wert:
+        return None
+    roh = wert.strip()
+
+    treffer = ISO_MUSTER.match(roh) or WOCHE_MUSTER.match(roh)
+    if treffer is None:
+        return None
+
+    woche = int(treffer.group("woche"))
+    jahrteil = treffer.group("jahr")
+    jahr = int(jahrteil) if len(jahrteil) == 4 else 2000 + int(jahrteil)
+    if not 1 <= woche <= 53:
+        return None
+    # Woche 53 gibt es nur in Jahren mit 53 Wochen; sonst wäre der Montag im Folgejahr.
+    try:
+        date.fromisocalendar(jahr, woche, 1)
+    except ValueError:
+        return None
+    return jahr, woche
+
+
+def woche_schluessel(jahr: int, woche: int) -> str:
+    """Stabiler Schlüssel einer Woche: ``'2026-W29'`` – sortierbar und eindeutig."""
+    return f"{jahr:04d}-W{woche:02d}"
+
+
+def woche_von_datum(tag: date) -> tuple[int, int]:
+    """ISO-Jahr und Kalenderwoche eines Datums."""
+    kalender = tag.isocalendar()
+    return kalender.year, kalender.week
+
+
+def wochenbeginn(jahr: int, woche: int) -> date:
+    """Montag der Kalenderwoche."""
+    return date.fromisocalendar(jahr, woche, 1)
+
+
+def wochen_ab(start: date, anzahl: int) -> list[tuple[int, int]]:
+    """``anzahl`` aufeinanderfolgende Kalenderwochen ab der Woche von ``start``."""
+    erster_montag = start - timedelta(days=start.isoweekday() - 1)
+    return [woche_von_datum(erster_montag + timedelta(weeks=i)) for i in range(anzahl)]
