@@ -26,13 +26,18 @@ from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 
-from openpyxl import load_workbook
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.fehler import FachFehler
 from app.importe.befunde import Befund
-from app.importe.csv_leser import CsvDatei, aus_zeilen, deutsche_zahl, deutsches_datum
+from app.importe.csv_leser import (
+    CsvDatei,
+    aus_zeilen,
+    deutsche_zahl,
+    deutsches_datum,
+    excel_zeilen,
+)
 from app.importe.csv_leser import lesen as csv_lesen
 from app.modelle import Angebot, Kunde
 from app.zeit import jetzt_utc, monat_gueltig
@@ -85,37 +90,12 @@ class Uebernahme:
     befunde: list[Befund] = field(default_factory=list)
 
 
-def _excel_zeilen(pfad: Path) -> tuple[list[str], list[list[str]]]:
-    """Erste Tabelle einer Excel-Mappe als Kopfzeile und Datenzeilen, alles als Text.
-
-    ``data_only=True``: das Angebots-Tool rechnet mit Formeln, und ein Import interessiert sich
-    für Ergebnisse, nicht für Rechenwege. Damit gilt allerdings, was Excel zuletzt gespeichert
-    hat – eine Mappe, die nie in Excel geöffnet wurde, hat dort leere Zellen.
-    """
-    mappe = load_workbook(pfad, data_only=True, read_only=True)
-    try:
-        blatt = mappe[mappe.sheetnames[0]]
-        zeilen = [
-            ["" if zelle is None else str(zelle).strip() for zelle in reihe]
-            for reihe in blatt.iter_rows(values_only=True)
-        ]
-    finally:
-        mappe.close()
-
-    # Kopfzeile ist die erste Zeile mit mindestens zwei gefüllten Zellen: Angebotslisten tragen
-    # oft eine Überschrift oder eine Leerzeile darüber.
-    for index, reihe in enumerate(zeilen):
-        if sum(1 for zelle in reihe if zelle) >= 2:
-            return reihe, zeilen[index + 1 :]
-    return ([], [])
-
-
 def datei_lesen(pfad: Path, zuordnung: dict[str, list[str]]) -> CsvDatei:
     """Angebotsdatei als Tabelle mit den Feldnamen des Leitstands."""
     if not pfad.exists():
         raise AngebotsdateiFehlt(pfad)
     if pfad.suffix.lower() in EXCEL_ENDUNGEN:
-        kopf, datenzeilen = _excel_zeilen(pfad)
+        kopf, datenzeilen = excel_zeilen(pfad)
         return aus_zeilen(pfad, kopf, datenzeilen, zuordnung, pflicht=PFLICHTFELDER)
     return csv_lesen(pfad, zuordnung, pflicht=PFLICHTFELDER)
 

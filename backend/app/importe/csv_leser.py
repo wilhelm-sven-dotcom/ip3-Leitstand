@@ -202,6 +202,35 @@ def aus_zeilen(
     return datei
 
 
+def excel_zeilen(pfad: Path) -> tuple[list[str], list[list[str]]]:
+    """Erste Tabelle einer Excel-Mappe als Kopfzeile und Datenzeilen, alles als Text.
+
+    ``data_only=True``: die Quelldateien rechnen mit Formeln, und ein Import interessiert sich
+    für Ergebnisse, nicht für Rechenwege. Damit gilt allerdings, was Excel zuletzt gespeichert
+    hat – eine Mappe, die nie in Excel geöffnet wurde, hat dort leere Zellen.
+
+    Die Kopfzeile ist die erste Zeile mit mindestens zwei gefüllten Zellen. Ausgegebene Listen
+    tragen oft eine Überschrift oder eine Leerzeile darüber, und die als Spaltennamen zu lesen
+    ergäbe eine Tabelle ohne eine einzige erkannte Spalte.
+    """
+    from openpyxl import load_workbook
+
+    mappe = load_workbook(pfad, data_only=True, read_only=True)
+    try:
+        blatt = mappe[mappe.sheetnames[0]]
+        zeilen = [
+            ["" if zelle is None else str(zelle).strip() for zelle in reihe]
+            for reihe in blatt.iter_rows(values_only=True)
+        ]
+    finally:
+        mappe.close()
+
+    for index, reihe in enumerate(zeilen):
+        if sum(1 for zelle in reihe if zelle) >= 2:
+            return reihe, zeilen[index + 1 :]
+    return ([], [])
+
+
 def _spalten_zuordnen(kopf: list[str], zuordnung: dict[str, list[str]]) -> dict[str, int]:
     """``{Feldname: Spaltenindex}`` – die erste im Kopf gefundene Schreibweise gewinnt."""
     vorhanden = {vergleichsform(name): index for index, name in enumerate(kopf)}

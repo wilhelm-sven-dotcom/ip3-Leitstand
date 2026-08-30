@@ -75,6 +75,27 @@ def monat_pruefen(wert: str, feld: str = "monat") -> str:
     return wert
 
 
+def voriger_monat(monat: str) -> str:
+    """Der Monat davor, in derselben Schreibweise ``'JJJJ-MM'``."""
+    jahr, nummer = (int(teil) for teil in monat.split("-"))
+    return f"{jahr - 1}-12" if nummer == 1 else f"{jahr}-{nummer - 1:02d}"
+
+
+def monate_rueckwaerts(bis: str, anzahl: int) -> list[str]:
+    """``anzahl`` Monate bis einschließlich ``bis``, aufsteigend sortiert.
+
+    ``monate_rueckwaerts("2026-03", 3)`` ergibt ``["2026-01", "2026-02", "2026-03"]``. Die
+    Reihe wird rückwärts gebaut und dann gedreht, weil der Endmonat der bekannte ist – das
+    Fenster hängt am jüngsten Monat, nicht am ältesten.
+    """
+    if anzahl < 1:
+        return []
+    reihe = [bis]
+    for _ in range(anzahl - 1):
+        reihe.append(voriger_monat(reihe[-1]))
+    return list(reversed(reihe))
+
+
 def alter_in_stunden(zeitpunkt: datetime, bezug: datetime | None = None) -> float:
     """Alter eines Zeitpunkts in Stunden – Grundlage der Datenstand-Anzeige."""
     if zeitpunkt.tzinfo is None:

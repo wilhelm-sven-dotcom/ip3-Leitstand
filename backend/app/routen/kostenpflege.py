@@ -33,6 +33,7 @@ from app.fehler import FachFehler, NichtGefunden
 from app.modelle import FixkostenPlan, KontenMapping
 from app.modelle.finanzen import KOSTENBLOECKE
 from app.sicherheit.abhaengigkeiten import Zugriff, benoetigt, db_sitzung
+from app.zeit import voriger_monat
 
 router = APIRouter(prefix="/api/kostenpflege", tags=["Kostenpflege"])
 
@@ -150,11 +151,6 @@ def _grenzen_pruefen(eingabe: BereichEingabe) -> None:
             "Die kleinere Kontonummer gehört nach vorn.",
             code="kontenbereich_verkehrt",
         )
-
-
-def _voriger_monat(monat: str) -> str:
-    jahr, nummer = (int(teil) for teil in monat.split("-"))
-    return f"{jahr - 1}-12" if nummer == 1 else f"{jahr}-{nummer - 1:02d}"
 
 
 # ---------------------------------------------------------------------------
@@ -472,7 +468,7 @@ def vormonat_uebernehmen(
             code="monat_ungueltig",
         )
 
-    quelle = _voriger_monat(monat)
+    quelle = voriger_monat(monat)
     vorlagen = list(db.scalars(select(FixkostenPlan).where(FixkostenPlan.monat == quelle)))
     if not vorlagen:
         raise FachFehler(
