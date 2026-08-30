@@ -16,6 +16,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from app.jobs.backup import backup_job, sitzungen_aufraeumen_job
+from app.jobs.dokumente import doku_scan_job
 from app.jobs.fristen import fristen_job
 from app.jobs.importe import datev_job, kalkulation_job, timetac_job
 from app.konfiguration import Einstellungen
@@ -43,6 +44,9 @@ def _naechtlicher_lauf(werte: Einstellungen) -> None:
     # Der Fristenwächter ganz zum Schluss: er rechnet auf dem Stand, den die Importe gerade
     # hergestellt haben, und braucht selbst keine Datei und keine Verbindung.
     fristen_job("zeitplan", werte)
+    # Der Doku-Scan liest nur Ordner und schreibt keine Zahlen um, an denen andere Läufe
+    # hängen – deshalb ganz am Ende, wo ein langsames OneDrive niemanden aufhält.
+    doku_scan_job("zeitplan", werte)
 
 
 def starten(werte: Einstellungen) -> BackgroundScheduler | None:

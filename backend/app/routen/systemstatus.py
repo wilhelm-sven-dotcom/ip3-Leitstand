@@ -250,6 +250,7 @@ def job_starten(
     )
     db.commit()
 
+    from app.jobs.dokumente import doku_scan_job
     from app.jobs.fristen import fristen_job
     from app.jobs.importe import datev_job, kalkulation_job, timetac_job
 
@@ -259,6 +260,7 @@ def job_starten(
         "timetac_sync": timetac_job,
         "kalkulation_scan": kalkulation_job,
         "fristen": fristen_job,
+        "doku_scan": doku_scan_job,
     }
     starten = laeufe.get(job)
     if starten is None:  # pragma: no cover – ein Job im Katalog ohne Funktion dahinter

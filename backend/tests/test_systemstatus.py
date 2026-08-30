@@ -60,13 +60,15 @@ class TestKatalog:
             "kalkulation_scan",
             # Seit Phase 6 läuft auch die Fristenprüfung.
             "fristen",
+            # Seit Phase 7 der Doku-Scan der Projektordner.
+            "doku_scan",
         ):
             assert katalog.ist_eingerichtet(katalog.definition(schluessel))
 
     def test_spaetere_jobs_sind_noch_nicht_eingerichtet(self):
         """Der Katalog kennt Jobs künftiger Phasen; eingerichtet sind sie nicht.
 
-        Zurzeit steht kein solcher Job darin – alle Phasen bis 6 sind gebaut. Die Prüfung
+        Zurzeit steht kein solcher Job darin – alle Phasen bis 7 sind gebaut. Die Prüfung
         bleibt trotzdem, weil sie den Mechanismus sichert, mit dem der nächste Eintrag
         angekündigt wird, statt still zu fehlen (PLAN §2).
         """
@@ -184,8 +186,11 @@ class TestAlleJobsSindSichtbar:
         test_einstellungen.pfade.datev = tmp_path / "02_DATEV"
         test_einstellungen.pfade.kalkulation = tmp_path / "03_Kalkulation"
         test_einstellungen.timetac.aktiv = False
-        for job in ("backup", "datev_import", "timetac_sync", "kalkulation_scan", "fristen"):
-            _lauf_anlegen(job, "erfolg", vor_stunden=2)
+        # Aus dem Katalog abgeleitet, nicht von Hand aufgezaehlt: sonst faellt dieser Test bei
+        # jedem neuen Job um, obwohl er gerade dann noch etwas aussagen soll.
+        for eintrag in katalog.KATALOG:
+            if katalog.ist_eingerichtet(eintrag):
+                _lauf_anlegen(eintrag.schluessel, "erfolg", vor_stunden=2)
 
         anmelden(client, "chef@ip3-energie.de")
         koerper = client.get("/api/systemstatus").json()
