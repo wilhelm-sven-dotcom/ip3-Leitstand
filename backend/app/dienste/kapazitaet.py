@@ -29,6 +29,7 @@ from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 
 from app.dienste.suche import AUFGELOEST
+from app.formate import mit_einheit
 from app.modelle import (
     Meilenstein,
     Mitarbeiter,
@@ -255,7 +256,8 @@ def _hinweise(sitzung: Session, ergebnis: Kapazitaetsbild) -> list[str]:
     if ergebnis.ohne_termin:
         hinweise.append(
             f"{len(ergebnis.ohne_termin)} Projekte mit zusammen "
-            f"{ergebnis.stunden_ohne_termin} Sollstunden haben keine geplante Montagewoche. "
+            f"{mit_einheit(ergebnis.stunden_ohne_termin, 'Stunden')} haben keine geplante "
+            "Montagewoche. "
             "Sie fehlen in jeder Woche unten – die Auslastung ist damit zu günstig. Nächster "
             "Schritt: im Projekt die Montagetermine als Kalenderwoche eintragen."
         )

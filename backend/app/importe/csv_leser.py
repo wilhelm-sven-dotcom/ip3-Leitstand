@@ -115,37 +115,19 @@ def lesen(pfad: Path, zuordnung: dict[str, list[str]], *, pflicht: tuple[str, ..
     """
     text, zeichensatz = _text_lesen(pfad)
     trennzeichen = _trennzeichen_erkennen(text)
-    leser = csv.reader(text.splitlines(), delimiter=trennzeichen)
-    zeilen = list(leser)
+    zeilen = list(csv.reader(text.splitlines(), delimiter=trennzeichen))
     if not zeilen:
         raise DateiUnlesbar(pfad, "die Datei ist leer")
 
-    kopf = [spalte.strip() for spalte in zeilen[0]]
-    spalten = _spalten_zuordnen(kopf, zuordnung)
-    fehlend = {feld: zuordnung[feld] for feld in pflicht if feld not in spalten}
-    if fehlend:
-        raise SpaltenFehlen(pfad, fehlend, kopf)
-
-    datei = CsvDatei(
-        pfad=pfad,
+    return aus_zeilen(
+        pfad,
+        zeilen[0],
+        zeilen[1:],
+        zuordnung,
+        pflicht=pflicht,
         zeichensatz=zeichensatz,
         trennzeichen=trennzeichen,
-        spaltenkoepfe=kopf,
-        felder=sorted(spalten),
     )
-    for nummer, rohzeile in enumerate(zeilen[1:], start=2):
-        if not any(zelle.strip() for zelle in rohzeile):
-            continue
-        datei.zeilen.append(
-            Zeile(
-                nummer=nummer,
-                felder={
-                    feld: rohzeile[index].strip() if index < len(rohzeile) else ""
-                    for feld, index in spalten.items()
-                },
-            )
-        )
-    return datei
 
 
 def _text_lesen(pfad: Path) -> tuple[str, str]:
@@ -173,6 +155,51 @@ def _trennzeichen_erkennen(text: str) -> str:
     treffer = {zeichen: kopfzeile.count(zeichen) for zeichen in TRENNZEICHEN}
     bestes = max(treffer, key=lambda z: treffer[z])
     return bestes if treffer[bestes] else TRENNZEICHEN[0]
+
+
+def aus_zeilen(
+    pfad: Path,
+    kopf: list[str],
+    datenzeilen: list[list[str]],
+    zuordnung: dict[str, list[str]],
+    *,
+    pflicht: tuple[str, ...],
+    zeichensatz: str = "-",
+    trennzeichen: str = "-",
+) -> CsvDatei:
+    """Wie :func:`lesen`, aber auf schon eingelesenen Zeilen.
+
+    Für Quellen, die keine Textdatei sind – die Angebotsliste kommt als Excel-Mappe. Die
+    Spaltenzuordnung, die Pflichtprüfung und die Form des Ergebnisses sollen trotzdem dieselben
+    sein: an einer Tabelle darf es keinen Unterschied machen, in welchem Dateiformat sie
+    ankommt.
+    """
+    kopf = [spalte.strip() for spalte in kopf]
+    spalten = _spalten_zuordnen(kopf, zuordnung)
+    fehlend = {feld: zuordnung[feld] for feld in pflicht if feld not in spalten}
+    if fehlend:
+        raise SpaltenFehlen(pfad, fehlend, kopf)
+
+    datei = CsvDatei(
+        pfad=pfad,
+        zeichensatz=zeichensatz,
+        trennzeichen=trennzeichen,
+        spaltenkoepfe=kopf,
+        felder=sorted(spalten),
+    )
+    for nummer, rohzeile in enumerate(datenzeilen, start=2):
+        if not any(zelle.strip() for zelle in rohzeile):
+            continue
+        datei.zeilen.append(
+            Zeile(
+                nummer=nummer,
+                felder={
+                    feld: (rohzeile[index].strip() if index < len(rohzeile) else "")
+                    for feld, index in spalten.items()
+                },
+            )
+        )
+    return datei
 
 
 def _spalten_zuordnen(kopf: list[str], zuordnung: dict[str, list[str]]) -> dict[str, int]:

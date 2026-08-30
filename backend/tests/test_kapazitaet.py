@@ -257,6 +257,8 @@ def test_projekt_ohne_montagewoche_wird_genannt(gesäte_db) -> None:
     assert bild.stunden_ohne_termin == Decimal("90.00")
     assert any("keine geplante Montagewoche" in h for h in bild.hinweise)
     assert any("zu günstig" in h for h in bild.hinweise)
+    # Deutsche Zahlen mit geschütztem Leerzeichen vor der Einheit (CLAUDE.md Regel 11).
+    assert any("90,00\u00a0Stunden" in h for h in bild.hinweise)
 
 
 def test_projekt_ohne_sollwert_wird_genannt(gesäte_db) -> None:
