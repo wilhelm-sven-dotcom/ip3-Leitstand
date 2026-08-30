@@ -1,0 +1,97 @@
+/* Unterlagenübersicht (kein Mockup – Duktus von Projektliste und Anlagenregister). */
+
+.kpi-reihe {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--abstand-4);
+  margin: var(--abstand-5) 0 var(--abstand-3);
+}
+
+/* Was die Zahlen nicht sind: der Scan sieht nur Dateinamen. Steht über der Tabelle,
+   nicht in einer Fußnote – dort läse es niemand. */
+.unterlagen__einordnung {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  max-width: 70ch;
+  margin: var(--abstand-4) 0 0;
+  line-height: 1.5;
+}
+
+.unterlagen__zusatz {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  max-width: 70ch;
+  margin: 0 0 var(--abstand-4);
+  line-height: 1.5;
+}
+
+.unterlagen__leer {
+  color: var(--text-sekundaer);
+}
+
+/* Die Unterlagen als kleine Marken statt als Aufzählung: in einer Tabellenzelle muss auf
+   einen Blick lesbar sein, was da ist und was fehlt. */
+.unterlagen__marken {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--abstand-1) var(--abstand-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.unterlagen__marke {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-s, 4px);
+  border: 1px solid var(--linie);
+  color: var(--text-sekundaer);
+  white-space: nowrap;
+}
+
+.unterlagen__marke--da {
+  border-color: var(--ip3-blau);
+  color: var(--ip3-blau);
+}
+
+/* Nur die fehlende *Pflicht*unterlage trägt den Akzent. Eine fehlende Kür rot zu setzen
+   würde die Farbe entwerten, die sonst Überfälligkeit bedeutet (PLAN §11). */
+.unterlagen__marke--fehlt {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.unterlagen__marke--fehlt.unterlagen__marke--pflicht {
+  border-color: var(--akzent-rot);
+  color: var(--akzent-rot);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Ordnerlage als eigene Marke, nicht als StatusBadge: der kennt bewusst nur acht Zustände,
+   und Ordnerlagen dort hineinzuzwängen würde genau die Lesbarkeit zerstören, die diese
+   Beschränkung schützt (design/README.md). */
+.ordnerlage {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ordnerlage--neutral {
+  color: var(--text-sekundaer);
+  font-weight: 400;
+}
+
+.ordnerlage--erfolg {
+  color: var(--ip3-blau);
+  font-variant-numeric: tabular-nums;
+}
+
+.ordnerlage--warnung {
+  color: var(--ip3-blau);
+}
+
+.ordnerlage--fehler {
+  color: var(--akzent-rot);
+}

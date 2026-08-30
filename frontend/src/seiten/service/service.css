@@ -146,3 +146,59 @@
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
+
+/* --- Eigene Bestandsanlagen (Phase 7) ------------------------------------------------- */
+
+.kpi-reihe {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--abstand-4);
+  margin: var(--abstand-5) 0 var(--abstand-4);
+}
+
+/* Kontrollrechnung, keine Buchung: steht über den Zahlen, nicht in einer Fußnote. */
+.einspeisung__einordnung {
+  font-size: var(--text-s);
+  color: var(--text-sekundaer);
+  max-width: 70ch;
+  margin: var(--abstand-4) 0 var(--abstand-3);
+  line-height: 1.5;
+}
+
+/* Nur was über der Toleranz liegt, trägt den Akzent – sonst bedeutet die Farbe nichts mehr. */
+.einspeisung__abweichung,
+.einspeisung__offen {
+  color: var(--akzent-rot);
+  font-weight: 600;
+}
+
+.einspeisung__monate {
+  margin-top: var(--abstand-5);
+  padding-top: var(--abstand-4);
+  border-top: 1px solid var(--linie);
+}
+
+.einspeisung__ueberschrift {
+  font-size: var(--text-m);
+  font-weight: 600;
+  color: var(--ip3-blau);
+  margin: 0 0 var(--abstand-3);
+}
+
+.zahlungslage {
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+.zahlungslage--erfolg {
+  color: var(--text-sekundaer);
+}
+
+.zahlungslage--warnung {
+  color: var(--akzent-rot);
+  font-weight: 600;
+}
+
+.zahlungslage--neutral {
+  color: var(--text-sekundaer);
+}

@@ -185,6 +185,14 @@
   color: var(--text);
 }
 
+/* Fehlende Unterlagen: derselbe Rahmen, dazu die Infofläche des CD als Grund. Zwei rote
+   Kästen untereinander sähen aus wie zwei gleich wichtige Warnungen -- die Lücke in der Mappe
+   ist aber ein Hinweis, das Festschreiben dagegen unumkehrbar. */
+.dialoghinweis--achtung {
+  background: var(--flaeche-info);
+  border-left-width: 3px;
+}
+
 /* Die Suche in der Filterleiste braucht mehr Platz als eine Auswahlliste. */
 .auswahlzeile--weit {
   min-width: 18rem;

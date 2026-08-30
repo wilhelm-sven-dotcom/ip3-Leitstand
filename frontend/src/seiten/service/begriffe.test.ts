@@ -8,6 +8,9 @@ import {
   fristTypen,
   fristenZusatz,
   gewaehrleistung,
+  abweichungText,
+  verguetungsart,
+  zahlungslage,
 } from "./begriffe";
 
 describe("fristTyp", () => {
@@ -102,5 +105,79 @@ describe("fristBadge", () => {
     // MaStR-Registrierung zu zeigen, macht das Signal wertlos.
     expect(fristBadge("offen")).toBe("geplant");
     expect(fristBadge("neuer_zustand")).toBe("geplant");
+  });
+});
+
+describe("verguetungsart", () => {
+  it("nennt den Satz, weil er die Erwartung erklärt", () => {
+    expect(verguetungsart("einspeisung", 8.11)).toContain("Einspeisung");
+    expect(verguetungsart("einspeisung", 8.11)).toContain("8,11");
+    expect(verguetungsart("einspeisung", 8.11)).toContain("ct/kWh");
+  });
+
+  it("sagt es, wenn der Satz fehlt", () => {
+    // Ohne Satz gibt es keine Erwartung – das muss dastehen, sonst sucht niemand danach.
+    expect(verguetungsart("direktvermarktung", null)).toBe(
+      "Direktvermarktung · Satz fehlt",
+    );
+  });
+
+  it("setzt ein geschütztes Leerzeichen vor die Einheit", () => {
+    expect(verguetungsart("einspeisung", 6.5)).toContain(" ct/kWh");
+  });
+});
+
+describe("abweichungText", () => {
+  it("ohne Erwartung gibt es keine Abweichung", () => {
+    // Ein Strich, nicht „0,00 €": der Unterschied zwischen „stimmt" und „lässt sich nicht sagen".
+    expect(abweichungText(null, null).text).toBe("–");
+    expect(abweichungText(null, null).auffaellig).toBe(false);
+  });
+
+  it("null Abweichung heißt stimmt", () => {
+    expect(abweichungText(0, 0).text).toBe("stimmt");
+  });
+
+  it("zeigt Vorzeichen und Anteil", () => {
+    const zuwenig = abweichungText(-10000, -125);
+    expect(zuwenig.text).toContain("−");
+    expect(zuwenig.text).toContain("12,5");
+    expect(zuwenig.auffaellig).toBe(true);
+  });
+
+  it("kleine Abweichungen fallen nicht auf", () => {
+    // Sonst bedeutet die Akzentfarbe irgendwann nichts mehr.
+    expect(abweichungText(-500, -10).auffaellig).toBe(false);
+  });
+});
+
+describe("zahlungslage", () => {
+  it("bezahlt nennt das Datum", () => {
+    const lage = zahlungslage({
+      bezahlt_am: "2026-08-20",
+      offen: false,
+      abgerechnet_cent: 80000,
+    });
+    expect(lage.art).toBe("erfolg");
+    expect(lage.text).toContain("20.08.2026");
+  });
+
+  it("offen ist die Warnung", () => {
+    const lage = zahlungslage({
+      bezahlt_am: null,
+      offen: true,
+      abgerechnet_cent: 80000,
+    });
+    expect(lage.art).toBe("warnung");
+    expect(lage.text).toBe("offen");
+  });
+
+  it("ein Nullbetrag ist nicht offen", () => {
+    const lage = zahlungslage({
+      bezahlt_am: null,
+      offen: false,
+      abgerechnet_cent: 0,
+    });
+    expect(lage.art).toBe("neutral");
   });
 });

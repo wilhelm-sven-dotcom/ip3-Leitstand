@@ -6,7 +6,7 @@
  * von den Komponenten, weil sich Text prüfen lässt und Text am ehesten falsch wird.
  */
 
-import { datum } from "@/format/formate";
+import { NBSP, datum, euro } from "@/format/formate";
 
 const FRIST_TYPEN: Record<string, string> = {
   mastr: "MaStR-Registrierung",
@@ -101,4 +101,74 @@ export function anlagenZusatz(
   if (inbetriebnahme) teile.push(`in Betrieb seit ${datum(inbetriebnahme)}`);
   teile.push(wartungsvertrag ? "mit Wartungsvertrag" : "ohne Wartungsvertrag");
   return teile.join(" · ");
+}
+
+/* ------------------------------------------------------------------------------------------
+ * Eigene Bestandsanlagen und ihre Vergütung (Phase 7)
+ * ---------------------------------------------------------------------------------------- */
+
+/**
+ * Wie eine Anlage vergütet wird, samt Satz.
+ *
+ * Der Satz gehört dazu, weil er die Erwartung erklärt: eine Abweichung ist fast immer ein
+ * falsch abgeschriebener Satz, und wer ihn nicht sieht, sucht an der falschen Stelle.
+ */
+export function verguetungsart(art: string, satz: number | null): string {
+  const name =
+    art === "direktvermarktung" ? "Direktvermarktung" : "Einspeisung";
+  if (satz === null) {
+    return `${name} · Satz fehlt`;
+  }
+  const gerundet = satz.toLocaleString("de-DE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  });
+  return `${name} · ${gerundet}${NBSP}ct/kWh`;
+}
+
+/**
+ * Die Abweichung als Text, und ob sie auffällt.
+ *
+ * Ohne Erwartung gibt es keine Abweichung – dann steht ein Strich da und nicht „0,00 €".
+ * Der Unterschied ist der zwischen „stimmt" und „lässt sich nicht sagen".
+ */
+export function abweichungText(
+  cent: number | null,
+  promille: number | null,
+): { text: string; auffaellig: boolean } {
+  if (cent === null) {
+    return { text: "–", auffaellig: false };
+  }
+  if (cent === 0) {
+    return { text: "stimmt", auffaellig: false };
+  }
+  const vorzeichen = cent > 0 ? "+" : "−";
+  const betrag = euro(Math.abs(cent));
+  const anteil =
+    promille === null
+      ? ""
+      : ` (${vorzeichen}${(Math.abs(promille) / 10).toLocaleString("de-DE", {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        })}${NBSP}%)`;
+  // Auffällig ist erst, was der Server über der Toleranz führt – die Farbe soll etwas bedeuten.
+  return {
+    text: `${vorzeichen}${betrag}${anteil}`,
+    auffaellig: promille !== null && Math.abs(promille) > 20,
+  };
+}
+
+/** Ob eine abgerechnete Gutschrift bezahlt ist. */
+export function zahlungslage(monat: {
+  bezahlt_am?: string | null;
+  offen: boolean;
+  abgerechnet_cent: number;
+}): { art: "erfolg" | "warnung" | "neutral"; text: string } {
+  if (monat.bezahlt_am) {
+    return { art: "erfolg", text: `bezahlt ${datum(monat.bezahlt_am)}` };
+  }
+  if (monat.abgerechnet_cent === 0) {
+    return { art: "neutral", text: "–" };
+  }
+  return { art: "warnung", text: "offen" };
 }

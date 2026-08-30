@@ -191,3 +191,37 @@ export function sperrgrund(status: string): string | null {
   }
   return null;
 }
+
+/**
+ * Deutsche Bezeichnungen der Projektunterlagen (Phase 7).
+ *
+ * Dieselbe Liste wie in `app/dienste/dokumente.py`. Der Datenbankschlüssel gehört nicht auf
+ * den Bildschirm – dieselbe Lehre wie beim Projektstatus, der als `in_bau` dastand.
+ */
+export const UNTERLAGE_TEXT: Record<string, string> = {
+  ab: "Auftragsbestätigung",
+  abnahme: "Abnahmeprotokoll",
+  anlagendoku: "Anlagendokumentation",
+  konformitaet: "Konformitätserklärung",
+  messkonzept: "Messkonzept",
+  sonstig: "sonstige Unterlage",
+};
+
+export function unterlage(typ: string): string {
+  return UNTERLAGE_TEXT[typ] ?? typ;
+}
+
+/**
+ * Der Satz über fehlenden Pflichtunterlagen – im richtigen Numerus.
+ *
+ * „Im Projektordner fehlt das Abnahmeprotokoll." statt „1 Unterlagen fehlen": eine Meldung mit
+ * falschem Numerus liest sich wie eine Maschinenausgabe und wird dann auch so behandelt.
+ */
+export function fehlendeUnterlagen(typen: string[]): string | null {
+  if (typen.length === 0) return null;
+  const namen = typen.map(unterlage);
+  if (namen.length === 1) {
+    return `Im Projektordner fehlt: ${namen[0]}.`;
+  }
+  return `Im Projektordner fehlen: ${namen.join(", ")}.`;
+}

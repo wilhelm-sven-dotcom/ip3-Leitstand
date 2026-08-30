@@ -29,6 +29,7 @@ import { Nachkalkulation } from "@/seiten/nachkalkulation/Nachkalkulation";
 import { Umsatz } from "@/seiten/umsatz/Umsatz";
 import { Anlagen } from "@/seiten/service/Anlagen";
 import { Planung } from "@/seiten/planung/Planung";
+import { Unterlagen } from "@/seiten/unterlagen/Unterlagen";
 import { useSitzung } from "@/sitzung/SitzungKontext";
 
 function Ladeflaeche() {
@@ -191,6 +192,15 @@ export function AppRouten() {
         element={
           <GeschuetzteRoute>
             <Planung />
+          </GeschuetzteRoute>
+        }
+      />
+
+      <Route
+        path="/unterlagen"
+        element={
+          <GeschuetzteRoute>
+            <Unterlagen />
           </GeschuetzteRoute>
         }
       />

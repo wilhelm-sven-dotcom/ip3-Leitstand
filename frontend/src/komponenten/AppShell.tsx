@@ -82,6 +82,14 @@ export const MENUE: Menuepunkt[] = [
     abPhase: 7,
   },
   {
+    pfad: "/unterlagen",
+    beschriftung: "Unterlagen",
+    // Der Ordnerbefund ist Projektsicht, kein Betrag (PLAN §4) – deshalb sieht ihn auch das
+    // Team, das die Protokolle ablegt. Nur der Scan von Hand braucht importe.ausfuehren.
+    recht: "projekte.lesen",
+    abPhase: 7,
+  },
+  {
     pfad: "/importe",
     beschriftung: "Importe & Daten",
     recht: "importe.ausfuehren",

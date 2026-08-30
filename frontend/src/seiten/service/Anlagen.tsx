@@ -28,6 +28,7 @@ import { Meldung } from "@/komponenten/Meldung";
 import { Seitenwechsel } from "@/komponenten/Seitenwechsel";
 import { StatusBadge } from "@/komponenten/StatusBadge";
 import { Tabs } from "@/komponenten/Tabs";
+import { Einspeisung } from "./Einspeisung";
 import { api, fehlerAuslesen } from "@/api/client";
 import type { ApiFehler } from "@/api/client";
 import {
@@ -61,12 +62,15 @@ type Zeile = {
   projekt_nr?: number | null;
 };
 
-type Reiter = "anlagen" | "fristen";
+type Reiter = "anlagen" | "fristen" | "einspeisung";
 
 export function Anlagen() {
   const { darf } = useSitzung();
   const abfragen = useQueryClient();
   const darfSchreiben = darf("anlagen.schreiben");
+  // Eigene Erlöse sind dem Team entzogen (PLAN §4) – ohne das Recht gibt es den
+  // Reiter gar nicht, statt ihn zu zeigen und dann 403 zu antworten.
+  const darfEinspeisung = darf("einspeisung.lesen");
 
   const [reiter, setReiter] = useState<Reiter>("anlagen");
   const [suche, setSuche] = useState("");
@@ -219,6 +223,9 @@ export function Anlagen() {
         reiter={[
           { schluessel: "anlagen", beschriftung: "Anlagen" },
           { schluessel: "fristen", beschriftung: "Fristen" },
+          ...(darfEinspeisung
+            ? [{ schluessel: "einspeisung", beschriftung: "Eigene Anlagen" }]
+            : []),
         ]}
         aktiv={reiter}
         onWechsel={(s) => setReiter(s as Reiter)}
@@ -285,13 +292,15 @@ export function Anlagen() {
             }
           />
         </>
-      ) : (
+      ) : reiter === "fristen" ? (
         <Fristenliste
           zeilen={fristen.data?.fristen ?? []}
           laedt={fristen.isLoading}
           darfSchreiben={darfSchreiben}
           onErledigen={(id, erledigt) => erledigen.mutate({ id, erledigt })}
         />
+      ) : (
+        <Einspeisung />
       )}
 
       <Anlagenblatt

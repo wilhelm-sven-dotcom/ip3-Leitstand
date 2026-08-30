@@ -37,6 +37,7 @@ import {
   sperrgrund,
   summenzeilen,
   type Belegart,
+  fehlendeUnterlagen,
 } from "./begriffe";
 import { PositionsFormular, type PositionsDaten } from "./PositionsFormular";
 import "./rechnungen.css";
@@ -66,6 +67,8 @@ type Beleg = {
   zahlbetrag: number;
   ust_details: { satz: number; netto: number; ust: number }[];
   steuer_hinweise: string[];
+  /** Pflichtunterlagen, die im Projektordner fehlen (Phase 7). Nur bei Schlussrechnungen. */
+  fehlende_unterlagen: string[];
   positionen: {
     id: number;
     pos: number;
@@ -132,7 +135,12 @@ export function RechnungDetail() {
       setFehler(null);
       const { data, error } = await api.POST(
         "/api/rechnungen/{beleg_id}/festschreiben",
-        { params: { path: { beleg_id: nummer } } },
+        {
+          params: { path: { beleg_id: nummer } },
+          // Fehlen Unterlagen im Projektordner, verlangt der Server eine ausdrückliche
+          // Bestätigung. Der Haken im Dialog ist sie – der Text darüber sagt, was fehlt.
+          body: { unterlagen_bestaetigt: true },
+        },
       );
       if (error) throw error;
       return data;
@@ -531,6 +539,14 @@ export function RechnungDetail() {
             })),
           ]}
         />
+        {daten.fehlende_unterlagen.length > 0 ? (
+          <p className="dialoghinweis dialoghinweis--achtung">
+            {fehlendeUnterlagen(daten.fehlende_unterlagen)} Der Scan sieht nur
+            Dateinamen – liegt die Unterlage auf Papier oder unter einem anderen
+            Namen vor, ist alles in Ordnung. Wer hier bestätigt, schreibt trotz
+            der Lücke fest; das wird im Änderungsprotokoll vermerkt.
+          </p>
+        ) : null}
         <p className="dialoghinweis">
           Festschreiben ist unumkehrbar. Der Beleg erhält die nächste freie
           Nummer und kann danach nur noch per Stornobeleg korrigiert werden.
