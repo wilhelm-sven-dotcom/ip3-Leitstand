@@ -111,11 +111,16 @@ class TestSeedRollen:
             "projekte.lesen",
             "kunden.lesen",
             "anlagen.lesen",
+            # Seit Phase 7: die Wochenauslastung zeigt Stunden, keine Beträge – sie ist der
+            # eigene Terminplan und nicht Teil der Finanzsichtbarkeit.
+            "kapazitaet.lesen",
             "systemstatus.lesen",
         }
         assert "projekte.werte_lesen" not in rechte
         assert "nachkalkulation.lesen" not in rechte
         assert "cockpit.lesen" not in rechte
+        # Angebotssummen sind Beträge und damit Finanzsichtbarkeit (PLAN §4).
+        assert "angebote.lesen" not in rechte
         assert not any(s.endswith(".schreiben") for s in rechte)
         assert "rechnungen.lesen" not in rechte
 

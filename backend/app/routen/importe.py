@@ -27,7 +27,9 @@ from sqlalchemy.orm import Session
 
 from app import audit
 from app.datenbank import schreib_transaktion
+from app.dienste import pipeline as pipeline_dienst
 from app.fehler import Konflikt
+from app.importe import angebote as angebote_import
 from app.importe import datev as datev_import
 from app.importe import kalkulationsblatt as kalkulation_import
 from app.importe import timetac as timetac_import
@@ -444,6 +446,169 @@ def timetac_holen(
             "stunden": str(ergebnis.summe_stunden),
             "summe_cent": ergebnis.summe_cent,
             "ohne_satzgruppe": ergebnis.ohne_satz,
+            "befunde": als_liste(ergebnis.befunde),
+        },
+    )
+
+
+# ---------------------------------------------------------------------------
+# Angebote (Phase 7)
+# ---------------------------------------------------------------------------
+
+
+def _angebotsdatei(werte: Einstellungen) -> Path:
+    """Jüngste Angebotsdatei im eingerichteten Ordner.
+
+    Gesucht wird nach ``angebote*`` mit den Endungen, die der Leser kann. Genommen wird die
+    zuletzt geänderte: das Angebots-Tool schreibt die Liste immer wieder neu, und die aktuelle
+    ist die richtige.
+    """
+    ordner = _ordner(werte.pfade.angebote, "die Angebotsliste", "angebote")
+    if not ordner.is_dir():
+        raise Konflikt(
+            f"Der Angebotsordner ist nicht erreichbar: {ordner}",
+            "Prüfen, ob OneDrive den Ordner synchronisiert hat und ob der Pfad in der "
+            "config.toml stimmt.",
+            code="angebote_pfad_fehlt",
+        )
+    dateien = [
+        p
+        for p in ordner.glob("angebote*")
+        if p.suffix.lower() in (*angebote_import.EXCEL_ENDUNGEN, ".csv")
+    ]
+    if not dateien:
+        raise Konflikt(
+            f"Im Ordner {ordner.name} liegt keine Angebotsliste.",
+            "Erwartet wird eine Datei, deren Name mit 'angebote' beginnt, als .xlsx oder .csv. "
+            "Die Spaltennamen stehen in der config.toml unter [angebote.spalten].",
+            code="angebote_datei_fehlt",
+        )
+    return max(dateien, key=lambda p: p.stat().st_mtime)
+
+
+def _angebote_lesen(werte: Einstellungen) -> angebote_import.Angebotsdatei:
+    return angebote_import.lesen(
+        _angebotsdatei(werte),
+        werte.angebote.spalten,
+        werte.angebote.status_zuordnung,
+        standard_wahrscheinlichkeit=werte.angebote.standard_wahrscheinlichkeit_promille,
+    )
+
+
+@router.get(
+    "/angebote/vorschau",
+    response_model=VorschauAntwort,
+    summary="Angebotsliste ansehen, ohne zu schreiben",
+    operation_id="importAngeboteVorschau",
+    responses={**RECHTE, 409: {"description": "Ordner oder Datei fehlt"}},
+)
+def angebote_vorschau(
+    zugriff: Zugriff = Depends(benoetigt("importe.ausfuehren")),
+    werte: Einstellungen = Depends(konfiguration),
+) -> VorschauAntwort:
+    datei = _angebote_lesen(werte)
+    roh = sum(z.summe_cent for z in datei.zeilen)
+    gewichtet = sum(
+        pipeline_dienst.gewichten(z.summe_cent, z.wahrscheinlichkeit_promille) for z in datei.zeilen
+    )
+    return VorschauAntwort(
+        quelle="angebote",
+        kennung=_kennung(
+            [
+                f"{z.zeile}|{z.angebot_nr}|{z.kunde_name}|{z.summe_cent}|"
+                f"{z.wahrscheinlichkeit_promille}|{z.erwarteter_monat}|{z.status}"
+                for z in datei.zeilen
+            ]
+        ),
+        dateien=[datei.pfad.name],
+        zeitraum=None,
+        kontrollsummen={
+            "zeilen": len(datei.zeilen),
+            "summe_netto": roh,
+            "gewichtet_netto": gewichtet,
+        },
+        befunde=_befunde(datei.befunde),
+        hinweise=[
+            "Angebote, keine Aufträge. Die gewichtete Summe ist eine Erwartung und gehört "
+            "nicht zum Auftragsbestand."
+        ],
+    )
+
+
+@router.post(
+    "/angebote/uebernehmen",
+    response_model=UebernahmeAntwort,
+    summary="Angebotsliste übernehmen",
+    operation_id="importAngeboteUebernehmen",
+    responses=UEBERNEHMEN,
+)
+def angebote_uebernehmen(
+    eingabe: UebernahmeAnfrage,
+    zugriff: Zugriff = Depends(benoetigt("importe.ausfuehren")),
+    db: Session = Depends(db_sitzung),
+    werte: Einstellungen = Depends(konfiguration),
+) -> UebernahmeAntwort:
+    """Übernimmt die Liste. Gewonnene Angebote bleiben unangetastet – daran hängen Projekte."""
+    datei = _angebote_lesen(werte)
+    _kennung_pruefen(
+        eingabe.kennung,
+        _kennung(
+            [
+                f"{z.zeile}|{z.angebot_nr}|{z.kunde_name}|{z.summe_cent}|"
+                f"{z.wahrscheinlichkeit_promille}|{z.erwarteter_monat}|{z.status}"
+                for z in datei.zeilen
+            ]
+        ),
+        "die Angebotsliste",
+    )
+
+    audit.eintragen(
+        db,
+        "import.angebote",
+        nutzer=zugriff.nutzer,
+        ip=zugriff.ip,
+        neu={"datei": datei.pfad.name, "zeilen": len(datei.zeilen)},
+    )
+    from app.importe import laeufe
+
+    with schreib_transaktion(db):
+        lauf = laeufe.lauf_beginnen(db, quelle="angebote", datei=datei.pfad.name)
+        ergebnis = angebote_import.uebernehmen(db, datei)
+        laeufe.lauf_abschliessen(
+            db,
+            lauf,
+            befunde=ergebnis.befunde,
+            kontrollsummen={
+                "neu": ergebnis.neu,
+                "aktualisiert": ergebnis.aktualisiert,
+                "uebersprungen": ergebnis.uebersprungen,
+            },
+        )
+        lauf_id = lauf.id
+
+    log.info(
+        "Angebote: %d neu, %d aktualisiert, %d übersprungen",
+        ergebnis.neu,
+        ergebnis.aktualisiert,
+        ergebnis.uebersprungen,
+    )
+    return UebernahmeAntwort(
+        quelle="angebote",
+        importlauf_id=lauf_id,
+        zeitraum=None,
+        meldung=(
+            f"{ergebnis.neu} Angebote neu, {ergebnis.aktualisiert} aktualisiert"
+            + (
+                f", {ergebnis.uebersprungen} übersprungen (bereits gewonnen)"
+                if ergebnis.uebersprungen
+                else ""
+            )
+            + "."
+        ),
+        ergebnis={
+            "neu": ergebnis.neu,
+            "aktualisiert": ergebnis.aktualisiert,
+            "uebersprungen": ergebnis.uebersprungen,
             "befunde": als_liste(ergebnis.befunde),
         },
     )

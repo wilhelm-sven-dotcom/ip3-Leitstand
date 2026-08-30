@@ -55,6 +55,11 @@ KATALOG: tuple[Berechtigungsdefinition, ...] = (
     # Service und Anlagen
     Berechtigungsdefinition("anlagen.lesen", "Anlagenregister und Fristen ansehen", 6),
     Berechtigungsdefinition("anlagen.schreiben", "Anlagen, Serviceaufträge und Fristen pflegen", 6),
+    # Kapazität und Pipeline
+    Berechtigungsdefinition("kapazitaet.lesen", "Wochenauslastung und Mannschaft ansehen", 7),
+    Berechtigungsdefinition("kapazitaet.schreiben", "Mitarbeiter und Wochenstunden pflegen", 7),
+    Berechtigungsdefinition("angebote.lesen", "Angebotspipeline ansehen", 7),
+    Berechtigungsdefinition("angebote.schreiben", "Angebote pflegen und einlesen", 7),
     # Daten und Betrieb
     Berechtigungsdefinition("importe.ausfuehren", "Importe starten (DATEV, TimeTac, Migration)", 1),
     Berechtigungsdefinition("systemstatus.lesen", "Datenstand und Hintergrundläufe ansehen", 0),
@@ -123,6 +128,7 @@ BUCHHALTUNG_RECHTE = _alle(
     "rechnungen.erstellen",
     "rechnungen.festschreiben",
     "anlagen.lesen",
+    "kapazitaet.lesen",
     "importe.ausfuehren",
     "systemstatus.lesen",
 )
@@ -132,6 +138,9 @@ TEAM_RECHTE = _alle(
     "projekte.lesen",
     "kunden.lesen",
     "anlagen.lesen",
+    # Die Wochenauslastung zeigt Stunden, keine Beträge – sie ist der eigene Terminplan
+    # und nicht Teil der Finanzsichtbarkeit (PLAN §4).
+    "kapazitaet.lesen",
     "systemstatus.lesen",
 )
 

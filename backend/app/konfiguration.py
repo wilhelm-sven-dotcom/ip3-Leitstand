@@ -71,6 +71,9 @@ class PfadEinstellungen(BaseModel):
     rechnungen: Path | None = None
     datev: Path | None = None
     kalkulation: Path | None = None
+    # Ordner mit der Angebotsliste aus dem Angebots-Tool (Phase 7). Wird nur gelesen. Leer
+    # heißt: die Pipeline wird von Hand gepflegt, ohne Import.
+    angebote: Path | None = None
     # Ordner mit den Excel-Bestandsdateien der Einmal-Migration (PLAN §9). Wird nur gelesen und
     # darf nach der Übernahme leer bleiben.
     migration: Path | None = None
@@ -84,6 +87,7 @@ class PfadEinstellungen(BaseModel):
         "rechnungen",
         "datev",
         "kalkulation",
+        "angebote",
         "migration",
         "frontend",
         "cd_assets",

@@ -56,6 +56,412 @@
         "title": "AbsetzungAntwort",
         "type": "object"
       },
+      "AngebotAendern": {
+        "properties": {
+          "angebot_nr": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Angebot Nr"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datum"
+          },
+          "erwarteter_monat": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erwarteter Monat"
+          },
+          "kunde_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kunde Id"
+          },
+          "kunde_name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Kunde Name",
+            "type": "string"
+          },
+          "projekt_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Id"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "status": {
+            "default": "offen",
+            "enum": [
+              "offen",
+              "gewonnen",
+              "verloren"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "summe_netto": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Summe Netto",
+            "type": "integer"
+          },
+          "wahrscheinlichkeit_promille": {
+            "default": 500,
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Wahrscheinlichkeit Promille",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kunde_name",
+          "stand"
+        ],
+        "title": "AngebotAendern",
+        "type": "object"
+      },
+      "AngebotAntwort": {
+        "properties": {
+          "angebot_nr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Angebot Nr"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datum"
+          },
+          "erwarteter_monat": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erwarteter Monat"
+          },
+          "gewichtet_netto": {
+            "title": "Gewichtet Netto",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kunde_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kunde Id"
+          },
+          "kunde_name": {
+            "title": "Kunde Name",
+            "type": "string"
+          },
+          "projekt_nr": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Nr"
+          },
+          "quelle_datei": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quelle Datei"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "summe_netto": {
+            "title": "Summe Netto",
+            "type": "integer"
+          },
+          "wahrscheinlichkeit_promille": {
+            "title": "Wahrscheinlichkeit Promille",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "kunde_name",
+          "summe_netto",
+          "wahrscheinlichkeit_promille",
+          "gewichtet_netto",
+          "status",
+          "stand"
+        ],
+        "title": "AngebotAntwort",
+        "type": "object"
+      },
+      "AngebotEingabe": {
+        "properties": {
+          "angebot_nr": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Angebot Nr"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "datum": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datum"
+          },
+          "erwarteter_monat": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erwarteter Monat"
+          },
+          "kunde_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kunde Id"
+          },
+          "kunde_name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Kunde Name",
+            "type": "string"
+          },
+          "projekt_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projekt Id"
+          },
+          "status": {
+            "default": "offen",
+            "enum": [
+              "offen",
+              "gewonnen",
+              "verloren"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "summe_netto": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Summe Netto",
+            "type": "integer"
+          },
+          "wahrscheinlichkeit_promille": {
+            "default": 500,
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Wahrscheinlichkeit Promille",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kunde_name"
+        ],
+        "title": "AngebotEingabe",
+        "type": "object"
+      },
+      "AngebotListe": {
+        "properties": {
+          "angebote": {
+            "items": {
+              "$ref": "#/components/schemas/AngebotAntwort"
+            },
+            "title": "Angebote",
+            "type": "array"
+          },
+          "gesamt": {
+            "title": "Gesamt",
+            "type": "integer"
+          },
+          "gewichtet_netto": {
+            "title": "Gewichtet Netto",
+            "type": "integer"
+          },
+          "roh_netto": {
+            "title": "Roh Netto",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "angebote",
+          "gesamt",
+          "roh_netto",
+          "gewichtet_netto"
+        ],
+        "title": "AngebotListe",
+        "type": "object"
+      },
       "AngemeldeterNutzer": {
         "description": "Was die Oberfläche über den angemeldeten Nutzer wissen muss.",
         "properties": {
@@ -1973,6 +2379,63 @@
         "title": "JobStatus",
         "type": "object"
       },
+      "KapazitaetAntwort": {
+        "properties": {
+          "bedarf_gesamt": {
+            "title": "Bedarf Gesamt",
+            "type": "number"
+          },
+          "einordnung": {
+            "default": "Regelarbeitszeit ohne Urlaub und Krankheit: der Leitstand führt keine Abwesenheitsplanung. Die verfügbaren Stunden sind eine Obergrenze, keine Zusage.",
+            "title": "Einordnung",
+            "type": "string"
+          },
+          "hinweise": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hinweise",
+            "type": "array"
+          },
+          "kapazitaet_gesamt": {
+            "title": "Kapazitaet Gesamt",
+            "type": "number"
+          },
+          "ohne_termin": {
+            "items": {
+              "$ref": "#/components/schemas/OhneTerminAntwort"
+            },
+            "title": "Ohne Termin",
+            "type": "array"
+          },
+          "stunden_ohne_termin": {
+            "title": "Stunden Ohne Termin",
+            "type": "number"
+          },
+          "warnung_ab_promille": {
+            "title": "Warnung Ab Promille",
+            "type": "integer"
+          },
+          "wochen": {
+            "items": {
+              "$ref": "#/components/schemas/WochenAntwort"
+            },
+            "title": "Wochen",
+            "type": "array"
+          }
+        },
+        "required": [
+          "wochen",
+          "ohne_termin",
+          "bedarf_gesamt",
+          "kapazitaet_gesamt",
+          "stunden_ohne_termin",
+          "warnung_ab_promille",
+          "hinweise"
+        ],
+        "title": "KapazitaetAntwort",
+        "type": "object"
+      },
       "KennzahlenAntwort": {
         "properties": {
           "break_even_netto": {
@@ -3000,6 +3463,279 @@
         "title": "MengenBestaetigen",
         "type": "object"
       },
+      "MitarbeiterAendern": {
+        "properties": {
+          "aktiv": {
+            "default": true,
+            "title": "Aktiv",
+            "type": "boolean"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bis": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bis"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "satzgruppe": {
+            "anyOf": [
+              {
+                "enum": [
+                  "monteur",
+                  "obermonteur",
+                  "elektriker",
+                  "planung"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Satzgruppe"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "von": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Von"
+          },
+          "wochenstunden": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Wochenstunden",
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "stand"
+        ],
+        "title": "MitarbeiterAendern",
+        "type": "object"
+      },
+      "MitarbeiterAntwort": {
+        "properties": {
+          "aktiv": {
+            "title": "Aktiv",
+            "type": "boolean"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bis": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bis"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "satzgruppe": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Satzgruppe"
+          },
+          "stand": {
+            "format": "date-time",
+            "title": "Stand",
+            "type": "string"
+          },
+          "von": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Von"
+          },
+          "wochenstunden": {
+            "title": "Wochenstunden",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "wochenstunden",
+          "aktiv",
+          "stand"
+        ],
+        "title": "MitarbeiterAntwort",
+        "type": "object"
+      },
+      "MitarbeiterEingabe": {
+        "properties": {
+          "aktiv": {
+            "default": true,
+            "title": "Aktiv",
+            "type": "boolean"
+          },
+          "bemerkung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bemerkung"
+          },
+          "bis": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bis"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "satzgruppe": {
+            "anyOf": [
+              {
+                "enum": [
+                  "monteur",
+                  "obermonteur",
+                  "elektriker",
+                  "planung"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Satzgruppe"
+          },
+          "von": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Von"
+          },
+          "wochenstunden": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Wochenstunden",
+            "type": "number"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "MitarbeiterEingabe",
+        "type": "object"
+      },
+      "MitarbeiterListe": {
+        "properties": {
+          "mitarbeiter": {
+            "items": {
+              "$ref": "#/components/schemas/MitarbeiterAntwort"
+            },
+            "title": "Mitarbeiter",
+            "type": "array"
+          },
+          "ohne_datensatz": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Ohne Datensatz",
+            "type": "array"
+          },
+          "summe_wochenstunden": {
+            "title": "Summe Wochenstunden",
+            "type": "number"
+          }
+        },
+        "required": [
+          "mitarbeiter",
+          "ohne_datensatz",
+          "summe_wochenstunden"
+        ],
+        "title": "MitarbeiterListe",
+        "type": "object"
+      },
       "MonateAntwort": {
         "properties": {
           "hinweise": {
@@ -3333,6 +4069,40 @@
         "title": "OffenesKontoAntwort",
         "type": "object"
       },
+      "OhneTerminAntwort": {
+        "properties": {
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "stunden": {
+            "title": "Stunden",
+            "type": "number"
+          }
+        },
+        "required": [
+          "projekt_nr",
+          "stunden",
+          "status"
+        ],
+        "title": "OhneTerminAntwort",
+        "type": "object"
+      },
       "PasswortDaten": {
         "properties": {
           "altes_passwort": {
@@ -3353,6 +4123,106 @@
           "neues_passwort"
         ],
         "title": "PasswortDaten",
+        "type": "object"
+      },
+      "PipelineAntwort": {
+        "properties": {
+          "anzahl": {
+            "title": "Anzahl",
+            "type": "integer"
+          },
+          "einordnung": {
+            "default": "Angebote, keine Aufträge. Die gewichtete Summe ist eine Erwartung und gehört nicht zum Auftragsbestand.",
+            "title": "Einordnung",
+            "type": "string"
+          },
+          "gewichtet_netto": {
+            "title": "Gewichtet Netto",
+            "type": "integer"
+          },
+          "hinweise": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hinweise",
+            "type": "array"
+          },
+          "jahr": {
+            "title": "Jahr",
+            "type": "integer"
+          },
+          "jahre": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Jahre",
+            "type": "array"
+          },
+          "monate": {
+            "items": {
+              "$ref": "#/components/schemas/PipelinemonatAntwort"
+            },
+            "title": "Monate",
+            "type": "array"
+          },
+          "roh_netto": {
+            "title": "Roh Netto",
+            "type": "integer"
+          },
+          "unterminiert_anzahl": {
+            "title": "Unterminiert Anzahl",
+            "type": "integer"
+          },
+          "unterminiert_gewichtet": {
+            "title": "Unterminiert Gewichtet",
+            "type": "integer"
+          },
+          "unterminiert_roh": {
+            "title": "Unterminiert Roh",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "jahr",
+          "monate",
+          "unterminiert_roh",
+          "unterminiert_gewichtet",
+          "unterminiert_anzahl",
+          "roh_netto",
+          "gewichtet_netto",
+          "anzahl",
+          "jahre",
+          "hinweise"
+        ],
+        "title": "PipelineAntwort",
+        "type": "object"
+      },
+      "PipelinemonatAntwort": {
+        "properties": {
+          "anzahl": {
+            "title": "Anzahl",
+            "type": "integer"
+          },
+          "gewichtet_netto": {
+            "title": "Gewichtet Netto",
+            "type": "integer"
+          },
+          "monat": {
+            "title": "Monat",
+            "type": "string"
+          },
+          "roh_netto": {
+            "title": "Roh Netto",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "monat",
+          "roh_netto",
+          "gewichtet_netto",
+          "anzahl"
+        ],
+        "title": "PipelinemonatAntwort",
         "type": "object"
       },
       "PlanAendern": {
@@ -4252,6 +5122,40 @@
           "status"
         ],
         "title": "ProjektZeile",
+        "type": "object"
+      },
+      "ProjektanteilAntwort": {
+        "properties": {
+          "bezeichnung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bezeichnung"
+          },
+          "projekt_nr": {
+            "title": "Projekt Nr",
+            "type": "integer"
+          },
+          "stunden": {
+            "title": "Stunden",
+            "type": "number"
+          },
+          "wochen": {
+            "title": "Wochen",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "projekt_nr",
+          "stunden",
+          "wochen"
+        ],
+        "title": "ProjektanteilAntwort",
         "type": "object"
       },
       "ProjektbestandAntwort": {
@@ -5183,6 +6087,70 @@
           "ausloeser"
         ],
         "title": "VorschlagAntwort",
+        "type": "object"
+      },
+      "WochenAntwort": {
+        "properties": {
+          "auslastung_promille": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auslastung Promille"
+          },
+          "bedarf": {
+            "title": "Bedarf",
+            "type": "number"
+          },
+          "beginn": {
+            "format": "date",
+            "title": "Beginn",
+            "type": "string"
+          },
+          "jahr": {
+            "title": "Jahr",
+            "type": "integer"
+          },
+          "kapazitaet": {
+            "title": "Kapazitaet",
+            "type": "number"
+          },
+          "projekte": {
+            "items": {
+              "$ref": "#/components/schemas/ProjektanteilAntwort"
+            },
+            "title": "Projekte",
+            "type": "array"
+          },
+          "rest": {
+            "title": "Rest",
+            "type": "number"
+          },
+          "schluessel": {
+            "title": "Schluessel",
+            "type": "string"
+          },
+          "woche": {
+            "title": "Woche",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "schluessel",
+          "jahr",
+          "woche",
+          "beginn",
+          "bedarf",
+          "kapazitaet",
+          "rest",
+          "auslastung_promille",
+          "projekte"
+        ],
+        "title": "WochenAntwort",
         "type": "object"
       },
       "ZahlungenAntwort": {
@@ -6947,6 +7915,232 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/angebote": {
+      "get": {
+        "description": "Das größte Angebot zuerst – danach sucht man in einer Pipeline.",
+        "operationId": "angeboteListe",
+        "parameters": [
+          {
+            "description": "'offen', 'gewonnen', 'verloren' oder 'alle'",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "default": "offen",
+              "description": "'offen', 'gewonnen', 'verloren' oder 'alle'",
+              "title": "Status",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AngebotListe"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung angebote.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Angebote der Pipeline",
+        "tags": [
+          "Kapazität und Pipeline"
+        ]
+      },
+      "post": {
+        "operationId": "angebotAnlegen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AngebotEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AngebotAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung angebote.schreiben fehlt"
+          },
+          "404": {
+            "description": "Angebot nicht gefunden"
+          },
+          "409": {
+            "description": "Das Angebot wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Angebot erfassen",
+        "tags": [
+          "Kapazität und Pipeline"
+        ]
+      }
+    },
+    "/api/angebote/pipeline": {
+      "get": {
+        "description": "Die Pipeline steht **neben** dem Forecast, nie darin (PLAN §7 Phase 7).",
+        "operationId": "angebotePipeline",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "jahr",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Jahr"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PipelineAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung angebote.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Gewichtete Angebotssumme je Monat",
+        "tags": [
+          "Kapazität und Pipeline"
+        ]
+      }
+    },
+    "/api/angebote/{angebot_id}": {
+      "put": {
+        "description": "Ein Angebot wird nicht gelöscht, sondern auf ``verloren`` gesetzt (CLAUDE.md Regel 5).\n\nDie Trefferquote der Vergangenheit ist die einzige Grundlage, auf der sich künftige\nWahrscheinlichkeiten begründen lassen – verlorene Angebote wegzuwerfen nähme sie weg.",
+        "operationId": "angebotAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "angebot_id",
+            "required": true,
+            "schema": {
+              "title": "Angebot Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AngebotAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AngebotAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung angebote.schreiben fehlt"
+          },
+          "404": {
+            "description": "Angebot nicht gefunden"
+          },
+          "409": {
+            "description": "Das Angebot wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Angebot ändern",
+        "tags": [
+          "Kapazität und Pipeline"
+        ]
+      }
+    },
     "/api/anlagen": {
       "get": {
         "description": "Das Register, die jüngste Inbetriebnahme zuerst.\n\n``ohne_wartungsvertrag=true`` ist die Liste aus PLAN §7: jede Zeile darin ist ein Kunde, dem\nein Wartungsvertrag angeboten werden kann.",
@@ -7947,6 +9141,87 @@
         ]
       }
     },
+    "/api/importe/angebote/uebernehmen": {
+      "post": {
+        "description": "Übernimmt die Liste. Gewonnene Angebote bleiben unangetastet – daran hängen Projekte.",
+        "operationId": "importAngeboteUebernehmen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__routen__importe__UebernahmeAnfrage"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__importe__UebernahmeAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "Datei zwischenzeitlich geändert oder Ordner nicht eingerichtet"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Angebotsliste übernehmen",
+        "tags": [
+          "Importe"
+        ]
+      }
+    },
+    "/api/importe/angebote/vorschau": {
+      "get": {
+        "operationId": "importAngeboteVorschau",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routen__importe__VorschauAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung importe.ausfuehren fehlt"
+          },
+          "409": {
+            "description": "Ordner oder Datei fehlt"
+          }
+        },
+        "summary": "Angebotsliste ansehen, ohne zu schreiben",
+        "tags": [
+          "Importe"
+        ]
+      }
+    },
     "/api/importe/datev/uebernehmen": {
       "post": {
         "operationId": "importDatevUebernehmen",
@@ -8284,6 +9559,85 @@
         "summary": "Stunden aus TimeTac holen und übernehmen",
         "tags": [
           "Importe"
+        ]
+      }
+    },
+    "/api/kapazitaet": {
+      "get": {
+        "description": "Sollstunden der terminierten Projekte gegen die Wochenstunden der Mannschaft.",
+        "operationId": "kapazitaetLesen",
+        "parameters": [
+          {
+            "description": "Anzahl Wochen (Standard aus der config.toml)",
+            "in": "query",
+            "name": "wochen",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 52,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Anzahl Wochen (Standard aus der config.toml)",
+              "title": "Wochen"
+            }
+          },
+          {
+            "description": "Erste Woche; ohne Angabe die laufende",
+            "in": "query",
+            "name": "ab",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Erste Woche; ohne Angabe die laufende",
+              "title": "Ab"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KapazitaetAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kapazitaet.lesen fehlt"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Auslastung je Kalenderwoche",
+        "tags": [
+          "Kapazität und Pipeline"
         ]
       }
     },
@@ -9214,6 +10568,150 @@
         "summary": "Bestandsdateien lesen und Zuordnung vorschlagen",
         "tags": [
           "Migration"
+        ]
+      }
+    },
+    "/api/mitarbeiter": {
+      "get": {
+        "operationId": "mitarbeiterListe",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MitarbeiterListe"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kapazitaet.lesen fehlt"
+          }
+        },
+        "summary": "Mannschaft und Wochenstunden",
+        "tags": [
+          "Kapazität und Pipeline"
+        ]
+      },
+      "post": {
+        "description": "Der Name muss dem in TimeTac entsprechen – sonst laufen Stunden und Kapazität auseinander.",
+        "operationId": "mitarbeiterAnlegen",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MitarbeiterEingabe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MitarbeiterAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kapazitaet.schreiben fehlt"
+          },
+          "404": {
+            "description": "Mitarbeiter nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mitarbeiter anlegen",
+        "tags": [
+          "Kapazität und Pipeline"
+        ]
+      }
+    },
+    "/api/mitarbeiter/{mitarbeiter_id}": {
+      "put": {
+        "description": "Wer geht, wird auf ``aktiv = false`` gesetzt und nicht gelöscht (CLAUDE.md Regel 5).",
+        "operationId": "mitarbeiterAendern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mitarbeiter_id",
+            "required": true,
+            "schema": {
+              "title": "Mitarbeiter Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MitarbeiterAendern"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MitarbeiterAntwort"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Nicht angemeldet"
+          },
+          "403": {
+            "description": "Berechtigung kapazitaet.schreiben fehlt"
+          },
+          "404": {
+            "description": "Mitarbeiter nicht gefunden"
+          },
+          "409": {
+            "description": "Der Datensatz wurde zwischenzeitlich geändert"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mitarbeiter ändern",
+        "tags": [
+          "Kapazität und Pipeline"
         ]
       }
     },

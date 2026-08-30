@@ -21,6 +21,10 @@ backup = 'C:\Users\<nutzer>\OneDrive - ip3\04_Backup'
 rechnungen = 'C:\Users\<nutzer>\OneDrive - ip3\01_Rechnungen'
 datev = 'C:\Users\<nutzer>\OneDrive - ip3\02_DATEV'
 kalkulation = 'C:\Users\<nutzer>\OneDrive - ip3\03_Kalkulation'
+# Ordner mit der Angebotsliste aus dem Angebots-Tool (Phase 7). Wird nur gelesen. Leer heisst:
+# die Pipeline wird von Hand gepflegt, ohne Import. Erwartet wird eine Datei, deren Name mit
+# 'angebote' beginnt, als .xlsx oder .csv.
+angebote = ''
 # Ordner mit den beiden Excel-Bestandsdateien fuer die Einmal-Migration (PLAN §9). Wird nur
 # gelesen. Nach der Uebernahme werden die Dateien schreibgeschuetzt, das Werkzeug ist dann
 # fuehrend; der Eintrag darf danach leer bleiben.

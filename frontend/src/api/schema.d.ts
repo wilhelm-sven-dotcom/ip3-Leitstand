@@ -4,6 +4,70 @@
  */
 
 export interface paths {
+    "/api/angebote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Angebote der Pipeline
+         * @description Das größte Angebot zuerst – danach sucht man in einer Pipeline.
+         */
+        get: operations["angeboteListe"];
+        put?: never;
+        /** Angebot erfassen */
+        post: operations["angebotAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/angebote/pipeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gewichtete Angebotssumme je Monat
+         * @description Die Pipeline steht **neben** dem Forecast, nie darin (PLAN §7 Phase 7).
+         */
+        get: operations["angebotePipeline"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/angebote/{angebot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Angebot ändern
+         * @description Ein Angebot wird nicht gelöscht, sondern auf ``verloren`` gesetzt (CLAUDE.md Regel 5).
+         *
+         *     Die Trefferquote der Vergangenheit ist die einzige Grundlage, auf der sich künftige
+         *     Wahrscheinlichkeiten begründen lassen – verlorene Angebote wegzuwerfen nähme sie weg.
+         */
+        put: operations["angebotAendern"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/anlagen": {
         parameters: {
             query?: never;
@@ -350,6 +414,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/importe/angebote/uebernehmen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Angebotsliste übernehmen
+         * @description Übernimmt die Liste. Gewonnene Angebote bleiben unangetastet – daran hängen Projekte.
+         */
+        post: operations["importAngeboteUebernehmen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/importe/angebote/vorschau": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Angebotsliste ansehen, ohne zu schreiben */
+        get: operations["importAngeboteVorschau"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/importe/datev/uebernehmen": {
         parameters: {
             query?: never;
@@ -452,6 +553,26 @@ export interface paths {
          *     schreibt nichts und lässt die vorhandenen Stunden stehen.
          */
         post: operations["importTimetacHolen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kapazitaet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Auslastung je Kalenderwoche
+         * @description Sollstunden der terminierten Projekte gegen die Wochenstunden der Mannschaft.
+         */
+        get: operations["kapazitaetLesen"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -677,6 +798,47 @@ export interface paths {
          */
         get: operations["migrationVorschau"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mitarbeiter": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mannschaft und Wochenstunden */
+        get: operations["mitarbeiterListe"];
+        put?: never;
+        /**
+         * Mitarbeiter anlegen
+         * @description Der Name muss dem in TimeTac entsprechen – sonst laufen Stunden und Kapazität auseinander.
+         */
+        post: operations["mitarbeiterAnlegen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mitarbeiter/{mitarbeiter_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Mitarbeiter ändern
+         * @description Wer geht, wird auf ``aktiv = false`` gesetzt und nicht gelöscht (CLAUDE.md Regel 5).
+         */
+        put: operations["mitarbeiterAendern"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1391,6 +1553,128 @@ export interface components {
             /** Ust Satz */
             ust_satz: number;
         };
+        /** AngebotAendern */
+        AngebotAendern: {
+            /** Angebot Nr */
+            angebot_nr?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /** Datum */
+            datum?: string | null;
+            /** Erwarteter Monat */
+            erwarteter_monat?: string | null;
+            /** Kunde Id */
+            kunde_id?: number | null;
+            /** Kunde Name */
+            kunde_name: string;
+            /** Projekt Id */
+            projekt_id?: number | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /**
+             * Status
+             * @default offen
+             * @enum {string}
+             */
+            status: "offen" | "gewonnen" | "verloren";
+            /**
+             * Summe Netto
+             * @default 0
+             */
+            summe_netto: number;
+            /**
+             * Wahrscheinlichkeit Promille
+             * @default 500
+             */
+            wahrscheinlichkeit_promille: number;
+        };
+        /** AngebotAntwort */
+        AngebotAntwort: {
+            /** Angebot Nr */
+            angebot_nr?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /** Datum */
+            datum?: string | null;
+            /** Erwarteter Monat */
+            erwarteter_monat?: string | null;
+            /** Gewichtet Netto */
+            gewichtet_netto: number;
+            /** Id */
+            id: number;
+            /** Kunde Id */
+            kunde_id?: number | null;
+            /** Kunde Name */
+            kunde_name: string;
+            /** Projekt Nr */
+            projekt_nr?: number | null;
+            /** Quelle Datei */
+            quelle_datei?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Status */
+            status: string;
+            /** Summe Netto */
+            summe_netto: number;
+            /** Wahrscheinlichkeit Promille */
+            wahrscheinlichkeit_promille: number;
+        };
+        /** AngebotEingabe */
+        AngebotEingabe: {
+            /** Angebot Nr */
+            angebot_nr?: string | null;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /** Datum */
+            datum?: string | null;
+            /** Erwarteter Monat */
+            erwarteter_monat?: string | null;
+            /** Kunde Id */
+            kunde_id?: number | null;
+            /** Kunde Name */
+            kunde_name: string;
+            /** Projekt Id */
+            projekt_id?: number | null;
+            /**
+             * Status
+             * @default offen
+             * @enum {string}
+             */
+            status: "offen" | "gewonnen" | "verloren";
+            /**
+             * Summe Netto
+             * @default 0
+             */
+            summe_netto: number;
+            /**
+             * Wahrscheinlichkeit Promille
+             * @default 500
+             */
+            wahrscheinlichkeit_promille: number;
+        };
+        /** AngebotListe */
+        AngebotListe: {
+            /** Angebote */
+            angebote: components["schemas"]["AngebotAntwort"][];
+            /** Gesamt */
+            gesamt: number;
+            /** Gewichtet Netto */
+            gewichtet_netto: number;
+            /** Roh Netto */
+            roh_netto: number;
+        };
         /**
          * AngemeldeterNutzer
          * @description Was die Oberfläche über den angemeldeten Nutzer wissen muss.
@@ -1994,6 +2278,28 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** KapazitaetAntwort */
+        KapazitaetAntwort: {
+            /** Bedarf Gesamt */
+            bedarf_gesamt: number;
+            /**
+             * Einordnung
+             * @default Regelarbeitszeit ohne Urlaub und Krankheit: der Leitstand führt keine Abwesenheitsplanung. Die verfügbaren Stunden sind eine Obergrenze, keine Zusage.
+             */
+            einordnung: string;
+            /** Hinweise */
+            hinweise: string[];
+            /** Kapazitaet Gesamt */
+            kapazitaet_gesamt: number;
+            /** Ohne Termin */
+            ohne_termin: components["schemas"]["OhneTerminAntwort"][];
+            /** Stunden Ohne Termin */
+            stunden_ohne_termin: number;
+            /** Warnung Ab Promille */
+            warnung_ab_promille: number;
+            /** Wochen */
+            wochen: components["schemas"]["WochenAntwort"][];
+        };
         /** KennzahlenAntwort */
         KennzahlenAntwort: {
             /** Break Even Netto */
@@ -2287,6 +2593,90 @@ export interface components {
             /** Positionen */
             positionen: components["schemas"]["MengeEingabe"][];
         };
+        /** MitarbeiterAendern */
+        MitarbeiterAendern: {
+            /**
+             * Aktiv
+             * @default true
+             */
+            aktiv: boolean;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bis */
+            bis?: string | null;
+            /** Name */
+            name: string;
+            /** Satzgruppe */
+            satzgruppe?: ("monteur" | "obermonteur" | "elektriker" | "planung") | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Von */
+            von?: string | null;
+            /**
+             * Wochenstunden
+             * @default 0
+             */
+            wochenstunden: number;
+        };
+        /** MitarbeiterAntwort */
+        MitarbeiterAntwort: {
+            /** Aktiv */
+            aktiv: boolean;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bis */
+            bis?: string | null;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Satzgruppe */
+            satzgruppe?: string | null;
+            /**
+             * Stand
+             * Format: date-time
+             */
+            stand: string;
+            /** Von */
+            von?: string | null;
+            /** Wochenstunden */
+            wochenstunden: number;
+        };
+        /** MitarbeiterEingabe */
+        MitarbeiterEingabe: {
+            /**
+             * Aktiv
+             * @default true
+             */
+            aktiv: boolean;
+            /** Bemerkung */
+            bemerkung?: string | null;
+            /** Bis */
+            bis?: string | null;
+            /** Name */
+            name: string;
+            /** Satzgruppe */
+            satzgruppe?: ("monteur" | "obermonteur" | "elektriker" | "planung") | null;
+            /** Von */
+            von?: string | null;
+            /**
+             * Wochenstunden
+             * @default 0
+             */
+            wochenstunden: number;
+        };
+        /** MitarbeiterListe */
+        MitarbeiterListe: {
+            /** Mitarbeiter */
+            mitarbeiter: components["schemas"]["MitarbeiterAntwort"][];
+            /** Ohne Datensatz */
+            ohne_datensatz: string[];
+            /** Summe Wochenstunden */
+            summe_wochenstunden: number;
+        };
         /** MonateAntwort */
         MonateAntwort: {
             /** Hinweise */
@@ -2408,12 +2798,62 @@ export interface components {
             /** Summe */
             summe: number;
         };
+        /** OhneTerminAntwort */
+        OhneTerminAntwort: {
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /** Projekt Nr */
+            projekt_nr: number;
+            /** Status */
+            status: string;
+            /** Stunden */
+            stunden: number;
+        };
         /** PasswortDaten */
         PasswortDaten: {
             /** Altes Passwort */
             altes_passwort: string;
             /** Neues Passwort */
             neues_passwort: string;
+        };
+        /** PipelineAntwort */
+        PipelineAntwort: {
+            /** Anzahl */
+            anzahl: number;
+            /**
+             * Einordnung
+             * @default Angebote, keine Aufträge. Die gewichtete Summe ist eine Erwartung und gehört nicht zum Auftragsbestand.
+             */
+            einordnung: string;
+            /** Gewichtet Netto */
+            gewichtet_netto: number;
+            /** Hinweise */
+            hinweise: string[];
+            /** Jahr */
+            jahr: number;
+            /** Jahre */
+            jahre: number[];
+            /** Monate */
+            monate: components["schemas"]["PipelinemonatAntwort"][];
+            /** Roh Netto */
+            roh_netto: number;
+            /** Unterminiert Anzahl */
+            unterminiert_anzahl: number;
+            /** Unterminiert Gewichtet */
+            unterminiert_gewichtet: number;
+            /** Unterminiert Roh */
+            unterminiert_roh: number;
+        };
+        /** PipelinemonatAntwort */
+        PipelinemonatAntwort: {
+            /** Anzahl */
+            anzahl: number;
+            /** Gewichtet Netto */
+            gewichtet_netto: number;
+            /** Monat */
+            monat: string;
+            /** Roh Netto */
+            roh_netto: number;
         };
         /** PlanAendern */
         PlanAendern: {
@@ -2643,6 +3083,17 @@ export interface components {
             standort?: string | null;
             /** Status */
             status: string;
+        };
+        /** ProjektanteilAntwort */
+        ProjektanteilAntwort: {
+            /** Bezeichnung */
+            bezeichnung?: string | null;
+            /** Projekt Nr */
+            projekt_nr: number;
+            /** Stunden */
+            stunden: number;
+            /** Wochen */
+            wochen: number;
         };
         /** ProjektbestandAntwort */
         ProjektbestandAntwort: {
@@ -2942,6 +3393,30 @@ export interface components {
             projekt_name?: string | null;
             /** Projekt Nr */
             projekt_nr: number;
+        };
+        /** WochenAntwort */
+        WochenAntwort: {
+            /** Auslastung Promille */
+            auslastung_promille: number | null;
+            /** Bedarf */
+            bedarf: number;
+            /**
+             * Beginn
+             * Format: date
+             */
+            beginn: string;
+            /** Jahr */
+            jahr: number;
+            /** Kapazitaet */
+            kapazitaet: number;
+            /** Projekte */
+            projekte: components["schemas"]["ProjektanteilAntwort"][];
+            /** Rest */
+            rest: number;
+            /** Schluessel */
+            schluessel: string;
+            /** Woche */
+            woche: number;
         };
         /** ZahlungenAntwort */
         ZahlungenAntwort: {
@@ -3472,6 +3947,221 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    angeboteListe: {
+        parameters: {
+            query?: {
+                /** @description 'offen', 'gewonnen', 'verloren' oder 'alle' */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AngebotListe"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung angebote.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    angebotAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AngebotEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AngebotAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung angebote.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Angebot nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Das Angebot wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    angebotePipeline: {
+        parameters: {
+            query?: {
+                jahr?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PipelineAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung angebote.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    angebotAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                angebot_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AngebotAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AngebotAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung angebote.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Angebot nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Das Angebot wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     anlagenListe: {
         parameters: {
             query?: {
@@ -4370,6 +5060,101 @@ export interface operations {
             };
         };
     };
+    importAngeboteUebernehmen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__routen__importe__UebernahmeAnfrage"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__importe__UebernahmeAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datei zwischenzeitlich geändert oder Ordner nicht eingerichtet */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importAngeboteVorschau: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routen__importe__VorschauAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung importe.ausfuehren fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ordner oder Datei fehlt */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     importDatevUebernehmen: {
         parameters: {
             query?: {
@@ -4657,6 +5442,54 @@ export interface operations {
             };
             /** @description TimeTac nicht erreichbar oder nicht eingerichtet */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kapazitaetLesen: {
+        parameters: {
+            query?: {
+                /** @description Anzahl Wochen (Standard aus der config.toml) */
+                wochen?: number | null;
+                /** @description Erste Woche; ohne Angabe die laufende */
+                ab?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KapazitaetAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kapazitaet.lesen fehlt */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5591,6 +6424,164 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    mitarbeiterListe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MitarbeiterListe"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kapazitaet.lesen fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mitarbeiterAnlegen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MitarbeiterEingabe"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MitarbeiterAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kapazitaet.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Mitarbeiter nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mitarbeiterAendern: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mitarbeiter_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MitarbeiterAendern"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MitarbeiterAntwort"];
+                };
+            };
+            /** @description Nicht angemeldet */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berechtigung kapazitaet.schreiben fehlt */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Mitarbeiter nicht gefunden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Der Datensatz wurde zwischenzeitlich geändert */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };

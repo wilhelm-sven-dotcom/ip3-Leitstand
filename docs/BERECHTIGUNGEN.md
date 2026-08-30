@@ -23,10 +23,14 @@ Projektleiter eingetragen ist.
 | `admin.jobs` | Hintergrundläufe von Hand starten | 0 | ja | – | – |
 | `admin.konfiguration` | Konfiguration ansehen und ändern | 0 | ja | – | – |
 | `admin.nutzer` | Nutzer und Rollen verwalten | 0 | ja | – | – |
+| `angebote.lesen` | Angebotspipeline ansehen | 7 | ja | – | – |
+| `angebote.schreiben` | Angebote pflegen und einlesen | 7 | ja | – | – |
 | `anlagen.lesen` | Anlagenregister und Fristen ansehen | 6 | ja | ja | ja |
 | `anlagen.schreiben` | Anlagen, Serviceaufträge und Fristen pflegen | 6 | ja | – | – |
 | `cockpit.lesen` | Firmen-Cockpit ansehen | 5 | ja | – | – |
 | `importe.ausfuehren` | Importe starten (DATEV, TimeTac, Migration) | 1 | ja | ja | – |
+| `kapazitaet.lesen` | Wochenauslastung und Mannschaft ansehen | 7 | ja | ja | ja |
+| `kapazitaet.schreiben` | Mitarbeiter und Wochenstunden pflegen | 7 | ja | – | – |
 | `kunden.lesen` | Kunden und Ansprechpartner ansehen | 1 | ja | ja | ja |
 | `kunden.schreiben` | Kunden und Ansprechpartner pflegen | 1 | ja | ja | – |
 | `meilensteine.schreiben` | Termine und Status pflegen | 1 | ja | ja | – |
