@@ -28,6 +28,8 @@ Projektleiter eingetragen ist.
 | `anlagen.lesen` | Anlagenregister und Fristen ansehen | 6 | ja | ja | ja |
 | `anlagen.schreiben` | Anlagen, Serviceaufträge und Fristen pflegen | 6 | ja | – | – |
 | `cockpit.lesen` | Firmen-Cockpit ansehen | 5 | ja | – | – |
+| `einspeisung.lesen` | Eigene Anlagen und ihre Vergütung ansehen | 7 | ja | ja | – |
+| `einspeisung.schreiben` | Eigene Anlagen pflegen und Abrechnungen einlesen | 7 | ja | ja | – |
 | `importe.ausfuehren` | Importe starten (DATEV, TimeTac, Migration) | 1 | ja | ja | – |
 | `kapazitaet.lesen` | Wochenauslastung und Mannschaft ansehen | 7 | ja | ja | ja |
 | `kapazitaet.schreiben` | Mitarbeiter und Wochenstunden pflegen | 7 | ja | – | – |

@@ -60,6 +60,12 @@ KATALOG: tuple[Berechtigungsdefinition, ...] = (
     Berechtigungsdefinition("kapazitaet.schreiben", "Mitarbeiter und Wochenstunden pflegen", 7),
     Berechtigungsdefinition("angebote.lesen", "Angebotspipeline ansehen", 7),
     Berechtigungsdefinition("angebote.schreiben", "Angebote pflegen und einlesen", 7),
+    # Eigene Bestandsanlagen. Getrennt von `anlagen.*`: dort geht es um Kundenanlagen und
+    # Service, hier um eigene Erlöse – und Erlöse sind dem Team entzogen (PLAN §4).
+    Berechtigungsdefinition("einspeisung.lesen", "Eigene Anlagen und ihre Vergütung ansehen", 7),
+    Berechtigungsdefinition(
+        "einspeisung.schreiben", "Eigene Anlagen pflegen und Abrechnungen einlesen", 7
+    ),
     # Daten und Betrieb
     Berechtigungsdefinition("importe.ausfuehren", "Importe starten (DATEV, TimeTac, Migration)", 1),
     Berechtigungsdefinition("systemstatus.lesen", "Datenstand und Hintergrundläufe ansehen", 0),
@@ -129,6 +135,8 @@ BUCHHALTUNG_RECHTE = _alle(
     "rechnungen.festschreiben",
     "anlagen.lesen",
     "kapazitaet.lesen",
+    "einspeisung.lesen",
+    "einspeisung.schreiben",
     "importe.ausfuehren",
     "systemstatus.lesen",
 )

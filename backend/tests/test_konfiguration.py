@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from app import konfiguration
 from app.konfiguration import Einstellungen, KonfigurationsFehler
@@ -306,5 +307,66 @@ def test_beispielkonfiguration_traegt_die_neuen_abschnitte(
         assert werte.kapazitaet.montage_meilensteine
         assert werte.angebote.spalten["kunde"]
         assert werte.angebote.status_zuordnung["in verhandlung"] == "offen"
+    finally:
+        zuruecksetzen()
+
+
+# ------------------------------------------------------------------------------------------
+# Doku-Scan und Vergütungs-Controlling (Phase 7)
+# ------------------------------------------------------------------------------------------
+
+
+def test_pflichtunterlagen_muessen_bekannte_typen_sein():
+    """Ein Tippfehler in [dokumente] pflicht wäre unsichtbar: die Unterlage würde nie gefunden,
+    und der Hinweis stünde dauerhaft rot, ohne dass ihn jemand abstellen könnte."""
+    from app.konfiguration import DokumenteEinstellungen
+
+    with pytest.raises(ValidationError) as fehler:
+        DokumenteEinstellungen(pflicht=["anlagendokumentation"])
+    assert "anlagendokumentation" in str(fehler.value)
+    # Die Meldung nennt die erlaubten Werte, sonst hilft sie beim Beheben nicht.
+    assert "anlagendoku" in str(fehler.value)
+
+
+def test_muster_muessen_bekannte_typen_sein():
+    from app.konfiguration import DokumenteEinstellungen
+
+    with pytest.raises(ValidationError):
+        DokumenteEinstellungen(muster={"abnahmeprotokoll": ["abnahme"]})
+
+
+def test_pflichtunterlage_ist_die_anlagendokumentation():
+    """Entscheidung 49: Abnahme, Konformitätserklärung und Messkonzept werden mitgescannt und
+    angezeigt, lösen aber keinen Schlussrechnungshinweis aus."""
+    from app.konfiguration import DokumenteEinstellungen
+
+    assert DokumenteEinstellungen().pflicht == ["anlagendoku"]
+
+
+def test_einspeisung_kennt_beide_zuordnungsschluessel():
+    """Zählernummer und MaStR-Nummer: die Abrechnung führt mal die eine, mal die andere."""
+    from app.konfiguration import EinspeisungEinstellungen
+
+    spalten = EinspeisungEinstellungen().spalten
+    assert spalten["zaehler"]
+    assert spalten["mastr"]
+    assert spalten["kwh"]
+    assert spalten["betrag"]
+
+
+def test_beispielkonfiguration_traegt_dokumente_und_einspeisung(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    from app.konfiguration import einstellungen, projektwurzel, zuruecksetzen
+
+    monkeypatch.setenv("IP3_CONFIG", str(projektwurzel() / "config.example.toml"))
+    zuruecksetzen()
+    try:
+        werte = einstellungen()
+        assert werte.dokumente.pflicht == ["anlagendoku"]
+        assert ".pdf" in werte.dokumente.endungen
+        assert werte.dokumente.muster["anlagendoku"]
+        assert werte.einspeisung.toleranz_promille == 20
+        assert werte.einspeisung.spalten["kwh"]
     finally:
         zuruecksetzen()

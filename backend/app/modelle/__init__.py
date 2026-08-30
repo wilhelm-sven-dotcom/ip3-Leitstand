@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from app.modelle.anlagen import Anlage, Frist
 from app.modelle.basis import Base, Cent, UtcDateTime, ZeitstempelMixin
+from app.modelle.einspeisung import EigeneAnlage, EinspeiseAbrechnung
 from app.modelle.fakturierung import Absetzung, Nummernkreis, Rechnung, Rechnungsposition
 from app.modelle.finanzen import DatevSaldo, FixkostenPlan, KontenMapping, Opos
 from app.modelle.kalkulation import IstKosten, SollKalkulation, Stuecklistenposition, Stunden
@@ -22,6 +23,7 @@ from app.modelle.projekte import (
     Meilenstein,
     Nachtrag,
     Projekt,
+    Projektordner,
     Zahlungsplanposition,
 )
 from app.modelle.stammdaten import Ansprechpartner, Firma, Kunde
@@ -48,6 +50,8 @@ __all__ = [
     "Cent",
     "DatevSaldo",
     "Dokument",
+    "EigeneAnlage",
+    "EinspeiseAbrechnung",
     "Firma",
     "FixkostenPlan",
     "Frist",
@@ -62,6 +66,7 @@ __all__ = [
     "Nummernkreis",
     "Opos",
     "Projekt",
+    "Projektordner",
     "Rechnung",
     "Rechnungsposition",
     "Rolle",
@@ -92,6 +97,7 @@ ERWARTETE_TABELLEN = frozenset(
         "nachtraege",
         "meilensteine",
         "dokumente",
+        "projektordner",
         # Fakturierung
         "rechnungen",
         "rechnungspos",
@@ -108,6 +114,9 @@ ERWARTETE_TABELLEN = frozenset(
         # Kapazität und Pipeline
         "mitarbeiter",
         "angebote",
+        # Eigene Bestandsanlagen
+        "eigene_anlagen",
+        "einspeise_abrechnungen",
         # Firmen-Cockpit
         "fixkosten_plan",
         "datev_salden",

@@ -74,6 +74,12 @@ class PfadEinstellungen(BaseModel):
     # Ordner mit der Angebotsliste aus dem Angebots-Tool (Phase 7). Wird nur gelesen. Leer
     # heißt: die Pipeline wird von Hand gepflegt, ohne Import.
     angebote: Path | None = None
+    # Wurzel der Projektordner im OneDrive – ein Ordner je Projekt mit der Nummer im Namen
+    # (Entscheidung 42). Wird nur gelesen. Leer heißt: kein Doku-Scan.
+    projekte: Path | None = None
+    # Ordner mit den Abrechnungen des Netzbetreibers für die eigenen Anlagen (Phase 7). Wird nur
+    # gelesen. Leer heißt: die Abrechnungen werden von Hand erfasst.
+    einspeisung: Path | None = None
     # Ordner mit den Excel-Bestandsdateien der Einmal-Migration (PLAN §9). Wird nur gelesen und
     # darf nach der Übernahme leer bleiben.
     migration: Path | None = None
@@ -88,6 +94,8 @@ class PfadEinstellungen(BaseModel):
         "datev",
         "kalkulation",
         "angebote",
+        "projekte",
+        "einspeisung",
         "migration",
         "frontend",
         "cd_assets",
@@ -571,6 +579,104 @@ class AngebotEinstellungen(BaseModel):
     )
 
 
+class DokumenteEinstellungen(BaseModel):
+    """Doku-Vollständigkeitsscan der Projektordner (PLAN §7 Phase 7).
+
+    Der Scan liest die Ordner unter ``[pfade] projekte`` und ordnet jede Datei anhand ihres
+    Namens einem Dokumenttyp zu. Beides – welche Unterlagen Pflicht sind und woran sie erkannt
+    werden – steht bewusst hier und nicht im Code: Ordnerkonventionen wachsen, und eine neue
+    Schreibweise darf keine Codeänderung kosten.
+    """
+
+    # Was vor einer Schlussrechnung im Ordner liegen muss (Entscheidung 49). Bewusst kurz: eine
+    # lange Pflichtliste, die dauerhaft rot steht, liest nach zwei Wochen niemand mehr.
+    pflicht: list[str] = Field(default_factory=lambda: ["anlagendoku"])
+    # Woran der Scan einen Typ erkennt. Verglichen wird kleingeschrieben und ohne Umlaute gegen
+    # den Dateinamen; der erste Treffer in dieser Reihenfolge gewinnt, deshalb stehen die
+    # eindeutigen Begriffe vorn.
+    muster: dict[str, list[str]] = Field(
+        default_factory=lambda: {
+            "abnahme": ["abnahmeprotokoll", "abnahme", "uebergabeprotokoll"],
+            "konformitaet": [
+                "konformitaetserklaerung",
+                "konformitaet",
+                "fertigmeldung",
+                "inbetriebnahmeprotokoll",
+                "e8",
+            ],
+            "messkonzept": ["messkonzept", "messstellenkonzept", "zaehlerkonzept"],
+            "anlagendoku": [
+                "anlagendokumentation",
+                "anlagendoku",
+                "uebergabemappe",
+                "dokumentation",
+                "datenblaetter",
+            ],
+            "ab": ["auftragsbestaetigung", "auftragsbest"],
+        }
+    )
+    # Welche Dateiendungen überhaupt als Unterlage zählen. Eine Miniaturansicht oder eine
+    # Tabelle mit Zwischenständen ist keine Anlagendokumentation.
+    endungen: list[str] = Field(default_factory=lambda: [".pdf", ".jpg", ".jpeg", ".png", ".tif"])
+    # Wie viele Ebenen unter dem Projektordner mitgelesen werden. 2 deckt „Projekt/Doku/x.pdf"
+    # ab, ohne bei einem versehentlich mitkopierten Fotoarchiv minutenlang zu laufen.
+    tiefe: int = Field(default=2, ge=1, le=6)
+
+    @field_validator("pflicht")
+    @classmethod
+    def bekannte_typen(cls, werte: list[str]) -> list[str]:
+        """Ein Tippfehler wäre unsichtbar: die Unterlage könnte nie gefunden werden."""
+        from app.modelle.projekte import DOKUMENT_TYPEN
+
+        unbekannt = [w for w in werte if w not in DOKUMENT_TYPEN]
+        if unbekannt:
+            raise ValueError(
+                f"Unbekannte Dokumenttypen: {', '.join(unbekannt)}. "
+                f"Erlaubt sind: {', '.join(DOKUMENT_TYPEN)}."
+            )
+        return werte
+
+    @field_validator("muster")
+    @classmethod
+    def bekannte_muster(cls, werte: dict[str, list[str]]) -> dict[str, list[str]]:
+        from app.modelle.projekte import DOKUMENT_TYPEN
+
+        unbekannt = [w for w in werte if w not in DOKUMENT_TYPEN]
+        if unbekannt:
+            raise ValueError(
+                f"Unbekannte Dokumenttypen in [dokumente.muster]: {', '.join(unbekannt)}. "
+                f"Erlaubt sind: {', '.join(DOKUMENT_TYPEN)}."
+            )
+        return werte
+
+
+class EinspeisungEinstellungen(BaseModel):
+    """Vergütungs-Controlling der eigenen Bestandsanlagen (PLAN §7 Phase 7).
+
+    Die Spaltenzuordnung steht wie bei DATEV, TimeTac und den Angeboten in der Konfiguration.
+    Hier gilt dasselbe wie beim Angebots-Tool: die echte Abrechnung des Netzbetreibers liegt
+    noch nicht vor, und erst sie zeigt, ob die Namen passen. Sie sind ohne Codeänderung
+    nachzuziehen (offener Punkt in docs/OFFENE-PUNKTE.md).
+    """
+
+    # Ab welcher Abweichung zwischen Erwartung und Abrechnung gemeldet wird. 20 Promille sind
+    # 2 % – genug Luft für Rundungen und Teilmonate, eng genug für einen falschen Satz.
+    toleranz_promille: int = Field(default=20, ge=0, le=1000)
+    # Nach wie vielen Tagen ohne Zahlungseingang eine abgerechnete Gutschrift als überfällig
+    # gilt. Netzbetreiber zahlen üblicherweise im Folgemonat.
+    zahlungsziel_tage: int = Field(default=45, ge=1, le=365)
+    spalten: dict[str, list[str]] = Field(
+        default_factory=lambda: {
+            "zaehler": ["Zählernummer", "Zaehlernummer", "Zähler", "Zählpunkt", "Messlokation"],
+            "mastr": ["MaStR-Nr.", "MaStR", "Marktstammdatenregister", "SEE-Nummer"],
+            "anlage": ["Anlage", "Anlagenbezeichnung", "Bezeichnung"],
+            "monat": ["Abrechnungsmonat", "Monat", "Zeitraum", "Leistungsmonat"],
+            "kwh": ["Menge kWh", "kWh", "Einspeisemenge", "Menge", "Arbeit"],
+            "betrag": ["Betrag netto", "Nettobetrag", "Vergütung", "Betrag", "Summe"],
+        }
+    )
+
+
 class JobEinstellungen(BaseModel):
     backup_uhrzeit: str = "01:30"
     backup_generationen: int = 30
@@ -671,6 +777,8 @@ class Einstellungen(BaseSettings):
     fristen: FristenEinstellungen = Field(default_factory=FristenEinstellungen)
     kapazitaet: KapazitaetEinstellungen = Field(default_factory=KapazitaetEinstellungen)
     angebote: AngebotEinstellungen = Field(default_factory=AngebotEinstellungen)
+    dokumente: DokumenteEinstellungen = Field(default_factory=DokumenteEinstellungen)
+    einspeisung: EinspeisungEinstellungen = Field(default_factory=EinspeisungEinstellungen)
     nachkalkulation: NachkalkulationEinstellungen = Field(
         default_factory=NachkalkulationEinstellungen
     )

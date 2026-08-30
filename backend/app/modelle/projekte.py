@@ -12,7 +12,16 @@ from __future__ import annotations
 from datetime import date
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, Date, ForeignKey, Integer, Numeric, String, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    Date,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.modelle.basis import (
@@ -38,6 +47,11 @@ if TYPE_CHECKING:
     from app.modelle.system import User
 
 PROJEKT_STATUS = ("angebot", "beauftragt", "in_bau", "abgeschlossen", "storniert")
+
+# Unterlagen, die der Doku-Scan im Projektordner unterscheidet (PLAN §5). Die Liste ist
+# zugleich die Prüfliste für [dokumente] in der config.toml – ein Tippfehler dort fiele
+# sonst erst auf, wenn eine Pflichtunterlage nie gefunden wird.
+DOKUMENT_TYPEN = ("ab", "abnahme", "anlagendoku", "konformitaet", "messkonzept", "sonstig")
 UST_KENNZEICHEN = ("19", "0", "13b", "gemischt")
 
 # Anlagenart für Filter und Liste (design/Projektliste.dc.html). Aus PV- und Speicherdaten
@@ -282,9 +296,11 @@ class Dokument(OptimistischMixin, ZeitstempelMixin, Base):
 
     __tablename__ = "dokumente"
     __table_args__ = (
-        in_werten(
-            "typ", ("ab", "abnahme", "anlagendoku", "konformitaet", "messkonzept", "sonstig")
-        ),
+        # Je Projekt und Typ genau eine Zeile: sie trägt den Befund des Scans, nicht eine
+        # Fundstelle. Ohne diese Eindeutigkeit legte jeder nächtliche Lauf neue Zeilen an, und
+        # „Anlagendokumentation fehlt" stünde neben „Anlagendokumentation liegt vor".
+        Index("uq_dokumente_projekt_typ", "projekt_id", "typ", unique=True),
+        in_werten("typ", DOKUMENT_TYPEN),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -300,3 +316,47 @@ class Dokument(OptimistischMixin, ZeitstempelMixin, Base):
 
     def __repr__(self) -> str:
         return f"<Dokument {self.typ} Projekt {self.projekt_id}>"
+
+
+class Projektordner(OptimistischMixin, ZeitstempelMixin, Base):
+    """Wo der Ordner eines Projekts liegt und was zuletzt darin gefunden wurde (PLAN §7 Phase 7).
+
+    Der Scan muss zwei Dinge auseinanderhalten, die sich sonst zu einer nichtssagenden Meldung
+    vermischen: **kein Ordner gefunden** und **Ordner da, Unterlage fehlt**. Das Erste ist meist
+    ein Namensproblem – ein Tippfehler in der Projektnummer, ein Ordner unter „Archiv" –, das
+    Zweite eine echte Lücke in der Mappe. Deshalb trägt diese Tabelle den Ordnerbefund je
+    Projekt, und :class:`Dokument` den Befund je Unterlage.
+
+    Der Leitstand liest die Ordner ausschließlich (PLAN §2). Er legt nichts an, verschiebt
+    nichts und benennt nichts um.
+    """
+
+    __tablename__ = "projektordner"
+    __table_args__ = (
+        # Als eindeutiger Index statt als Constraint: SQLite legt fuer einen Constraint zwar
+        # auch einen Index an, meldet ihn aber nicht – und der Regressionstest, der jeden
+        # Fremdschluessel auf einen Index prueft, saehe hier keinen.
+        Index("uq_projektordner_projekt", "projekt_id", unique=True),
+        nicht_negativ("dateien"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    projekt_id: Mapped[int] = mapped_column(
+        ForeignKey("projekte.id", ondelete="CASCADE"), nullable=False
+    )
+    # Vollständiger Pfad des gefundenen Ordners. NULL heißt: zu diesem Projekt gab es unter der
+    # konfigurierten Wurzel keinen Ordner mit passender Nummer.
+    pfad: Mapped[str | None] = mapped_column(Langtext, nullable=True)
+    gefunden: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, index=True)
+    # Wie viele Dateien der Ordner enthält, über alle Unterordner. Ein Ordner mit null Dateien
+    # ist angelegt, aber leer – auch das ist eine Auskunft.
+    dateien: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    # Mehrdeutigkeit wird nicht stillschweigend aufgelöst: liegen zwei Ordner mit derselben
+    # Nummer da, steht hier der zweite Fund, und die Übersicht meldet es.
+    mehrdeutig_mit: Mapped[str | None] = mapped_column(Langtext, nullable=True)
+    geprueft_am: Mapped[date | None] = mapped_column(Date, nullable=True)
+
+    projekt: Mapped[Projekt] = relationship()
+
+    def __repr__(self) -> str:
+        return f"<Projektordner Projekt {self.projekt_id} {'da' if self.gefunden else 'fehlt'}>"

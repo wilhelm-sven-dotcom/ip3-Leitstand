@@ -25,6 +25,13 @@ kalkulation = 'C:\Users\<nutzer>\OneDrive - ip3\03_Kalkulation'
 # die Pipeline wird von Hand gepflegt, ohne Import. Erwartet wird eine Datei, deren Name mit
 # 'angebote' beginnt, als .xlsx oder .csv.
 angebote = ''
+# Wurzel der Projektordner: ein Ordner je Projekt, die Projektnummer im Namen. Wird nur
+# gelesen – der Leitstand legt dort nichts an, verschiebt und benennt nichts um. Leer heisst:
+# kein Doku-Vollstaendigkeitsscan.
+projekte = 'C:\Users\<nutzer>\OneDrive - ip3\05_Projekte'
+# Ordner mit den Abrechnungen des Netzbetreibers fuer die eigenen Anlagen. Wird nur gelesen.
+# Leer heisst: die Abrechnungen werden von Hand erfasst. Als .csv oder .xlsx, nicht als PDF.
+einspeisung = ''
 # Ordner mit den beiden Excel-Bestandsdateien fuer die Einmal-Migration (PLAN §9). Wird nur
 # gelesen. Nach der Uebernahme werden die Dateien schreibgeschuetzt, das Werkzeug ist dann
 # fuehrend; der Eintrag darf danach leer bleiben.
@@ -236,6 +243,48 @@ auftrag = "gewonnen"
 verloren = "verloren"
 abgelehnt = "verloren"
 abgesagt = "verloren"
+
+[dokumente]
+# Doku-Vollstaendigkeitsscan der Projektordner (Phase 7). Der Scan liest [pfade] projekte,
+# ordnet jeden Ordner ueber die Nummer im Namen einem Projekt zu und jede Datei ueber den
+# Dateinamen einem Typ.
+# Was vor einer Schlussrechnung im Ordner liegen muss. Fehlt etwas davon, warnt die Belegmaske
+# und verlangt eine ausdrueckliche Bestaetigung -- sie sperrt nicht (Entscheidung 50).
+# Erlaubt: ab, abnahme, anlagendoku, konformitaet, messkonzept, sonstig.
+pflicht = ["anlagendoku"]
+# Welche Dateiendungen ueberhaupt als Unterlage zaehlen.
+endungen = [".pdf", ".jpg", ".jpeg", ".png", ".tif"]
+# Wie viele Ebenen unter dem Projektordner mitgelesen werden.
+tiefe = 2
+
+[dokumente.muster]
+# Woran der Scan einen Typ im Dateinamen erkennt. Verglichen wird kleingeschrieben und ohne
+# Umlaute; der erste Treffer in dieser Reihenfolge gewinnt, deshalb stehen die eindeutigen
+# Begriffe vorn. Neue Schreibweisen gehoeren hierher, nicht in den Code.
+abnahme = ["abnahmeprotokoll", "abnahme", "uebergabeprotokoll"]
+konformitaet = ["konformitaetserklaerung", "konformitaet", "fertigmeldung", "inbetriebnahmeprotokoll", "e8"]
+messkonzept = ["messkonzept", "messstellenkonzept", "zaehlerkonzept"]
+anlagendoku = ["anlagendokumentation", "anlagendoku", "uebergabemappe", "dokumentation", "datenblaetter"]
+ab = ["auftragsbestaetigung", "auftragsbest"]
+
+[einspeisung]
+# Verguetungs-Controlling der eigenen Bestandsanlagen (Phase 7). Der Leitstand rechnet die
+# erwartete Gutschrift aus den Stammdaten der Anlage und stellt sie der Abrechnung des
+# Netzbetreibers gegenueber. Das ist eine Kontrollrechnung, keine Buchung.
+# Ab welcher Abweichung gemeldet wird. 20 Promille sind 2 Prozent.
+toleranz_promille = 20
+# Nach wie vielen Tagen eine abgerechnete, aber nicht bezahlte Gutschrift als ueberfaellig gilt.
+zahlungsziel_tage = 45
+
+[einspeisung.spalten]
+# Spaltennamen der Netzbetreiber-Abrechnung. Erfunden, solange die echte Datei fehlt -- sie
+# sind ohne Codeaenderung nachzuziehen. Der erste gefundene Name je Zeile gewinnt.
+zaehler = ["Zählernummer", "Zaehlernummer", "Zähler", "Zählpunkt", "Messlokation"]
+mastr = ["MaStR-Nr.", "MaStR", "Marktstammdatenregister", "SEE-Nummer"]
+anlage = ["Anlage", "Anlagenbezeichnung", "Bezeichnung"]
+monat = ["Abrechnungsmonat", "Monat", "Zeitraum", "Leistungsmonat"]
+kwh = ["Menge kWh", "kWh", "Einspeisemenge", "Menge", "Arbeit"]
+betrag = ["Betrag netto", "Nettobetrag", "Vergütung", "Betrag", "Summe"]
 
 [gewaehrleistung]
 # Vertragsart je Kundentyp, die beim Projektabschluss vorgeschlagen wird (Phase 6, PLAN §6.9).
