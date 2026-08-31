@@ -6,6 +6,10 @@ fertig; was jetzt noch fehlt, ist keine Software mehr, sondern **Einrichtung und
 Diese Datei ist die Reihenfolge. Für den täglichen Betrieb danach – Start, Stopp, Update,
 Restore – gilt weiter das [RUNBOOK](../RUNBOOK.md).
 
+Wer das Projekt zum ersten Mal sieht – etwa eine beauftragte IT – liest vorher
+[`UEBERGABE-IT.md`](UEBERGABE-IT.md): Zweck, Aufbau, Datenflüsse und die Regeln, die man
+nicht verletzen darf.
+
 > **Der eine Befehl, der alles prüft:**
 > ```bash
 > cd backend && uv run ip3-leitstand bereitschaft

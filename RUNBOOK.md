@@ -1,7 +1,8 @@
 # RUNBOOK – Betrieb des ip³ Leitstands
 
-Für den Bürorechner, auf dem der Leitstand läuft. Wird mit jeder Phase aktuell gehalten.
-Stand: Phase 0.
+Für den Host, auf dem der Leitstand läuft. Stand: alle Phasen aus PLAN §7 gebaut; der Weg
+zum Echtbetrieb steht in [docs/INBETRIEBNAHME.md](docs/INBETRIEBNAHME.md), die Einführung für
+die IT in [docs/UEBERGABE-IT.md](docs/UEBERGABE-IT.md).
 
 ## 1. Überblick
 
