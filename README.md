@@ -14,6 +14,7 @@ Alle Daten bleiben lokal beziehungsweise im Firmen-OneDrive.
 | Datei | Inhalt |
 |---|---|
 | [PLAN.md](PLAN.md) | Verbindliche Bauvorlage: Architektur, Datenmodell, Geschäftsregeln, Phasenplan |
+| [docs/PROJEKTBRIEFING.md](docs/PROJEKTBRIEFING.md) | Ziel, Zweck, Stand – und was frei entscheidbar ist und was nicht. Für jeden, der das Projekt neu übernimmt |
 | [CLAUDE.md](CLAUDE.md) | Arbeitsregeln und Befehle für die Entwicklung |
 | [RUNBOOK.md](RUNBOOK.md) | Betrieb: Installation, Start und Stopp, Update, Backup, Restore, Störungen |
 | [docs/UEBERGABE-IT.md](docs/UEBERGABE-IT.md) | Übergabe an die IT: was das Projekt ist, wozu, wie es auf den Host kommt und was angebunden wird |
